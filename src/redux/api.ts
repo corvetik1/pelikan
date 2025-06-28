@@ -4,5 +4,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const emptySplitApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  endpoints: () => ({}),
+  endpoints: (builder) => ({
+    getProductsByCategory: builder.query<import('@/data/mock').Product[], string>({
+      query: (slug) => `/api/products?category=${slug}`,
+    }),
+  }),
 });
+
+export const { useGetProductsByCategoryQuery } = emptySplitApi;
