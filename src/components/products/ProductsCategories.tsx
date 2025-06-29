@@ -10,7 +10,7 @@ export default function ProductsCategories({ categories }: ProductsCategoriesPro
   return (
     <Grid container spacing={4} paddingY={4}>
       {categories.map((cat) => (
-        <Grid item key={cat.slug} xs={12} sm={6} md={4}>
+        <Grid key={cat.slug} size={{ xs: 12, sm: 6, md: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardActionArea component={Link} href={`/products/${cat.slug}`} sx={{ height: '100%' }}>
               <CardMedia

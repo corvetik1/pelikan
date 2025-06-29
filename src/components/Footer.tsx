@@ -4,7 +4,6 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -12,8 +11,8 @@ export default function Footer() {
   return (
     <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6, mt: 8 }}>
       <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Box display="flex" flexWrap="wrap" gap={4}>
+          <Box sx={{ flexBasis: { xs: '100%', sm: '50%', md: '25%' }, flexGrow: 1, minWidth: 200 }}>
             <Typography variant="h6" gutterBottom>
               Компания
             </Typography>
@@ -23,8 +22,8 @@ export default function Footer() {
               <Link href="/careers">Карьера</Link>
               <Link href="/contacts">Контакты</Link>
             </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ flexBasis: { xs: '100%', sm: '50%', md: '25%' }, flexGrow: 1, minWidth: 200 }}>
             <Typography variant="h6" gutterBottom>
               Продукция
             </Typography>
@@ -33,8 +32,8 @@ export default function Footer() {
               <Link href="/products/new">Новинки</Link>
               <Link href="/certificates">Сертификаты</Link>
             </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ flexBasis: { xs: '100%', sm: '50%', md: '25%' }, flexGrow: 1, minWidth: 200 }}>
             <Typography variant="h6" gutterBottom>
               Покупателям
             </Typography>
@@ -43,8 +42,8 @@ export default function Footer() {
               <Link href="/recipes">Рецепты</Link>
               <Link href="/faq">FAQ</Link>
             </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ flexBasis: { xs: '100%', sm: '50%', md: '25%' }, flexGrow: 1, minWidth: 200 }}>
             <Typography variant="h6" gutterBottom>
               B2B
             </Typography>
@@ -53,8 +52,8 @@ export default function Footer() {
               <Link href="/b2b/horeca">Для HoReCa</Link>
               <Link href="/b2b/prices">Прайс-листы</Link>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
         <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
           © {year} Меридиан. Все права защищены.
         </Typography>
