@@ -1,5 +1,6 @@
 import { emptySplitApi } from './api';
-import type { NewsArticle, Product } from '@/data/mock';
+import type { NewsArticle, Product, Recipe } from '@/data/mock';
+import type { AdminUser } from '@/types/admin';
 
 export const adminApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -55,6 +56,55 @@ export const adminApi = emptySplitApi.injectEndpoints({
         method: 'DELETE',
       }),
     }),
+    // ---------------- recipes ----------------
+    getAdminRecipes: builder.query<Recipe[], void>({
+      query: () => '/api/admin/recipes',
+    }),
+    createRecipe: builder.mutation<Recipe, Partial<Recipe>>({
+      query: (body) => ({
+        url: '/api/admin/recipes',
+        method: 'POST',
+        body,
+      }),
+    }),
+    updateAdminRecipe: builder.mutation<Recipe, { id: string; patch: Partial<Recipe> }>({
+      query: ({ id, patch }) => ({
+        url: `/api/admin/recipes/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+    }),
+    deleteRecipe: builder.mutation<Recipe, string>({
+      query: (id) => ({
+        url: `/api/admin/recipes/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+
+    // ---------------- users ----------------
+    getAdminUsers: builder.query<AdminUser[], void>({
+      query: () => '/api/admin/users',
+    }),
+    createUser: builder.mutation<AdminUser, Partial<AdminUser>>({
+      query: (body) => ({
+        url: '/api/admin/users',
+        method: 'POST',
+        body,
+      }),
+    }),
+    updateAdminUser: builder.mutation<AdminUser, { id: string; patch: Partial<AdminUser> }>({
+      query: ({ id, patch }) => ({
+        url: `/api/admin/users/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+    }),
+    deleteUser: builder.mutation<AdminUser, string>({
+      query: (id) => ({
+        url: `/api/admin/users/${id}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
@@ -67,4 +117,8 @@ export const {
   useCreateProductMutation,
   useUpdateAdminProductMutation,
   useDeleteProductMutation,
+  useGetAdminRecipesQuery,
+  useCreateRecipeMutation,
+  useUpdateAdminRecipeMutation,
+  useDeleteRecipeMutation,
 } = adminApi;

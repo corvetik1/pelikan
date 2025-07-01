@@ -15,3 +15,21 @@ export interface AdminStore {
   lng: number;
   isActive: boolean;
 }
+
+export type UserRole = 'admin' | 'editor' | 'viewer';
+
+export interface AdminRecipe {
+  id: string;
+  title: string;
+  category: string;
+  cookingTime: number;
+  shortDescription: string;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string; // ISO
+}
