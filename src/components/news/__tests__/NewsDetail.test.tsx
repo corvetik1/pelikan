@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import Providers from '@/providers/Providers';
 import NewsDetail from '../NewsDetail';
 import { news } from '@/data/mock';
 import dayjs from 'dayjs';
@@ -10,7 +11,11 @@ const sample = news[0];
 
 describe('NewsDetail', () => {
   it('renders date and paragraphs', () => {
-    render(<NewsDetail article={sample} />);
+    render(
+      <Providers>
+        <NewsDetail article={sample} />
+      </Providers>
+    );
 
     // дата
     const formattedDate = dayjs(sample.date).format('D MMMM YYYY');

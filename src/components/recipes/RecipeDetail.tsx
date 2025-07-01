@@ -16,6 +16,10 @@ import {
   ImageListItem,
 } from '@mui/material';
 import Image from 'next/image';
+import EditableField from '@/components/admin/EditableField';
+import EditableImage from '@/components/admin/EditableImage';
+import EditableParagraph from '@/components/admin/EditableParagraph';
+import { useUpdateRecipeFieldMutation } from '@/redux/adminApi';
 import type { Recipe } from '@/data/mock';
 
 interface RecipeDetailProps {
@@ -27,6 +31,7 @@ interface RecipeDetailProps {
  * Отображает галерею изображений, описание, ингредиенты и пошаговые инструкции приготовления.
  */
 export default function RecipeDetail({ recipe }: RecipeDetailProps) {
+  const [updateRecipeField] = useUpdateRecipeFieldMutation();
   const {
     title,
     img,
@@ -45,32 +50,47 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
       <Stack spacing={4}>
         {/* Title & Meta */}
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          <Typography component="h1" variant="h4" sx={{ flexGrow: 1 }}>
-            {title}
-          </Typography>
+          <EditableField
+            value={title}
+            onSave={(newTitle) => updateRecipeField({ id: recipe.id, patch: { title: newTitle } })}
+            typographyProps={{ component: 'h1', variant: 'h4', sx: { flexGrow: 1 } }}
+          />
           <Chip label={category} size="small" />
           <Chip label={`${cookingTime} мин`} size="small" />
         </Stack>
 
         {/* Gallery */}
         <ImageList cols={2} gap={8} sx={{ width: '100%' }}>
-          {gallery.map((src) => (
+          {gallery.map((src, index) => (
             <ImageListItem key={src} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Image
-                src={src}
-                alt={title}
-                width={800}
-                height={533}
-                style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
-              />
+              {index === 0 ? (
+                <EditableImage
+                  src={src}
+                  alt={title}
+                  width={800}
+                  height={533}
+                  style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
+                  onSave={(newSrc) => updateRecipeField({ id: recipe.id, patch: { img: newSrc } })}
+                />
+              ) : (
+                <Image
+                  src={src}
+                  alt={title}
+                  width={800}
+                  height={533}
+                  style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
+                />
+              )}
             </ImageListItem>
           ))}
         </ImageList>
 
         {/* Description */}
-        <Typography variant="body1" color="text.secondary">
-          {shortDescription}
-        </Typography>
+        <EditableParagraph
+          value={shortDescription}
+          onSave={(newDescription) => updateRecipeField({ id: recipe.id, patch: { shortDescription: newDescription } })}
+          typographyProps={{ variant: 'body1', color: 'text.secondary' }}
+        />
 
         {/* Ingredients */}
         <Box>

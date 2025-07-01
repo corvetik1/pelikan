@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import Providers from '@/providers/Providers';
 import type { Product } from '@/data/mock';
 import ProductDetail from '../ProductDetail';
 import { products } from '@/data/mock';
@@ -8,7 +9,11 @@ const mockProduct: Product = products[0];
 
 describe('ProductDetail', () => {
   it('renders product name, price and characteristics', () => {
-    render(<ProductDetail product={mockProduct} />);
+    render(
+      <Providers>
+        <ProductDetail product={mockProduct} />
+      </Providers>
+    );
 
     // имя
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(mockProduct.name);
@@ -21,7 +26,11 @@ describe('ProductDetail', () => {
   });
 
   it('renders all gallery images', () => {
-    render(<ProductDetail product={mockProduct} />);
+    render(
+      <Providers>
+        <ProductDetail product={mockProduct} />
+      </Providers>
+    );
 
     const images = mockProduct.images ?? [mockProduct.img];
     // next/image renders optimized <img> with same alt
@@ -30,7 +39,11 @@ describe('ProductDetail', () => {
   });
 
   it('has CTA button', () => {
-    render(<ProductDetail product={mockProduct} />);
+    render(
+      <Providers>
+        <ProductDetail product={mockProduct} />
+      </Providers>
+    );
     expect(screen.getByRole('button', { name: /Запросить предложение/i })).toBeInTheDocument();
   });
 });

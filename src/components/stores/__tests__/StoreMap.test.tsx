@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import Providers from '@/providers/Providers';
 import StoreMap from '../StoreMap';
 import { stores } from '@/data/stores';
 
@@ -14,7 +15,11 @@ jest.mock('react-leaflet', () => {
 
 describe('StoreMap', () => {
   it('renders marker for each store', () => {
-    render(<StoreMap stores={stores} />);
+    render(
+      <Providers>
+        <StoreMap stores={stores} />
+      </Providers>
+    );
 
     const markers = screen.getAllByTestId('marker');
     expect(markers.length).toBe(stores.length);

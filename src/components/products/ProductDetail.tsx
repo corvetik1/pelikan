@@ -11,6 +11,8 @@ import {
   ImageListItem,
 } from "@mui/material";
 import Image from "next/image";
+import EditableImage from "@/components/admin/EditableImage";
+import { useUpdateProductFieldMutation } from "@/redux/adminApi";
 import type { Product } from "@/data/mock";
 
 interface ProductDetailProps {
@@ -25,6 +27,7 @@ interface ProductDetailProps {
  * - Строгая типизация без any / ts-ignore.
  */
 export default function ProductDetail({ product }: ProductDetailProps) {
+  const [updateProductField] = useUpdateProductFieldMutation();
   const {
     name,
     images,
@@ -49,15 +52,26 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         {/* Gallery */}
         <Box flexShrink={0} sx={{ width: { xs: "100%", md: 400 } }}>
           <ImageList cols={1} gap={8}>
-            {gallery.map((src) => (
+            {gallery.map((src, index) => (
               <ImageListItem key={src} sx={{ borderRadius: 2, overflow: "hidden" }}>
-                <Image
-                  src={src}
-                  alt={name}
-                  width={400}
-                  height={400}
-                  style={{ objectFit: "cover" }}
-                />
+                {index === 0 ? (
+                  <EditableImage
+                    src={src}
+                    alt={name}
+                    width={400}
+                    height={400}
+                    style={{ objectFit: "cover" }}
+                    onSave={(newSrc) => updateProductField({ id: product.id, patch: { img: newSrc } })}
+                  />
+                ) : (
+                  <Image
+                    src={src}
+                    alt={name}
+                    width={400}
+                    height={400}
+                    style={{ objectFit: "cover" }}
+                  />
+                )}
               </ImageListItem>
             ))}
           </ImageList>

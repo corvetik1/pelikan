@@ -31,8 +31,17 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Test
-        run: pnpm test
+      - name: Type Check
+        run: pnpm run type-check
+
+      - name: Unit Tests
+        run: pnpm test --coverage
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: E2E Tests
+        run: pnpm exec playwright test --reporter=line
 
       - name: Build
         run: pnpm build
