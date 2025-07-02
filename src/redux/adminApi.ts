@@ -1,5 +1,6 @@
 import { emptySplitApi } from './api';
-import type { NewsArticle, Product, Recipe } from '@/data/mock';
+import type { NewsArticle, Product } from '@/data/mock';
+import type { AdminRecipe } from '@/types/admin';
 import type { AdminUser } from '@/types/admin';
 
 export const adminApi = emptySplitApi.injectEndpoints({
@@ -57,24 +58,24 @@ export const adminApi = emptySplitApi.injectEndpoints({
       }),
     }),
     // ---------------- recipes ----------------
-    getAdminRecipes: builder.query<Recipe[], void>({
+    getAdminRecipes: builder.query<AdminRecipe[], void>({
       query: () => '/api/admin/recipes',
     }),
-    createRecipe: builder.mutation<Recipe, Partial<Recipe>>({
+    createRecipe: builder.mutation<AdminRecipe, Partial<AdminRecipe>>({
       query: (body) => ({
         url: '/api/admin/recipes',
         method: 'POST',
         body,
       }),
     }),
-    updateAdminRecipe: builder.mutation<Recipe, { id: string; patch: Partial<Recipe> }>({
+    updateAdminRecipe: builder.mutation<AdminRecipe, { id: string; patch: Partial<AdminRecipe> }>({
       query: ({ id, patch }) => ({
         url: `/api/admin/recipes/${id}`,
         method: 'PATCH',
         body: patch,
       }),
     }),
-    deleteRecipe: builder.mutation<Recipe, string>({
+    deleteRecipe: builder.mutation<AdminRecipe, string>({
       query: (id) => ({
         url: `/api/admin/recipes/${id}`,
         method: 'DELETE',
@@ -121,4 +122,8 @@ export const {
   useCreateRecipeMutation,
   useUpdateAdminRecipeMutation,
   useDeleteRecipeMutation,
+  useGetAdminUsersQuery,
+  useCreateUserMutation,
+  useUpdateAdminUserMutation,
+  useDeleteUserMutation,
 } = adminApi;

@@ -2,13 +2,13 @@
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Stack } from "@mui/material";
 import { useState, ChangeEvent } from "react";
-import type { Recipe } from "@/data/mock";
+import type { AdminRecipe } from "@/types/admin";
 import { categories } from "@/data/mock";
 
 interface AddRecipeDialogProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (data: Partial<Recipe>) => void;
+  onCreate: (data: Partial<AdminRecipe>) => void;
 }
 
 export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDialogProps) {

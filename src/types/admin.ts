@@ -24,6 +24,7 @@ export interface AdminRecipe {
   category: string;
   cookingTime: number;
   shortDescription: string;
+  img?: string;
 }
 
 export interface AdminUser {

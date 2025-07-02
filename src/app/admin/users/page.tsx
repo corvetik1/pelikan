@@ -38,7 +38,7 @@ const baseColumns: GridColDef[] = [
     width: 120,
     editable: true,
     renderCell: (params) => <Checkbox checked={Boolean(params.value)} disabled />, // display only
-    renderEditCell: (params: GridRenderEditCellParams<boolean>) => (
+    renderEditCell: (params: GridRenderEditCellParams<AdminUser, boolean>) => (
       <Checkbox
         autoFocus
         checked={Boolean(params.value)}

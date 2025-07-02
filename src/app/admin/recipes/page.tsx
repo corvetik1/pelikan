@@ -13,7 +13,7 @@ import {
 } from "@/redux/adminApi";
 
 import AddRecipeDialog from "@/components/admin/AddRecipeDialog";
-import type { Recipe } from "@/data/mock";
+import type { AdminRecipe } from "@/types/admin";
 
 const baseColumns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 110 },
@@ -48,13 +48,13 @@ export default function AdminRecipesPage() {
   const [deleteRecipe] = useDeleteRecipeMutation();
   const [openAdd, setOpenAdd] = useState(false);
 
-  const handleAdd = async (payload: Partial<Recipe>) => {
+  const handleAdd = async (payload: Partial<AdminRecipe>) => {
     await resolveMutation(createRecipe(payload));
     setOpenAdd(false);
     refetch();
   };
 
-  const handleUpdate = async (id: string, patch: Partial<Recipe>) => {
+  const handleUpdate = async (id: string, patch: Partial<AdminRecipe>) => {
     await resolveMutation(updateRecipe({ id, patch }));
     refetch();
   };
@@ -94,7 +94,7 @@ export default function AdminRecipesPage() {
         </Button>
       </Stack>
       <AdminDataGrid
-        rows={data as Recipe[]}
+        rows={data as AdminRecipe[]}
         columns={baseColumns}
         loading={isLoading}
         onDelete={handleDelete}

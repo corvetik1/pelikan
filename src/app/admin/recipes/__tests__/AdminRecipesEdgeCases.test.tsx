@@ -1,15 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { Recipe } from '@/data/mock';
+import type { AdminRecipe } from '@/types/admin';
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 // ---------- mocks helpers -------------
 
 jest.mock('@mui/x-data-grid', () => ({
-  DataGrid: ({ rows = [], columns = [] }: { rows: Recipe[]; columns: GridColDef[] }) => (
+  DataGrid: ({ rows = [], columns = [] }: { rows: AdminRecipe[]; columns: GridColDef[] }) => (
     <div data-testid="grid">
-      {rows.map((row: Recipe) => (
+      {rows.map((row: AdminRecipe) => (
         <div key={row.id}>
           {columns.map((col: GridColDef) =>
             col.renderCell ? (
@@ -49,7 +49,7 @@ describe('AdminRecipesPage edge cases', () => {
   });
 
   it('renders placeholder grid when no recipes', () => {
-    mockUseGet.mockReturnValue({ data: [] as Recipe[], isLoading: false, isError: false, refetch: jest.fn() });
+    mockUseGet.mockReturnValue({ data: [] as AdminRecipe[], isLoading: false, isError: false, refetch: jest.fn() });
 
     render(<AdminRecipesPage />);
     expect(screen.getByTestId('grid')).toBeInTheDocument();
@@ -69,9 +69,9 @@ describe('AdminRecipesPage edge cases', () => {
     expect(refetch).toHaveBeenCalled();
   });
 
-  it('does not call deleteRecipe if confirm cancelled', async () => {
+  it('does not call deleteAdminRecipe if confirm cancelled', async () => {
     mockUseGet.mockReturnValue({
-      data: [{ id: '1', title: 'Soup', category: 'white', cookingTime: 10, shortDescription: '', img: '', slug: 'soup', ingredients: [], steps: [] }],
+      data: [{ id: '1', title: 'Soup', category: 'white', cookingTime: 10, shortDescription: '', img: '' }],
       isLoading: false,
       isError: false,
       refetch: jest.fn(),
