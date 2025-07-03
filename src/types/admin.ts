@@ -16,6 +16,13 @@ export interface AdminStore {
   isActive: boolean;
 }
 
+export interface AdminRole {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[];
+}
+
 export type UserRole = 'admin' | 'editor' | 'viewer';
 
 export interface AdminRecipe {

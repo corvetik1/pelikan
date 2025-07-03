@@ -1,0 +1,208 @@
+import { rest } from 'msw';
+import type { AdminRole } from '@/types/admin';
+
+ = [
+  { id: 'r1', name: 'Role1', description: 'desc', permissions: ['read'] },
+  { id: 'r2', name: 'Role2', description: 'desc2', permissions: ['write'] },
+];
+
+let roles: AdminRole[] = [...sampleRoles];
+
+export const resetRoles = () => {
+  roles = [...sampleRoles];
+};
+
+const base = '*://';
+
+export const handlers = [
+  // GET all roles
+  rest.get(base, (_req, res, ctx) => res(ctx.status(200), ctx.json(roles))),
+
+  // CREATE role
+  rest.post(base, async (req, res, ctx) => {
+    const data = (await req.json()) as Partial<AdminRole>;
+    const role: AdminRole = {
+      id: `r${Date.now()}`,
+      name: data.name ?? 'NewRole',
+      description: data.description ?? '',
+      permissions: data.permissions ?? [],
+    };
+    roles.push(role);
+    return res(ctx.status(201), ctx.json(role));
+  }),
+
+  // UPDATE role
+  rest.patch(`${base}/:id`, async (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    const patch = (await req.json()) as Partial<AdminRole>;
+    const idx = roles.findIndex((r) => r.id === id);
+    if (idx === -1) return res(ctx.status(404));
+    roles[idx] = { ...roles[idx], ...patch } as AdminRole;
+    return res(ctx.json(roles[idx]));
+  }),
+
+  // DELETE role
+  rest.delete(`${base}/:id`, (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    roles = roles.filter((r) => r.id !== id);
+    return res(ctx.json({ ok: true }));
+  }),
+];
+
+ = [
+  { id: 'r1', name: 'Role1', description: 'desc', permissions: ['read'] },
+  { id: 'r2', name: 'Role2', description: 'desc2', permissions: ['write'] },
+];
+
+let roles: AdminRole[] = [...sampleRoles];
+
+export const resetRoles = () => {
+  roles = [...sampleRoles];
+};
+
+export const handlers = [
+  
+  rest.get('*://', (_req, res, ctx) => res(ctx.status(200), ctx.json(roles))),
+
+  rest.post('*://', async (req, res, ctx) => {
+    const data = (await req.json()) as Partial<AdminRole>;
+    const role: AdminRole = {
+      id: `r${Date.now()}`,
+      name: data.name ?? 'NewRole',
+      description: data.description ?? '',
+      permissions: data.permissions ?? [],
+    };
+    roles.push(role);
+    return res(ctx.status(201), ctx.json(role));
+  }),
+
+  rest.patch('*:///:id', async (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    const patch = (await req.json()) as Partial<AdminRole>;
+    const idx = roles.findIndex((r) => r.id === id);
+    if (idx === -1) return res(ctx.status(404));
+    roles[idx] = { ...roles[idx], ...patch } as AdminRole;
+    return res(ctx.json(roles[idx]));
+  }),
+
+  rest.delete('*:///:id', (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    roles = roles.filter((r) => r.id !== id);
+    return res(ctx.json({ ok: true }));
+  }),
+];
+  // Universal match: any scheme/host for Jest environment
+  rest.get('*://', (_req, res, ctx) => res(ctx.status(200), ctx.json(roles))),
+
+  rest.post('*://', async (req, res, ctx) => {
+    const data = (await req.json()) as Partial<AdminRole>;
+    const role: AdminRole = {
+      id: `r${Date.now()}`,
+      name: data.name ?? 'NewRole',
+      description: data.description ?? '',
+      permissions: data.permissions ?? [],
+    };
+    roles.push(role);
+    return res(ctx.status(201), ctx.json(role));
+  }),
+
+  rest.patch('*:///:id', async (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    const patch = (await req.json()) as Partial<AdminRole>;
+    const idx = roles.findIndex((r) => r.id === id);
+    if (idx === -1) return res(ctx.status(404));
+    roles[idx] = { ...roles[idx], ...patch } as AdminRole;
+    return res(ctx.json(roles[idx]));
+  }),
+
+  rest.delete('*:///:id', (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    roles = roles.filter((r) => r.id !== id);
+    return res(ctx.json({ ok: true }));
+  }),
+];
+, (_req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(roles));
+  }),
+  rest.get('', (_req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(roles));
+  }),
+  rest.get('/api/admin/roles', (_req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(roles));
+  }),
+
+  rest.post(, async (req, res, ctx) => {
+    const data = (await req.json()) as Partial<AdminRole>;
+    const role: AdminRole = {
+      id: `r${Date.now()}`,
+      name: data.name ?? 'NewRole',
+      description: data.description ?? '',
+      permissions: data.permissions ?? [],
+    };
+    roles.push(role);
+    return res(ctx.status(201), ctx.json(role));
+  }),
+  rest.post('', async (req, res, ctx) => {
+    const data = (await req.json()) as Partial<AdminRole>;
+    const role: AdminRole = {
+      id: `r${Date.now()}`,
+      name: data.name ?? 'NewRole',
+      description: data.description ?? '',
+      permissions: data.permissions ?? [],
+    };
+    roles.push(role);
+    return res(ctx.status(201), ctx.json(role));
+  }),
+  rest.post('/api/admin/roles', async (req, res, ctx) => {
+    const data = (await req.json()) as Partial<AdminRole>;
+    const role: AdminRole = {
+      id: `r${Date.now()}`,
+      name: data.name ?? 'NewRole',
+      description: data.description ?? '',
+      permissions: data.permissions ?? [],
+    };
+    roles.push(role);
+    return res(ctx.status(201), ctx.json(role));
+  }),
+
+  rest.patch('http://localhost/api/admin/roles/:id', async (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    const patch = (await req.json()) as Partial<AdminRole>;
+    const idx = roles.findIndex((r) => r.id === id);
+    if (idx === -1) return res(ctx.status(404));
+    roles[idx] = { ...roles[idx], ...patch } as AdminRole;
+    return res(ctx.json(roles[idx]));
+  }),
+  rest.patch('/:id', async (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    const patch = (await req.json()) as Partial<AdminRole>;
+    const idx = roles.findIndex((r) => r.id === id);
+    if (idx === -1) return res(ctx.status(404));
+    roles[idx] = { ...roles[idx], ...patch } as AdminRole;
+    return res(ctx.json(roles[idx]));
+  }),
+  rest.patch('/api/admin/roles/:id', async (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    const patch = (await req.json()) as Partial<AdminRole>;
+    const idx = roles.findIndex((r) => r.id === id);
+    if (idx === -1) return res(ctx.status(404));
+    roles[idx] = { ...roles[idx], ...patch } as AdminRole;
+    return res(ctx.json(roles[idx]));
+  }),
+
+  rest.delete('http://localhost/api/admin/roles/:id', (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    roles = roles.filter((r) => r.id !== id);
+    return res(ctx.json({ ok: true }));
+  }),
+  rest.delete('/:id', (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    roles = roles.filter((r) => r.id !== id);
+    return res(ctx.json({ ok: true }));
+  }),
+  rest.delete('/api/admin/roles/:id', (req, res, ctx) => {
+    const { id } = req.params as { id: string };
+    roles = roles.filter((r) => r.id !== id);
+    return res(ctx.json({ ok: true }));
+  }),
+];

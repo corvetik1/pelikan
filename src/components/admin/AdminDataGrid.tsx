@@ -25,6 +25,10 @@ export interface AdminDataGridProps<T extends { id: string }> {
   rows: T[];
   columns: GridColDef[];
   loading?: boolean;
+  /** Enable row checkbox selection */
+  checkboxSelection?: boolean;
+  selectionModel?: import("@mui/x-data-grid").GridRowSelectionModel;
+  onSelectionModelChange?: (selection: import("@mui/x-data-grid").GridRowSelectionModel) => void;
   /** Called after the user confirms a delete action. */
   onDelete: (id: string) => void;
   /** Called after inline edit is completed (save or cell blur). */
@@ -34,7 +38,7 @@ export interface AdminDataGridProps<T extends { id: string }> {
 export default function AdminDataGrid<T extends { id: string }>(
   props: AdminDataGridProps<T>,
 ) {
-  const { rows, columns, loading = false, onDelete, onUpdate } = props;
+  const { rows, columns, loading = false, onDelete, onUpdate, checkboxSelection = false, selectionModel, onSelectionModelChange } = props;
 
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
@@ -131,6 +135,9 @@ export default function AdminDataGrid<T extends { id: string }>(
   /* ----------------- render ----------------- */
   return (
     <DataGrid
+      checkboxSelection={checkboxSelection}
+      rowSelectionModel={selectionModel}
+      onRowSelectionModelChange={onSelectionModelChange}
       rows={rows}
       columns={[...columns, actionCol]}
       autoHeight

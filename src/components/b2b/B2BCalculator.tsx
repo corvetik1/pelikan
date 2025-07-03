@@ -1,10 +1,11 @@
 "use client";
 
-import { Box, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Button, Stack, CircularProgress } from "@mui/material";
+import { Box, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Button, Stack } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { setProduct, setQuantity, setPrices, addItem } from "@/redux/b2bCalculatorSlice";
 import { products } from "@/data/mock";
+import { calcTotal } from "@/utils/b2b";
 import { useGetB2BPricesQuery } from "@/redux/api";
 import B2BItemsTable from "./B2BItemsTable";
 import { generateCsv } from "@/utils/csv";
@@ -12,6 +13,7 @@ import { useRequestQuoteMutation } from "@/redux/api";
 import Snackbar from "@mui/material/Snackbar";
 import AddItemDialog from "./AddItemDialog";
 import { useEffect, useState } from "react";
+import Skeleton from "@mui/material/Skeleton";
 
 export default function B2BCalculator() {
   const dispatch = useDispatch();
@@ -22,13 +24,11 @@ export default function B2BCalculator() {
   const { productId, quantity, prices, items } = useSelector((s: RootState) => s.b2bCalculator);
 
 
-  // derived calculated values
-  const selectedProduct = products.find((p) => p.id === productId);
-  const unitPrice = prices[selectedProduct?.id ?? ""] ?? selectedProduct?.price ?? 0;
-  const itemsTotal = items.reduce((sum, it) => {
-    const price = prices[it.id] ?? products.find((p) => p.id === it.id)?.price ?? 0;
-    return sum + price * it.quantity;
-  }, 0);
+  // prepare items list for calculation
+  const currentItems = items.length ? items : productId && quantity > 0 ? [{ id: productId, quantity }] : [];
+  const { net, vat, gross } = calcTotal(currentItems, prices);
+
+  const quantityError = quantity < 0;
 
   // fetch B2B prices
   const { data: pricesData = [], isLoading: isPricesLoading } = useGetB2BPricesQuery();
@@ -42,8 +42,8 @@ export default function B2BCalculator() {
 
   if (isPricesLoading && !Object.keys(prices).length) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
+      <Box sx={{ maxWidth: 800, mx: "auto", py: 4 }}>
+        <Skeleton variant="rectangular" height={400} />
       </Box>
     );
   }
@@ -77,6 +77,8 @@ export default function B2BCalculator() {
           type="number"
           inputProps={{ min: 0 }}
           value={quantity}
+          error={quantityError}
+          helperText={quantityError ? "Введите число больше 0" : undefined}
           onChange={(e) => dispatch(setQuantity(Number(e.target.value)))}
           data-testid="quantity-input"
         />
@@ -87,13 +89,15 @@ export default function B2BCalculator() {
 
         <B2BItemsTable />
 
-        <Typography variant="h6" data-testid="total-price">
-          Итог: {(itemsTotal + unitPrice * quantity).toLocaleString()} ₽
-        </Typography>
+        <Stack spacing={0.5}>
+          <Typography>Стоимость без НДС: {net.toLocaleString()} ₽</Typography>
+          <Typography>НДС (20 %): {vat.toLocaleString()} ₽</Typography>
+          <Typography variant="h6" data-testid="gross-price">Итого c НДС: {gross.toLocaleString()} ₽</Typography>
+        </Stack>
 
         <Stack direction="row" spacing={2}>
-          <Button variant="outlined" disabled={itemsTotal + unitPrice * quantity <= 0} onClick={() => {
-            const csvItems = items.length ? items : productId && quantity > 0 ? [{ id: productId, quantity }] : [];
+          <Button variant="outlined" disabled={gross <= 0} onClick={() => {
+            const csvItems = currentItems;
             if (!csvItems.length) return;
             const csv = generateCsv(csvItems, prices);
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -110,9 +114,9 @@ export default function B2BCalculator() {
           </Button>
           <Button
             variant="contained"
-            disabled={isQuoteLoading || (items.length === 0 && !(productId && quantity > 0))}
+            disabled={isQuoteLoading || currentItems.length === 0}
             onClick={async () => {
-              const quoteItems = items.length ? items : [{ id: productId, quantity }];
+              const quoteItems = currentItems;
               try {
                 const res = await requestQuote({ items: quoteItems }).unwrap();
                 window.open(res.url, "_blank");

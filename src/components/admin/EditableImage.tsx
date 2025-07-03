@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import useLocalSnackbar from "@/hooks/useLocalSnackbar";
 import { Box, IconButton, Stack, TextField } from "@mui/material";
 import Image from "next/image";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,26 +23,44 @@ interface EditableImageProps {
  */
 export default function EditableImage({ src, alt, width, height, onSave, style }: EditableImageProps) {
   const isAdmin = useIsAdmin();
+  const [displaySrc, setDisplaySrc] = useState(src);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(src);
+  const { showSuccess, showError, snackbar } = useLocalSnackbar();
+
+  React.useEffect(() => {
+    setDisplaySrc(src);
+  }, [src]);
+  
 
   if (!isAdmin) {
-    return <Image src={src} alt={alt} width={width} height={height} style={style} />;
+    return (
+    <>
+      <Image src={displaySrc} alt={alt} width={width} height={height} style={style} />
+      {snackbar}
+    </>
+  );
   }
 
   if (!editing) {
     return (
-      <Box sx={{ position: "relative", width: "100%", maxWidth: width }}>
-        <Image src={src} alt={alt} width={width} height={height} style={style} />
+      <>
+        <Box sx={{ position: "relative", width: "100%", maxWidth: width }}>
+        <Image src={displaySrc} alt={alt} width={width} height={height} style={style} />
         <IconButton
           size="small"
           sx={{ position: "absolute", top: 8, right: 8, bgcolor: "background.paper", "&:hover": { bgcolor: "background.paper" } }}
           aria-label="Редактировать изображение"
-          onClick={() => setEditing(true)}
+          onClick={() => {
+            setDraft(displaySrc);
+            setEditing(true);
+          }}
         >
           <EditIcon fontSize="small" />
         </IconButton>
       </Box>
+        {snackbar}
+      </>
     );
   }
 
@@ -59,10 +78,26 @@ export default function EditableImage({ src, alt, width, height, onSave, style }
         size="small"
         color="success"
         aria-label="Сохранить изображение"
-        onClick={() => {
-          setEditing(false);
-          if (onSave) onSave(draft);
-        }}
+        onClick={async () => {
+            if (draft === displaySrc) {
+              setEditing(false);
+              return;
+            }
+            const prev = displaySrc;
+            // optimistic
+            setDisplaySrc(draft);
+            setEditing(false);
+            if (onSave) {
+              try {
+                await onSave(draft);
+                showSuccess("Сохранено");
+              } catch {
+                // rollback after short delay so optimistic value виден
+                setTimeout(() => setDisplaySrc(prev), 50);
+                showError("Ошибка сохранения");
+              }
+            }
+          }}
       >
         <CheckIcon fontSize="small" />
       </IconButton>
@@ -71,9 +106,9 @@ export default function EditableImage({ src, alt, width, height, onSave, style }
         color="error"
         aria-label="Отменить"
         onClick={() => {
-          setEditing(false);
-          setDraft(src);
-        }}
+           setEditing(false);
+           setDraft(displaySrc);
+         }}
       >
         <CloseIcon fontSize="small" />
       </IconButton>

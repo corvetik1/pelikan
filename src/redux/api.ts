@@ -1,14 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { b2bPrices } from '@/data/b2bPrices';
 
 // Пустой API для подключения RTK Query middleware. В дальнейшем здесь будут описаны endpoints.
 export const emptySplitApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-  baseUrl: '/',
+  baseUrl: 'http://localhost',
   // use global fetch if available (tests/SSR)
   fetchFn: typeof fetch !== 'undefined' ? (fetch as typeof globalThis.fetch) : undefined,
 }),
-  tagTypes: ['AdminNews', 'AdminStore'] as const,
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole'] as const,
   endpoints: (builder) => ({
     getProductById: builder.query<import('@/data/mock').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,
@@ -17,7 +18,7 @@ export const emptySplitApi = createApi({
       query: (slug) => `/api/products?category=${slug}`,
     }),
     getB2BPrices: builder.query<Array<{ id: string; price: number }>, void>({
-      query: () => '/api/b2b/prices',
+      queryFn: async () => ({ data: b2bPrices }),
     }),
     requestQuote: builder.mutation<{ url: string }, { items: Array<{ id: string; quantity: number }> }>({
       query: (body) => ({
@@ -46,6 +47,27 @@ export const emptySplitApi = createApi({
     deleteNews: builder.mutation<{ ok: boolean }, string>({
       query: (id) => ({ url: `/api/admin/news/${id}`, method: 'DELETE' }),
       invalidatesTags: [{ type: 'AdminNews', id: 'LIST' }],
+    }),
+
+    // Admin Roles endpoints
+    getAdminRoles: builder.query<import('@/types/admin').AdminRole[], void>({
+      query: () => '/api/admin/roles',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminRole' as const, id })), { type: 'AdminRole', id: 'LIST' }]
+          : [{ type: 'AdminRole', id: 'LIST' }],
+    }),
+    createRole: builder.mutation<import('@/types/admin').AdminRole, Partial<import('@/types/admin').AdminRole>>({
+      query: (body) => ({ url: '/api/admin/roles', method: 'POST', body }),
+      invalidatesTags: [{ type: 'AdminRole', id: 'LIST' }],
+    }),
+    updateRole: builder.mutation<import('@/types/admin').AdminRole, { id: string; patch: Partial<import('@/types/admin').AdminRole> }>({
+      query: ({ id, patch }) => ({ url: `/api/admin/roles/${id}`, method: 'PATCH', body: patch }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminRole', id }],
+    }),
+    deleteRole: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/api/admin/roles/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'AdminRole', id: 'LIST' }],
     }),
 
     // Admin Stores endpoints
@@ -83,4 +105,8 @@ export const {
   useCreateStoreMutation,
   useUpdateStoreMutation,
   useDeleteStoreMutation,
+  useGetAdminRolesQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
 } = emptySplitApi;

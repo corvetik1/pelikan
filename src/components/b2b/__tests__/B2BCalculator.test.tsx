@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { b2bPrices } from '@/data/b2bPrices';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -16,7 +17,7 @@ jest.mock('@/redux/api', () => {
   };
   return {
     emptySplitApi,
-    useGetB2BPricesQuery: () => ({ data: [], isLoading: false }),
+    useGetB2BPricesQuery: () => ({ data: b2bPrices, isLoading: false }),
     useRequestQuoteMutation: () => [
       () => ({ unwrap: () => Promise.resolve({ url: 'https://example.com' }) }),
       { isLoading: false },
@@ -47,7 +48,7 @@ describe('B2BCalculator', () => {
 
     // total should be 1,398 (format may vary)
     await waitFor(() => {
-      expect(screen.getByTestId('total-price').textContent).toMatch(/1.?398/);
+      expect(screen.getByTestId('gross-price').textContent).toMatch(/1.?678/);
     });
 
     // click button and expect alert

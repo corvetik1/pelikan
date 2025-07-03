@@ -1,4 +1,5 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
+import { b2bPrices } from '@/data/b2bPrices';
 
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
@@ -14,7 +15,7 @@ jest.mock("@/redux/api", () => {
   };
   return {
     emptySplitApi,
-    useGetB2BPricesQuery: () => ({ data: [], isLoading: false }),
+    useGetB2BPricesQuery: () => ({ data: b2bPrices, isLoading: false }),
     useRequestQuoteMutation: () => [
       () => ({ unwrap: () => Promise.resolve({ url: "https://example.com" }) }),
       { isLoading: false },
@@ -48,7 +49,7 @@ describe.skip("B2B calculator flow (redux-level)", () => {
 
     // total should reflect 3 * 1299 = 3 897
     await waitFor(() => {
-      expect(screen.getByTestId("total-price").textContent).toMatch(/3.?897/);
+      expect(screen.getByTestId("gross-price").textContent).toMatch(/4.?676/);
     });
 
     // remove item via redux
@@ -58,7 +59,7 @@ describe.skip("B2B calculator flow (redux-level)", () => {
 
     // total resets
     await waitFor(() => {
-      expect(screen.getByTestId("total-price").textContent).not.toMatch(/3.?897/);
+      expect(screen.getByTestId("gross-price").textContent).not.toMatch(/4.?676/);
     });
   });
 });

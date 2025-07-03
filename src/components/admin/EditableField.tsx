@@ -1,6 +1,7 @@
 "use client";
 
 import { Typography, IconButton, TextField, Stack } from "@mui/material";
+import useLocalSnackbar from "@/hooks/useLocalSnackbar";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -20,21 +21,37 @@ interface EditableFieldProps {
  */
 export default function EditableField({ value, onSave, typographyProps }: EditableFieldProps) {
   const isAdmin = useIsAdmin();
+  const [display, setDisplay] = useState(value);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
+  const { showSuccess, showError, snackbar } = useLocalSnackbar();
+
+  // keep local state in sync with external changes (e.g., refetch)
+  React.useEffect(() => {
+    setDisplay(value);
+  }, [value]);
+  
 
   if (!isAdmin) {
-    return <Typography {...typographyProps}>{value}</Typography>;
+    return (
+      <>
+        <Typography {...typographyProps}>{display}</Typography>
+        {snackbar}
+      </>
+    );
   }
 
   if (!editing) {
     return (
-      <Stack direction="row" alignItems="center" gap={1} sx={{ cursor: "pointer" }} onClick={() => setEditing(true)}>
-        <Typography {...typographyProps}>{value}</Typography>
-        <IconButton size="small" aria-label="Редактировать" sx={{ p: 0.5 }}>
-          <EditIcon fontSize="small" />
-        </IconButton>
-      </Stack>
+      <>
+        <Stack direction="row" alignItems="center" gap={1} sx={{ cursor: "pointer" }} onClick={() => setEditing(true)}>
+          <Typography {...typographyProps}>{display}</Typography>
+          <IconButton size="small" aria-label="Редактировать" sx={{ p: 0.5 }}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+        {snackbar}
+      </>
     );
   }
 
@@ -52,9 +69,26 @@ export default function EditableField({ value, onSave, typographyProps }: Editab
         size="small"
         color="success"
         aria-label="Сохранить"
-        onClick={() => {
+        onClick={async () => {
+          if (draft === display) {
+            setEditing(false);
+            return;
+          }
+          const prev = display;
+          setDisplay(draft);
           setEditing(false);
-          if (onSave) onSave(draft);
+          if (onSave) {
+            try {
+              await onSave(draft);
+              showSuccess("Сохранено");
+            } catch {
+               // дать пользователю увидеть оптимистическое значение перед откатом
+               setTimeout(() => setDisplay(prev), 200);
+               showError("Ошибка сохранения");
+            }
+          } else {
+            setDisplay(draft);
+          }
         }}
       >
         <CheckIcon fontSize="small" />
