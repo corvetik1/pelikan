@@ -3,7 +3,7 @@
 import { Box, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Button, Stack } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { setProduct, setQuantity, setPrices, addItem } from "@/redux/b2bCalculatorSlice";
+import { setProduct, setQuantity, setPrices, addItem, removeItem, updateItemQuantity } from "@/redux/b2bCalculatorSlice";
 import { products } from "@/data/mock";
 import { calcTotal } from "@/utils/b2b";
 import { useGetB2BPricesQuery } from "@/redux/api";
@@ -87,7 +87,12 @@ export default function B2BCalculator() {
           Добавить позицию
         </Button>
 
-        <B2BItemsTable />
+        <B2BItemsTable
+            items={items}
+            prices={prices}
+            onRemove={(id) => dispatch(removeItem(id))}
+            onQuantityChange={(id, quantity) => dispatch(updateItemQuantity({ id, quantity }))}
+          />
 
         <Stack spacing={0.5}>
           <Typography>Стоимость без НДС: {net.toLocaleString()} ₽</Typography>

@@ -7,21 +7,20 @@ import {
   GridColDef,
   GridRenderCellParams,
   GridCellEditStopParams,
+  GridValueGetterParams,
 } from "@mui/x-data-grid";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
-import {
-  removeItem,
-  updateItemQuantity,
-  type B2BCalculatorState,
-} from "@/redux/b2bCalculatorSlice";
+
 import { products } from "@/data/mock";
 
-export default function B2BItemsTable() {
-  const dispatch = useDispatch();
-  const { items, prices }: B2BCalculatorState = useSelector(
-    (s: RootState) => s.b2bCalculator
-  );
+export interface B2BItemsTableProps {
+  items: Array<{ id: string; quantity: number }>;
+  prices: Record<string, number>;
+  onRemove: (id: string) => void;
+  onQuantityChange: (id: string, quantity: number) => void;
+}
+
+export default function B2BItemsTable({ items, prices, onRemove, onQuantityChange }: B2BItemsTableProps) {
+  
 
   const rows = items.map((item) => {
     const product = products.find((p) => p.id === item.id);
@@ -37,7 +36,7 @@ export default function B2BItemsTable() {
 
   const handleEditStop = (params: GridCellEditStopParams) => {
     if (params.field === "quantity") {
-      dispatch(updateItemQuantity({ id: params.id as string, quantity: Number(params.value) }));
+      onQuantityChange(String(params.id), Number(params.value));
     }
   };
 
@@ -59,7 +58,14 @@ export default function B2BItemsTable() {
       field: "total",
       headerName: "Сумма, ₽",
       width: 130,
-      valueGetter: ({ row }: { row: { total: number } }) => row.total,
+      valueGetter: ({ row }: GridValueGetterParams) => {
+        if (!row) return 0;
+        // fallback compute if "total" is missing
+        if (typeof row.total === "number") return row.total;
+        const unit = Number(row.unitPrice) || 0;
+        const qty = Number(row.quantity) || 0;
+        return unit * qty;
+      },
       valueFormatter: ({ value }: { value: number | string }) => Number(value).toLocaleString(),
     },
     {
@@ -71,7 +77,7 @@ export default function B2BItemsTable() {
         <IconButton
           size="small"
           aria-label="delete-item"
-          onClick={() => dispatch(removeItem(params.id as string))}
+          onClick={() => onRemove(params.id as string)}
         >
           <DeleteIcon fontSize="small" />
         </IconButton>

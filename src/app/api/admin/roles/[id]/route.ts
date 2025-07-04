@@ -5,7 +5,8 @@ import type { AdminRole } from "@/types/admin";
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const patch = (await req.json()) as Partial<AdminRole>;
   try {
-    const { id: _ignore, ...data } = patch as Record<string, unknown>;
+    const { id, ...data } = patch;
+    void id;
     const role = await prisma.role.update({
       where: { id: params.id },
       data: data,

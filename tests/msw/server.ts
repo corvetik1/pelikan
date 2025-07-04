@@ -1,7 +1,14 @@
 import { setupServer } from 'msw/node';
-import { handlers } from './handlers_roles';
+import { handlers as roleHandlers } from './handlers_roles';
+import { handlers as b2bHandlers, resetPrices } from './handlers_b2b';
 
-export const server = setupServer(...handlers);
+export const server = setupServer(...roleHandlers, ...b2bHandlers);
+
+// Convenience helper for resetting all in-memory data between tests
+export const resetMocks = (): void => {
+  resetPrices();
+  // add other resets here as needed (e.g., resetRoles)
+};
 
 export const waitForRequest = (
   method: string,

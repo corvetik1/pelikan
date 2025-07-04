@@ -20,7 +20,7 @@ import React from "react";
 
 jest.mock("next/image", () => ({
   __esModule: true,
-  default: (props: React.ComponentProps<'img'>) => <img {...props} />,
+  default: (props: React.ComponentProps<'img'>) => <img alt={props.alt ?? ''} {...props} />,
 }));
 
 describe("EditableImage optimistic UI", () => {

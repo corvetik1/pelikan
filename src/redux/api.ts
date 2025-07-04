@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { b2bPrices } from '@/data/b2bPrices';
+
 
 // Пустой API для подключения RTK Query middleware. В дальнейшем здесь будут описаны endpoints.
 export const emptySplitApi = createApi({
@@ -18,7 +18,7 @@ export const emptySplitApi = createApi({
       query: (slug) => `/api/products?category=${slug}`,
     }),
     getB2BPrices: builder.query<Array<{ id: string; price: number }>, void>({
-      queryFn: async () => ({ data: b2bPrices }),
+      query: () => '/api/b2b/prices',
     }),
     requestQuote: builder.mutation<{ url: string }, { items: Array<{ id: string; quantity: number }> }>({
       query: (body) => ({

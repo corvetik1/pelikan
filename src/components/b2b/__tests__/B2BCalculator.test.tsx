@@ -2,34 +2,17 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { b2bPrices } from '@/data/b2bPrices';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import b2bCalculatorReducer, { setProduct, setQuantity } from '@/redux/b2bCalculatorSlice';
+import { store } from '@/redux/store';
+import { setProduct, setQuantity } from '@/redux/b2bCalculatorSlice';
 import { act } from '@testing-library/react';
 import B2BCalculator from '../B2BCalculator';
 
-// ---- mocks ----
 
-jest.mock('@/redux/api', () => {
-  const emptySplitApi = {
-    reducerPath: 'api',
-    reducer: () => ({}),
-    middleware: () => (next: (action: unknown) => unknown) => (action: unknown) => next(action),
-  };
-  return {
-    emptySplitApi,
-    useGetB2BPricesQuery: () => ({ data: b2bPrices, isLoading: false }),
-    useRequestQuoteMutation: () => [
-      () => ({ unwrap: () => Promise.resolve({ url: 'https://example.com' }) }),
-      { isLoading: false },
-    ],
-  };
-});
 
-const testStore = configureStore({ reducer: { b2bCalculator: b2bCalculatorReducer } });
 
 function renderWithProvider() {
   return render(
-    <Provider store={testStore}>
+    <Provider store={store}>
       <B2BCalculator />
     </Provider>
   );
@@ -43,8 +26,8 @@ describe('B2BCalculator', () => {
     renderWithProvider();
 
     // напрямую обновляем состояние вместо взаимодействия с MUI Select
-    await act(() => Promise.resolve(testStore.dispatch(setProduct('p3'))));
-    await act(() => Promise.resolve(testStore.dispatch(setQuantity(2))));
+    await act(() => Promise.resolve(store.dispatch(setProduct('p3'))));
+    await act(() => Promise.resolve(store.dispatch(setQuantity(2))));
 
     // total should be 1,398 (format may vary)
     await waitFor(() => {

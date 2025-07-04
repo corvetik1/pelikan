@@ -1,4 +1,4 @@
-import { render, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import userEvent from "@testing-library/user-event";
@@ -11,11 +11,6 @@ interface Column {
   field: string;
   renderCell?: (params: { id: string; row: AdminRole }) => ReactNode;
 }
-
-const sample: AdminRole[] = [
-  { id: "r1", name: "Role1", description: "desc", permissions: ["read"] },
-  { id: "r2", name: "Role2", description: "desc2", permissions: ["write"] },
-];
 
 // ---- mocks ----
 
@@ -41,7 +36,7 @@ jest.mock("@mui/x-data-grid", () => ({
 
 // ---- imports after mocks ----
 import AdminRolesPage from "../page";
-import { waitForRequest } from "../../../../../tests/msw/server";
+
 
 // ---- tests ----
 

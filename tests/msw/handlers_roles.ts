@@ -19,8 +19,7 @@ const itemPattern = '*://*/api/admin/roles/:id';
 export const handlers = [
   // READ roles
   rest.get(listPattern, (_req, res, ctx) => {
-    // eslint-disable-next-line no-console
-    console.log('MSW GET roles', roles.map(r=>r.id));
+    
     return res(ctx.status(200), ctx.json(roles));
   }),
 
@@ -50,11 +49,9 @@ export const handlers = [
   // DELETE role
   rest.delete(itemPattern, (req, res, ctx) => {
     const id = (req.params as any)?.id ?? req.url.pathname.split('/').pop() ?? '';
-    // eslint-disable-next-line no-console
-    console.log('MSW DELETE id', id);
+    
     roles = roles.filter((r) => r.id !== id);
-    // eslint-disable-next-line no-console
-    console.log('Roles after delete', roles.map(r=>r.id));
+    
     return res(ctx.json({ ok: true }));
   }),
 ];
