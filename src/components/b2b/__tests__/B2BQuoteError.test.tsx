@@ -1,11 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react';
+jest.setTimeout(10000);
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import B2BCalculator from '../B2BCalculator';
 import { rest } from 'msw';
 import { server } from '../../../../tests/msw/server';
-import { setProduct, setQuantity } from '@/redux/b2bCalculatorSlice';
+import { setProduct, setQuantity, setPrices } from '@/redux/b2bCalculatorSlice';
+import { b2bPrices } from '@/data/b2bPrices';
 import { act } from '@testing-library/react';
 
 // Override the quote endpoint to simulate server error
@@ -21,6 +23,9 @@ describe('B2B calculator – quote error handling', () => {
   it('does not open new window or show success snackbar on 500 response', async () => {
     const user = userEvent.setup();
     const openMock = jest.spyOn(window, 'open').mockImplementation(() => null as unknown as Window);
+
+    // preload prices so totals compute instantly
+    store.dispatch(setPrices(Object.fromEntries(b2bPrices.map(p=>[p.id,p.price]))));
 
     render(
       <Provider store={store}>

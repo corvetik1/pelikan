@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Button, Stack } from "@mui/material";
+import { Box, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Button, Stack, IconButton, useTheme, useMediaQuery } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { setProduct, setQuantity, setPrices, addItem, removeItem, updateItemQuantity } from "@/redux/b2bCalculatorSlice";
@@ -13,10 +13,13 @@ import { useRequestQuoteMutation } from "@/redux/api";
 import Snackbar from "@mui/material/Snackbar";
 import AddItemDialog from "./AddItemDialog";
 import { useEffect, useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
 import Skeleton from "@mui/material/Skeleton";
 
 export default function B2BCalculator() {
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
   // local UI state and mutations
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -83,10 +86,17 @@ export default function B2BCalculator() {
           data-testid="quantity-input"
         />
 
-        <Button variant="outlined" onClick={() => setDialogOpen(true)} data-testid="open-add-item">
-          Добавить позицию
-        </Button>
+        {isXs ? (
+          <IconButton color="primary" onClick={() => setDialogOpen(true)} data-testid="open-add-item-xs" aria-label="Добавить позицию">
+            <AddIcon />
+          </IconButton>
+        ) : (
+          <Button variant="outlined" onClick={() => setDialogOpen(true)} data-testid="open-add-item">
+            Добавить позицию
+          </Button>
+        )}
 
+        {/* Items table */}
         <B2BItemsTable
             items={items}
             prices={prices}
@@ -94,13 +104,18 @@ export default function B2BCalculator() {
             onQuantityChange={(id, quantity) => dispatch(updateItemQuantity({ id, quantity }))}
           />
 
-        <Stack spacing={0.5}>
-          <Typography>Стоимость без НДС: {net.toLocaleString()} ₽</Typography>
-          <Typography>НДС (20 %): {vat.toLocaleString()} ₽</Typography>
-          <Typography variant="h6" data-testid="gross-price">Итого c НДС: {gross.toLocaleString()} ₽</Typography>
-        </Stack>
+        {/* Totals and actions */}
+        <Stack direction={isXs ? 'column' : 'row'} justifyContent="space-between" alignItems={isXs ? 'stretch' : 'center'} spacing={2}>
+          
+          <Stack spacing={0.5}>
+            <Typography>Стоимость без НДС: {net.toLocaleString()} ₽</Typography>
+            <Typography>НДС (20 %): {vat.toLocaleString()} ₽</Typography>
+            <Typography variant="h6" data-testid="gross-price">Итого c НДС: {gross.toLocaleString()} ₽</Typography>
+          </Stack>
 
-        <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2}
+            sx={{ mt: isXs ? 2 : 0 }}>
+
           <Button variant="outlined" disabled={gross <= 0} onClick={() => {
             const csvItems = currentItems;
             if (!csvItems.length) return;
@@ -134,6 +149,7 @@ export default function B2BCalculator() {
           >
             {isQuoteLoading ? "Отправка..." : "Запросить КП"}
           </Button>
+          </Stack>
         </Stack>
         <AddItemDialog
           open={dialogOpen}

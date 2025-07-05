@@ -1,9 +1,9 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
-import { b2bPrices } from '@/data/b2bPrices';
 
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
-import { addItem, removeItem } from '@/redux/b2bCalculatorSlice';
+import { addItem, removeItem, setPrices } from '@/redux/b2bCalculatorSlice';
+import { b2bPrices } from '@/data/b2bPrices';
 import B2BCalculator from "../B2BCalculator";
 
 
@@ -17,6 +17,8 @@ function renderWithProvider() {
   );
 }
 
+// preload prices to avoid async fetch
+store.dispatch(setPrices(Object.fromEntries(b2bPrices.map(p=>[p.id,p.price]))));
 // give enough time for async UI updates
 jest.setTimeout(10000);
 

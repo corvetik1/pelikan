@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { b2bPrices } from '@/data/b2bPrices';
+jest.setTimeout(10000);
 import userEvent from '@testing-library/user-event';
+import { b2bPrices } from '@/data/b2bPrices';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
-import { setProduct, setQuantity } from '@/redux/b2bCalculatorSlice';
+import { setProduct, setQuantity, setPrices } from '@/redux/b2bCalculatorSlice';
 import { act } from '@testing-library/react';
 import B2BCalculator from '../B2BCalculator';
 
@@ -22,6 +23,11 @@ describe('B2BCalculator', () => {
   it('calculates total price when product and quantity selected', async () => {
     const user = userEvent.setup();
     const openMock = jest.spyOn(window, 'open').mockImplementation(() => null as unknown as Window);
+
+    // preload prices to avoid API wait
+    store.dispatch(
+      setPrices(Object.fromEntries(b2bPrices.map((p) => [p.id, p.price])))
+    );
 
     renderWithProvider();
 

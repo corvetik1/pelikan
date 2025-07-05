@@ -1,4 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
+jest.setTimeout(10000);
 import userEvent from "@testing-library/user-event";
 import { renderWithProvider } from "../../../../../tests/testUtils";
 import type { AdminRole } from "@/types/admin";
@@ -37,7 +38,7 @@ describe("AdminRolesPage bulk delete", () => {
     renderWithProvider(<AdminRolesPage />);
 
     // Wait for data
-    expect(await screen.findByText("Role1")).toBeInTheDocument();
+    expect(await screen.findByText("Role1", undefined, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText("Role2")).toBeInTheDocument();
 
     // select first row

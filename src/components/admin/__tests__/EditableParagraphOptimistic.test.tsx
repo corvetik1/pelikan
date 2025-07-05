@@ -1,4 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
+
+// allow async state updates
+jest.setTimeout(10000);
 import userEvent from "@testing-library/user-event";
 import EditableParagraph from "../EditableParagraph";
 

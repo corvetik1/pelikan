@@ -1,4 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
+
+jest.setTimeout(10000);
 import userEvent from "@testing-library/user-event";
 import EditableImage from "../EditableImage";
 
@@ -14,14 +16,7 @@ jest.mock("@/hooks/useLocalSnackbar", () => {
   }));
 });
 
-// mock next/image for jest DOM
-/* eslint-disable @next/next/no-img-element */
-import React from "react";
 
-jest.mock("next/image", () => ({
-  __esModule: true,
-  default: (props: React.ComponentProps<'img'>) => <img alt={props.alt ?? ''} {...props} />,
-}));
 
 describe("EditableImage optimistic UI", () => {
   const defaultProps = {

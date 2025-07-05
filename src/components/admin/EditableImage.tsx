@@ -93,7 +93,7 @@ export default function EditableImage({ src, alt, width, height, onSave, style }
                 showSuccess("Сохранено");
               } catch {
                 // rollback after short delay so optimistic value виден
-                setTimeout(() => setDisplaySrc(prev), 50);
+                setTimeout(() => setDisplaySrc(prev), 150);
                 showError("Ошибка сохранения");
               }
             }

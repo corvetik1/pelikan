@@ -6,14 +6,7 @@ import ProductsFilters, { ProductsFilterState } from '../ProductsFilters';
 import type { Product } from '@/data/mock';
 import React from 'react';
 
-// Mock next/image for Jest
-jest.mock('next/image', () => {
-  // eslint-disable-next-line react/display-name
-  return ({ src, alt, ...rest }: { src: string; alt: string; }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} {...rest} />
-  );
-});
+
 
 describe('Product components', () => {
   const mockProduct: Product = {

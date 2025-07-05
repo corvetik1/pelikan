@@ -90,7 +90,7 @@ export default function EditableParagraph({
                 await onSave(draft);
                 showSuccess("Сохранено");
               } catch {
-                setTimeout(() => setDisplay(prev), 50);
+                setTimeout(() => setDisplay(prev), 150);
                 showError("Ошибка сохранения");
               }
             }
