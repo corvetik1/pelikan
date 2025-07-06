@@ -1,30 +1,26 @@
 import { NextResponse } from 'next/server';
-import { products as initial } from '@/data/mock';
+import prisma from '@/lib/prisma';
+import type { Prisma, Product } from '@prisma/client';
 
-// In-memory store (dev only)
-const storeKey = '__mock_products__' as const;
-
-type ProductStore = typeof initial;
-
-const globalForProducts = globalThis as typeof globalThis & {
-  [storeKey]: ProductStore;
-};
-
-if (!globalForProducts[storeKey]) {
-  // deep clone to avoid mutating import
-    globalForProducts[storeKey] = JSON.parse(JSON.stringify(initial)) as ProductStore;
-}
-
-const products: ProductStore = globalForProducts[storeKey];
-
+/**
+ * GET /api/admin/products
+ * Список товаров, отсортированный по времени создания (новые сверху)
+ */
 export async function GET() {
-  return NextResponse.json(products);
+  const list: Product[] = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
+  return NextResponse.json(list);
 }
 
-export async function POST(req: Request) {
-  const body = await req.json();
-  const id = `p${Date.now()}`;
-  const newProduct = { id, ...body };
-  products.push(newProduct);
-  return NextResponse.json(newProduct, { status: 201 });
+/**
+ * POST /api/admin/products
+ * Создание нового товара. Ожидает JSON, соответствующий ProductUncheckedCreateInput.
+ */
+export async function POST(request: Request) {
+  const data = (await request.json()) as Prisma.ProductUncheckedCreateInput;
+  // Гарантируем наличие slug (если клиент не передал)
+  if (!data.slug && data.name) {
+    data.slug = data.name.trim().toLowerCase().replace(/\s+/g, '-');
+  }
+  const created: Product = await prisma.product.create({ data });
+  return NextResponse.json(created, { status: 201 });
 }

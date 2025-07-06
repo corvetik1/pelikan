@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import '@/utils/leaflet';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -17,13 +18,37 @@ interface StoreMapProps {
   zoom?: number;
 }
 
-export default function StoreMap({ stores, center, zoom = 5 }: StoreMapProps) {
+export default function StoreMap(props: StoreMapProps) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
+  return <StoreMapInner {...props} />;
+}
+
+function StoreMapInner({ stores, center, zoom = 5 }: StoreMapProps) {
+  const mapKey = Math.random().toString(36).slice(2);
   const [updateStoreField] = useUpdateStoreFieldMutation();
-  const mapCenter: [number, number] = center ?? [55.751244, 37.618423]; // default Moscow
+  const mapCenter: [number, number] = center ?? [55.751244, 37.618423];
+
+  React.useEffect(() => {
+    return () => {
+      const container = document.querySelector(`.leaflet-container`);
+      if (container && (container as unknown as { _leaflet_id?: number })._leaflet_id) {
+        delete (container as unknown as { _leaflet_id?: number })._leaflet_id;
+      }
+    };
+  }, []);
 
   return (
     <Box sx={{ height: MAP_HEIGHT, width: '100%' }}>
-      <MapContainer center={mapCenter} zoom={zoom} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
+      <MapContainer key={mapKey}
+                center={mapCenter}
+        zoom={zoom}
+        style={{ height: '100%', width: '100%' }}
+        scrollWheelZoom
+      >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {stores.map((s) => (
           <Marker key={s.id} position={[s.lat, s.lng]}>
@@ -42,6 +67,7 @@ export default function StoreMap({ stores, center, zoom = 5 }: StoreMapProps) {
           </Marker>
         ))}
       </MapContainer>
+      
     </Box>
   );
 }

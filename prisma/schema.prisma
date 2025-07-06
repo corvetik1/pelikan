@@ -21,4 +21,88 @@ model Role {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  // users      User[]
+}
+
+model News {
+  // --- NEWS ---
+  id        String   @id @default(uuid())
+  title     String
+  excerpt   String
+  category  String
+  date      DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// -------------------- PRODUCTS --------------------
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  price         Int
+  img           String
+  description   String
+  weight        String
+  category      String
+  isNew         Boolean  @default(false)
+  isPromo       Boolean  @default(false)
+  processing    String?
+  packageWeight Int?
+  packageType   String?
+  origin        String?
+  certificates  String[]
+  images        String[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// -------------------- RECIPES --------------------
+model Recipe {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  title            String
+  img              String
+  shortDescription String
+  ingredients      String[]
+  steps            String[]
+  cookingTime      Int
+  category         String
+  images           String[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// -------------------- STORES --------------------
+model Store {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  lat       Float
+  lng       Float
+  region    String
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// -------------------- USERS --------------------
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("viewer")
+  isActive  Boolean  @default(true)
+  /*
+  roleId    String?
+  roleRel   Role?    @relation(fields: [roleId], references: [id])
+  */
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -5,9 +5,16 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const emptySplitApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-  baseUrl: 'http://localhost',
-  // use global fetch if available (tests/SSR)
-  fetchFn: typeof fetch !== 'undefined' ? (fetch as typeof globalThis.fetch) : undefined,
+  baseUrl: '',
+  // Convert relative URLs to absolute when running in Node/Jest (no real browser)
+  fetchFn: ((input: RequestInfo | URL, init?: RequestInit) => {
+    const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+    const fetchImpl = (globalThis.fetch as typeof fetch);
+    if (!isBrowser && typeof input === 'string' && input.startsWith('/')) {
+      return fetchImpl(`http://localhost${input}`, init);
+    }
+    return fetchImpl(input as any, init);
+  }) as typeof fetch,
 }),
   tagTypes: ['AdminNews', 'AdminStore', 'AdminRole'] as const,
   endpoints: (builder) => ({

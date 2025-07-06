@@ -23,7 +23,9 @@ export default function AddProductDialog({ open, onClose, onCreate }: AddProduct
   const submit = () => {
     if (!isValid) return;
     onCreate({ name: form.name.trim(), price: Number(form.price), weight: form.weight.trim(), category: form.category, img: "" });
+    // Reset form fields
     setForm({ name: "", price: "", weight: "", category: categories[0].slug });
+
   };
 
   return (

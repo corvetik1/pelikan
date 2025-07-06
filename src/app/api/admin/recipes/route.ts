@@ -1,30 +1,22 @@
 import { NextResponse } from 'next/server';
-import { recipes as initial } from '@/data/mock';
+import prisma from '@/lib/prisma';
+import type { Prisma, Recipe } from '@prisma/client';
 
-// In-memory store for dev purposes
-const storeKey = '__mock_recipes__' as const;
+/**
+ * CRUD for recipes (GET list, POST create)
+ */
 
-type RecipeStore = typeof initial;
-
-const globalForRecipes = globalThis as typeof globalThis & {
-  [storeKey]: RecipeStore;
-};
-
-if (!globalForRecipes[storeKey]) {
-  // deep clone so import data is not mutated
-  globalForRecipes[storeKey] = JSON.parse(JSON.stringify(initial)) as RecipeStore;
-}
-
-const recipes: RecipeStore = globalForRecipes[storeKey];
 
 export async function GET() {
-  return NextResponse.json(recipes);
+  const list: Recipe[] = await prisma.recipe.findMany({ orderBy: { createdAt: 'desc' } });
+  return NextResponse.json(list);
 }
 
-export async function POST(req: Request) {
-  const body = await req.json();
-  const id = `r${Date.now()}`;
-  const newRecipe = { id, ...body };
-  recipes.push(newRecipe);
-  return NextResponse.json(newRecipe, { status: 201 });
+export async function POST(request: Request) {
+  const data = (await request.json()) as Prisma.RecipeUncheckedCreateInput;
+  if (!data.slug && data.title) {
+    data.slug = data.title.trim().toLowerCase().replace(/\s+/g, '-');
+  }
+  const created: Recipe = await prisma.recipe.create({ data });
+  return NextResponse.json(created, { status: 201 });
 }
