@@ -1,22 +1,48 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import type { Prisma, Recipe } from '@prisma/client';
+import { requireAdmin } from '@/lib/auth';
+import { RecipeCreateSchema } from '@/lib/validation/recipeSchema';
+import { handleError } from '@/lib/errorHandler';
+import type { Recipe } from '@prisma/client';
 
 /**
  * CRUD for recipes (GET list, POST create)
  */
 
 
-export async function GET() {
+export async function GET(req: Request) {
+  const auth = requireAdmin(req);
+  if (auth) return auth;
   const list: Recipe[] = await prisma.recipe.findMany({ orderBy: { createdAt: 'desc' } });
   return NextResponse.json(list);
 }
 
 export async function POST(request: Request) {
-  const data = (await request.json()) as Prisma.RecipeUncheckedCreateInput;
-  if (!data.slug && data.title) {
-    data.slug = data.title.trim().toLowerCase().replace(/\s+/g, '-');
+  const auth = requireAdmin(request);
+  if (auth) return auth;
+  try {
+    const payload = await request.json();
+    const data = RecipeCreateSchema.parse(payload);
+    const { productIds = [], ...recipeData } = data;
+    // Prisma model requires slug & required columns
+    const slug = recipeData.slug ?? recipeData.title.trim().toLowerCase().replace(/\s+/g, '-');
+    const img = recipeData.img ?? '';
+    const images = recipeData.images ?? [];
+    const created = await prisma.recipe.create({
+      data: {
+        ...recipeData,
+        slug,
+        img,
+        images,
+      },
+    });
+    if (productIds.length) {
+      await prisma.recipeProduct.createMany({
+        data: productIds.map((pid) => ({ recipeId: created.id, productId: pid })),
+      });
+    }
+    return NextResponse.json(created, { status: 201 });
+  } catch (err) {
+    return handleError(err);
   }
-  const created: Recipe = await prisma.recipe.create({ data });
-  return NextResponse.json(created, { status: 201 });
 }

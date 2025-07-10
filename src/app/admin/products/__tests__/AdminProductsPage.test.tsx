@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdminProductsPage from '../page';
-import type { Product } from '@/data/mock';
+import type { AdminProduct } from '@/types/admin';
 import type { ReactNode } from 'react';
 
 type Column = {
   field: string;
-  renderCell?: (params: { id: string; row: Product }) => ReactNode;
+  renderCell?: (params: { id: string; row: AdminProduct }) => ReactNode;
 };
 
 // --------- mocks ------------
@@ -15,14 +15,23 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-const sample: Product[] = [
-  { id: '1', name: 'Sample', price: 100, weight: '100 г', category: 'new', img: '', description: '', isNew: false },
+const sample: AdminProduct[] = [
+  {
+    id: '1',
+    name: 'Sample',
+    slug: 'sample',
+    price: 100,
+    weight: '100 г',
+    category: 'new',
+    img: '',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 // Mock MUI DataGrid to simplify DOM
 jest.mock('@mui/x-data-grid', () => {
   return {
-    DataGrid: ({ columns, rows }: { columns: Column[]; rows: Product[] }) => (
+    DataGrid: ({ columns, rows }: { columns: Column[]; rows: AdminProduct[] }) => (
       <div data-testid="grid">
         {rows.map((row) => (
           <div key={row.id}>

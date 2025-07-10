@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import Providers from '@/providers/Providers';
-import type { Product } from '@/data/mock';
+import type { Product } from '@/types/product';
 import ProductDetail from '../ProductDetail';
 import { products } from '@/data/mock';
 
 // берём первый товар из моков как тестовый образец
-const mockProduct: Product = products[0];
+const mockProduct: Product = { ...products[0], slug: 'mock-slug' };
 
 describe('ProductDetail', () => {
   it('renders product name, price and characteristics', () => {

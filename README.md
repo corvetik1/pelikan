@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pelican Bay Corporate Site – Frontend
 
-## Getting Started
+Моно-репозиторий (frontend) корпоративного сайта «Бухта пеликанов».
 
-First, run the development server:
+* **Framework**: Next.js 15 (App Router, TypeScript)
+* **State / Data**: Redux Toolkit + RTK Query
+* **UI-kit**: MUI v5
+* **Testing**: Jest 29 + React-Testing-Library + MSW
+* **Package manager**: pnpm
+* **Node LTS**: ≥ 18
+
+> Бэкенд постепенно подключается: CRUD для **roles**, **users** и **products** уже работают на реальной базе (Next.js API Routes + Prisma + PostgreSQL). Для остальных сущностей (recipes, news, stores) пока остаются MSW-моки.
+
+## Быстрый старт
+
+Установите зависимости и запустите дев-сервер:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm i
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Приложение доступно на <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Сценарии npm/pnpm
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Скрипт | Назначение |
+|--------|------------|
+| `pnpm dev` | Запуск дев-сервера (Next.js, порт 3000) |
+| `pnpm build` | Production-сборка (`.next/`) |
+| `pnpm start` | Запуск production-сборки |
+| `pnpm lint` | ESLint + TypeScript – проверка стиля и типов |
+| `pnpm test` | Юнит/интеграционные тесты Jest |
+| `pnpm test --watch` | Watch-режим тестов |
 
-## Learn More
+Высоко-уровневое описание слоёв, паттернов и структуры папок — см. `docs/Architecture.md`.
 
-To learn more about Next.js, take a look at the following resources:
+## Backend setup (PostgreSQL 17 + Prisma)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Tool | Version |
+|------|---------|
+| Node | ≥ 18 |
+| pnpm | ≥ 8 |
+| Docker Desktop | ≥ 4 |
 
-## Deploy on Vercel
+### Running locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Install deps
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   pnpm i
+   ```
+
+2. Start database (+ pgAdmin)
+
+   ```bash
+   docker compose up -d db pgadmin
+   ```
+
+3. Migrate & seed
+
+   ```bash
+   pnpm db:setup   # prisma migrate deploy && prisma db seed
+   ```
+
+4. Run dev server
+
+   ```bash
+   pnpm dev
+   ```
+
+*Postgres доступен <http://localhost:5434>* (user `postgres`/pass `postgres`).
+
+### Entities (public schema)
+
+> Обновление 2025-07-07 — добавлены работающие CRUD-ендпойнты для `Product` (а также Role и User).
+
+| Table | Key fields |
+|-------|------------|
+| Role | id, name, description?, permissions[] |
+| User | id, email, password, name?, role, isActive |
+| Product | id, name, slug, price, img |
+| Recipe | id, slug, title, img |
+| News | id, title, excerpt, category, date |
+| Store | id, name, address, lat, lng |
+
+> Полное описание см. `prisma/schema.prisma`.
+
+### Useful scripts
+
+| Script | Purpose |
+|--------|---------|
+| `pnpm migrate` | Выполнить миграции (CI/CD) |
+| `pnpm seed` | Заполнить демо-данные |
+| `pnpm db:setup` | migrate + seed (локально) |
+
+---
+
+## CI/CD
+
+Frontend собирается и тестируется в GitHub Actions (`.github/workflows/ci.yml`): lint → test → build. При успешной сборке выполняется деплой на Vercel Preview.
+
+## Переменные окружения
+
+Создайте `.env` на основе `.env.example`.
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pelicanbay"
+PORT=3000
+NEXT_PUBLIC_API_BASE=""
+```

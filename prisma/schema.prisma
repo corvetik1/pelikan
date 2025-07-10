@@ -57,6 +57,7 @@ model Product {
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  recipes       RecipeProduct[]
 }
 
 // -------------------- RECIPES --------------------
@@ -74,6 +75,37 @@ model Recipe {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  products         RecipeProduct[]
+}
+
+// -------------------- RELATIONS --------------------
+model RecipeProduct {
+  recipeId  String
+  productId String
+
+  recipe    Recipe  @relation(fields: [recipeId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  @@id([recipeId, productId])
+}
+
+// -------------------- QUOTES --------------------
+
+enum QuoteStatus {
+  pending
+  priced
+  rejected
+}
+
+model Quote {
+  id        String      @id @default(uuid())
+  items     Json
+  prices    Json?
+  status    QuoteStatus @default(pending)
+  userEmail String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
 // -------------------- STORES --------------------

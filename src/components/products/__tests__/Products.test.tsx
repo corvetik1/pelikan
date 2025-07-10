@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import ProductCard from '../ProductCard';
 import ProductQuickView from '../ProductQuickView';
 import ProductsFilters, { ProductsFilterState } from '../ProductsFilters';
-import type { Product } from '@/data/mock';
+import type { Product } from '@/types/product';
 import React from 'react';
 
 
@@ -15,6 +15,7 @@ describe('Product components', () => {
     price: 1000,
     img: '/test.jpg',
     category: 'new',
+    slug: 'test-product',
     description: 'Описание',
     weight: '100 г',
     isNew: true,

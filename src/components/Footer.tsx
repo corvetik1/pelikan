@@ -55,7 +55,7 @@ export default function Footer() {
           </Box>
         </Box>
         <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
-          © {year} Меридиан. Все права защищены.
+          © {year} Бухта пеликанов. Все права защищены.
         </Typography>
       </Container>
     </Box>

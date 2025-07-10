@@ -18,7 +18,7 @@ interface Slide {
 const slides: Slide[] = [
   {
     title: 'От океана к вашему столу',
-    subtitle: 'Премиальные морепродукты напрямую от «Меридиана»',
+    subtitle: 'Премиальные морепродукты напрямую от «Бухты пеликанов»',
     img: '/hero/slide1.jpg',
     primaryCta: { label: 'Смотреть каталог', href: '/products' },
     secondaryCta: { label: 'B2B предложение', href: '/b2b' },

@@ -9,6 +9,10 @@ export interface B2BCalculatorState {
   prices: Record<string, number>;
   /** Позиции расчёта */
   items: Array<{ id: string; quantity: number }>;
+  /** Идентификатор заявки (Quote) */
+  quoteId?: string;
+  /** Статус заявки */
+  quoteStatus?: 'pending' | 'priced' | 'rejected';
 }
 
 const initialState: B2BCalculatorState = {
@@ -16,6 +20,8 @@ const initialState: B2BCalculatorState = {
   quantity: 0,
   prices: {},
   items: [],
+  quoteId: undefined,
+  quoteStatus: undefined,
 };
 
 const b2bCalculatorSlice = createSlice({
@@ -46,12 +52,28 @@ const b2bCalculatorSlice = createSlice({
     removeItem(state, action: PayloadAction<string>) {
       state.items = state.items.filter((i) => i.id !== action.payload);
     },
+    setQuoteId(state, action: PayloadAction<string | undefined>) {
+      state.quoteId = action.payload;
+    },
+    setQuoteStatus(state, action: PayloadAction<'pending' | 'priced' | 'rejected' | undefined>) {
+      state.quoteStatus = action.payload;
+    },
     resetCalculator() {
       return initialState;
     },
   },
 });
 
-export const { setProduct, setQuantity, setPrices, addItem, updateItemQuantity, removeItem, resetCalculator } = b2bCalculatorSlice.actions;
+export const { 
+  setProduct, 
+  setQuantity, 
+  setPrices, 
+  addItem, 
+  updateItemQuantity, 
+  removeItem, 
+  setQuoteId, 
+  setQuoteStatus, 
+  resetCalculator 
+} = b2bCalculatorSlice.actions;
 
 export default b2bCalculatorSlice.reducer;

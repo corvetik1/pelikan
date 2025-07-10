@@ -25,6 +25,17 @@ export interface AdminRole {
 
 export type UserRole = 'admin' | 'editor' | 'viewer';
 
+export interface AdminProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  weight: string;
+  category: string;
+  img?: string;
+  createdAt: string; // ISO
+}
+
 export interface AdminRecipe {
   id: string;
   title: string;

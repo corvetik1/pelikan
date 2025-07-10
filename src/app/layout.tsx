@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Меридиан — Рыбная компания",
-  description: "Корпоративный сайт рыбной компании Меридиан",
+  title: "Бухта пеликанов — Рыбная компания",
+  description: "Корпоративный сайт рыбной компании Бухта пеликанов",
 };
 
 export default function RootLayout({

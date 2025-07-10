@@ -42,7 +42,7 @@ export const resetPrices = (): void => {
 
 // -------- request handlers --------
 const listPattern = '*://*/api/b2b/prices';
-const quotePattern = '*://*/api/b2b/quote';
+const quotePattern = '*://*/api/quotes';
 
 export const handlers = [
   // GET /api/b2b/prices
@@ -54,6 +54,6 @@ export const handlers = [
   // POST /api/b2b/quote – simulate quote generation; always succeeds.
   rest.post(quotePattern, async (_req, res, ctx) => {
     // In real backend we would validate items; here we just return dummy URL.
-    return res(ctx.status(200), ctx.json({ url: 'https://example.com/quote.pdf' }));
+    return res(ctx.status(200), ctx.json({ id: 'mock-quote-id' }));
   }),
 ];

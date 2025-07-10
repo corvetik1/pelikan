@@ -1,8 +1,10 @@
 import ProductDetail from '@/components/products/ProductDetail';
-import { products } from '@/data/mock';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import prisma from '@/lib/prisma';
+import type { Product } from '@/types/product';
 
+export const runtime = 'nodejs';
 export const revalidate = 300; // ISR 5 минут
 
 interface Props {
@@ -10,12 +12,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }));
+  const list = await prisma.product.findMany({ select: { id: true } });
+  return list.map(({ id }) => ({ id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = await prisma.product.findUnique({ where: { id }, select: { name: true } });
   return {
     title: product ? `${product.name} | Продукция` : 'Товар',
   };
@@ -23,7 +26,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
-  if (!product) notFound();
+  const dbProduct = await prisma.product.findUnique({ where: { id } });
+  if (!dbProduct) notFound();
+  const product: Product = {
+    ...dbProduct,
+    createdAt: dbProduct.createdAt?.toISOString() ?? undefined,
+    slug: dbProduct.slug ?? dbProduct.id,
+  } as Product;
   return <ProductDetail product={product} />;
 }

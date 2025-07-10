@@ -1,15 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { Product } from '@/data/mock';
+import type { AdminProduct } from '@/types/admin';
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 // --------------- mocks helpers ----------------
 
 jest.mock('@mui/x-data-grid', () => ({
-  DataGrid: ({ rows = [], columns = [] }: { rows: Product[]; columns: GridColDef[] }) => (
+  DataGrid: ({ rows = [], columns = [] }: { rows: AdminProduct[]; columns: GridColDef[] }) => (
     <div data-testid="grid">
-      {rows.map((row: Product) => (
+      {rows.map((row: AdminProduct) => (
         <div key={row.id}>
           {columns.map((col: GridColDef) =>
             col.renderCell ? (
@@ -48,7 +48,7 @@ describe('AdminProductsPage edge cases', () => {
   });
 
   it('renders placeholder grid when no products', () => {
-    mockUseGet.mockReturnValue({ data: [] as Product[], isLoading: false, isError: false, refetch: jest.fn() });
+    mockUseGet.mockReturnValue({ data: [] as AdminProduct[], isLoading: false, isError: false, refetch: jest.fn() });
 
     
 
@@ -73,7 +73,7 @@ describe('AdminProductsPage edge cases', () => {
 
   it('does not call deleteProduct if confirm cancelled', async () => {
     mockUseGet.mockReturnValue({
-      data: [{ id: '1', name: 'Sample', price: 10, weight: '1 кг', category: 'new', img: '', description: '', isNew: false }],
+      data: [{ id: '1', name: 'Sample', slug: 'sample', price: 10, weight: '1 кг', category: 'new', img: '', createdAt: new Date().toISOString() }],
       isLoading: false,
       isError: false,
       refetch: jest.fn(),

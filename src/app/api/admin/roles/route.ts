@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
-import type { AdminRole } from "@/types/admin";
+import { z } from "zod";
+import { handleError } from "@/lib/errorHandler";
+
 import type { NextRequest } from "next/server";
 
 export async function GET() {
@@ -7,8 +9,17 @@ export async function GET() {
   return Response.json(roles, { status: 200 });
 }
 
+const RoleSchema = z.object({
+  name: z.string().min(1).max(64),
+  description: z.string().optional(),
+  permissions: z.array(z.string()).optional(),
+});
+
 export async function POST(req: NextRequest) {
-  const data = (await req.json()) as Partial<AdminRole>;
+  try {
+    const payload = await req.json();
+    const data = RoleSchema.parse(payload);
+
   const role = await prisma.role.create({
     data: {
       name: data.name ?? "Новая роль",
@@ -16,5 +27,8 @@ export async function POST(req: NextRequest) {
       permissions: data.permissions ?? [],
     },
   });
-  return Response.json(role, { status: 201 });
+    return Response.json(role, { status: 201 });
+  } catch (err) {
+    return handleError(err);
+  }
 }

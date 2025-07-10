@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import EditableImage from "@/components/admin/EditableImage";
 import { useUpdateProductFieldMutation } from "@/redux/adminApi";
-import type { Product } from "@/data/mock";
+import type { Product } from '@/types/product';
 
 interface ProductDetailProps {
   product: Product;

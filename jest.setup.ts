@@ -12,6 +12,29 @@ if (!(global as any).TextDecoder) {
 }
 import 'cross-fetch/polyfill';
 
+// Polyfill global Response.json static helper (available in Next.js runtime but not in Node 18)
+if (typeof Response !== 'undefined' && !(Response as any).json) {
+  (Response as any).json = (data: unknown, init: ResponseInit = {}): Response => {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...(init.headers ?? {}),
+    };
+    return new Response(JSON.stringify(data), { ...init, headers });
+  };
+}
+
+// Stub PrismaClientKnownRequestError for unit tests (when prisma client binary is not generated)
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { Prisma } = require('@prisma/client');
+  if (Prisma && !(Prisma as any).PrismaClientKnownRequestError) {
+    // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+    (Prisma as any).PrismaClientKnownRequestError = class extends Error {};
+  }
+} catch {
+  // ignore if @prisma/client is not available
+}
+
 // Suppress React DOM warning for `fill` prop by mocking next/image globally
 // Renders <img> tag and drops the `fill` boolean attribute used by next/image
 import React from 'react';

@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import type { Prisma, User } from '@prisma/client';
+import prisma from "@/lib/prisma";
+import { z } from "zod";
+import { handleError } from "@/lib/errorHandler";
+import type { Prisma } from "@prisma/client";
 
 /**
  * Admin Users item API
@@ -8,32 +9,33 @@ import type { Prisma, User } from '@prisma/client';
  * DELETE /api/admin/users/[id] – delete user
  */
 
+const UserPatchSchema = z.object({
+  email: z.string().email().optional(),
+  password: z.string().min(6).optional(),
+  name: z.string().min(1).max(64).optional(),
+  role: z.enum(["admin", "editor", "viewer"]).optional(),
+  isActive: z.boolean().optional(),
+});
+
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
-  const patch = (await req.json()) as Prisma.UserUncheckedUpdateInput;
-
-  // validation
-  if (typeof patch.email === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email)) {
-    return NextResponse.json({ message: 'Invalid email' }, { status: 400 });
-  }
-  if (typeof patch.role === 'string' && !['admin', 'editor', 'viewer'].includes(patch.role)) {
-    return NextResponse.json({ message: 'Invalid role' }, { status: 400 });
-  }
-
+    const { id } = params;
   try {
-    const updated: User = await prisma.user.update({ where: { id }, data: patch });
-    return NextResponse.json(updated);
-  } catch {
-    return NextResponse.json({ message: 'Not found' }, { status: 404 });
+    const payload = await req.json();
+    const data = UserPatchSchema.parse(payload) as Prisma.UserUncheckedUpdateInput;
+
+    const updated = await prisma.user.update({ where: { id }, data });
+    return Response.json(updated);
+  } catch (err) {
+    return handleError(err);
   }
 }
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   const { id } = params;
   try {
-    const removed: User = await prisma.user.delete({ where: { id } });
-    return NextResponse.json(removed);
-  } catch {
-    return NextResponse.json({ message: 'Not found' }, { status: 404 });
+    await prisma.user.delete({ where: { id } });
+    return Response.json({ ok: true });
+  } catch (err) {
+    return handleError(err);
   }
 }

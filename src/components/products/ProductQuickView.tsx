@@ -11,7 +11,7 @@ import {
   Stack,
 } from "@mui/material";
 import Image from "next/image";
-import type { Product } from "@/data/mock";
+import type { Product } from '@/types/product';
 
 interface ProductQuickViewProps {
   product: Product;

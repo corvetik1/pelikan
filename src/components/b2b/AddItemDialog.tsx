@@ -14,15 +14,16 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import { products } from "@/data/mock";
+import type { Product } from '@/types/product';
 
 export interface AddItemDialogProps {
   open: boolean;
   onClose: () => void;
   onAdd: (payload: { id: string; quantity: number }) => void;
+  products: Product[];
 }
 
-export default function AddItemDialog({ open, onClose, onAdd }: AddItemDialogProps) {
+export default function AddItemDialog({ open, onClose, onAdd, products }: AddItemDialogProps) {
   const [productId, setProductId] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
 

@@ -4,6 +4,8 @@ const nextJest = require('next/jest')
 const createJestConfig = nextJest({ dir: './' })
 
 const customJestConfig = {
+  // Limit number of workers to avoid excessive memory usage in CI/Windows
+  maxWorkers: process.env.CI ? 2 : '50%',
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

@@ -1,5 +1,5 @@
 import { Grid } from '@mui/material';
-import type { Product } from '@/data/mock';
+import type { Product } from '@/types/product';
 import ProductCard from './ProductCard';
 
 interface ProductsGridProps {

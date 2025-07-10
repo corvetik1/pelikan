@@ -2,23 +2,24 @@
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Stack } from "@mui/material";
 import { useState, ChangeEvent } from "react";
-import type { Product } from "@/data/mock";
+import type { AdminProduct } from "@/types/admin";
 import { categories } from "@/data/mock";
 
 interface AddProductDialogProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (data: Partial<Product>) => void;
+  onCreate: (data: Partial<AdminProduct>) => void;
 }
 
 export default function AddProductDialog({ open, onClose, onCreate }: AddProductDialogProps) {
-  const [form, setForm] = useState({ name: "", price: "", weight: "", category: categories[0].slug });
+  type FormState = { name: string; price: string; weight: string; category: string };
+  const [form, setForm] = useState<FormState>({ name: "", price: "", weight: "", category: categories[0].slug });
 
-  const handle = (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) => {
+  const handle = (field: keyof FormState) => (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [field]: e.target.value });
   };
 
-  const isValid = form.name.trim() && Number(form.price) > 0 && form.weight.trim();
+  const isValid = form.name.trim() !== '' && Number(form.price) > 0 && form.weight.trim() !== '';
 
   const submit = () => {
     if (!isValid) return;

@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import type { Prisma, User } from '@prisma/client';
+import prisma from "@/lib/prisma";
+import { z } from "zod";
+import { handleError } from "@/lib/errorHandler";
+import type { Prisma } from "@prisma/client";
 
 /**
  * Admin Users API
@@ -9,23 +10,26 @@ import type { Prisma, User } from '@prisma/client';
  */
 
 export async function GET() {
-  const list: User[] = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
-  return NextResponse.json(list);
+  const list = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+  return Response.json(list);
 }
 
+const UserCreateSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  name: z.string().min(1).max(64).optional(),
+  role: z.enum(["admin", "editor", "viewer"]).optional(),
+  isActive: z.boolean().optional(),
+});
+
 export async function POST(request: Request) {
-  const data = (await request.json()) as Prisma.UserUncheckedCreateInput;
+  try {
+    const payload = await request.json();
+    const data = UserCreateSchema.parse(payload) as Prisma.UserUncheckedCreateInput;
 
-  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    return NextResponse.json({ message: 'Invalid email' }, { status: 400 });
+    const created = await prisma.user.create({ data });
+    return Response.json(created, { status: 201 });
+  } catch (err) {
+    return handleError(err);
   }
-  if (!data.password || data.password.length < 6) {
-    return NextResponse.json({ message: 'Password too short' }, { status: 400 });
-  }
-  if (data.role && !['admin', 'editor', 'viewer'].includes(data.role as string)) {
-    return NextResponse.json({ message: 'Invalid role' }, { status: 400 });
-  }
-
-  const created: User = await prisma.user.create({ data });
-  return NextResponse.json(created, { status: 201 });
 }

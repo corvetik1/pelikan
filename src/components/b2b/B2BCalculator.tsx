@@ -3,16 +3,16 @@
 import { Box, TextField, Typography, MenuItem, Select, InputLabel, FormControl, Button, Stack, IconButton, useTheme, useMediaQuery } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { setProduct, setQuantity, setPrices, addItem, removeItem, updateItemQuantity } from "@/redux/b2bCalculatorSlice";
-import { products } from "@/data/mock";
+import { setProduct, setQuantity, setPrices, addItem, removeItem, updateItemQuantity, setQuoteId, setQuoteStatus } from "@/redux/b2bCalculatorSlice";
+import { useGetAllProductsQuery } from '@/redux/api';
 import { calcTotal } from "@/utils/b2b";
 import { useGetB2BPricesQuery } from "@/redux/api";
 import B2BItemsTable from "./B2BItemsTable";
-import { generateCsv } from "@/utils/csv";
-import { useRequestQuoteMutation } from "@/redux/api";
+import { generateCsv } from '@/utils/csv';
+import { useCreateQuoteMutation, useGetQuoteQuery } from '@/redux/api';
 import Snackbar from "@mui/material/Snackbar";
 import AddItemDialog from "./AddItemDialog";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -20,11 +20,16 @@ export default function B2BCalculator() {
   const dispatch = useDispatch();
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('sm'));
+  // fetch all products for selects / names map
+  const { data: productsData = [], isLoading: isProductsLoading } = useGetAllProductsQuery();
+
   // local UI state and mutations
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [requestQuote, { isLoading: isQuoteLoading }] = useRequestQuoteMutation();
-  const { productId, quantity, prices, items } = useSelector((s: RootState) => s.b2bCalculator);
+  const [email, setEmail] = useState('');
+  const [createQuote, { isLoading: isCreateLoading }] = useCreateQuoteMutation();
+
+  const { productId, quantity, prices, items, quoteId, quoteStatus } = useSelector((s: RootState) => s.b2bCalculator);
 
 
   // prepare items list for calculation
@@ -32,6 +37,8 @@ export default function B2BCalculator() {
   const { net, vat, gross } = calcTotal(currentItems, prices);
 
   const quantityError = quantity < 0;
+
+  const productNames = useMemo(() => Object.fromEntries(productsData.map((p) => [p.id, p.name])), [productsData]);
 
   // fetch B2B prices
   const { data: pricesData = [], isLoading: isPricesLoading } = useGetB2BPricesQuery();
@@ -43,7 +50,25 @@ export default function B2BCalculator() {
     }
   }, [dispatch, pricesData]);
 
-  if (isPricesLoading && !Object.keys(prices).length) {
+  // polling quote status
+  const { data: quoteData } = useGetQuoteQuery(quoteId ?? '', {
+    skip: !quoteId,
+    pollingInterval: quoteStatus === 'pending' ? 10000 : 0,
+  });
+
+  useEffect(() => {
+    if (quoteData && quoteData.status !== quoteStatus) {
+      dispatch(setQuoteStatus(quoteData.status));
+      if (quoteData.status === 'priced' && quoteData.prices) {
+        dispatch(setPrices(quoteData.prices));
+        setSnackbarOpen(true);
+      }
+    }
+  }, [quoteData, quoteStatus, dispatch]);
+
+  const showPrices = quoteStatus === 'priced' || !quoteId;
+
+  if ((isPricesLoading || isProductsLoading) && (!Object.keys(prices).length || !productsData.length)) {
     return (
       <Box sx={{ maxWidth: 800, mx: "auto", py: 4 }}>
         <Skeleton variant="rectangular" height={400} />
@@ -67,13 +92,21 @@ export default function B2BCalculator() {
             onChange={(e) => dispatch(setProduct(e.target.value))}
             data-testid="product-select"
           >
-            {products.map((p) => (
+            {productsData.map((p) => (
               <MenuItem key={p.id} value={p.id} data-testid={`option-${p.id}`}>
-                {p.name} — {p.price.toLocaleString()} ₽ / уп.
+                {p.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+
+        <TextField
+          label="Ваш email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
         <TextField
           label="Количество"
@@ -98,69 +131,74 @@ export default function B2BCalculator() {
 
         {/* Items table */}
         <B2BItemsTable
-            items={items}
-            prices={prices}
-            onRemove={(id) => dispatch(removeItem(id))}
-            onQuantityChange={(id, quantity) => dispatch(updateItemQuantity({ id, quantity }))}
-          />
+          items={items}
+          prices={prices}
+          names={productNames}
+          showPrices={showPrices}
+          onRemove={(id) => dispatch(removeItem(id))}
+          onQuantityChange={(id, quantity) => dispatch(updateItemQuantity({ id, quantity }))}
+        />
 
         {/* Totals and actions */}
-        <Stack direction={isXs ? 'column' : 'row'} justifyContent="space-between" alignItems={isXs ? 'stretch' : 'center'} spacing={2}>
-          
-          <Stack spacing={0.5}>
-            <Typography>Стоимость без НДС: {net.toLocaleString()} ₽</Typography>
-            <Typography>НДС (20 %): {vat.toLocaleString()} ₽</Typography>
-            <Typography variant="h6" data-testid="gross-price">Итого c НДС: {gross.toLocaleString()} ₽</Typography>
-          </Stack>
+        {showPrices && (
+          <Stack direction={isXs ? 'column' : 'row'} justifyContent="space-between" alignItems={isXs ? 'stretch' : 'center'} spacing={2}>
+            <Stack spacing={0.5}>
+              <Typography>Стоимость без НДС: {net.toLocaleString()} ₽</Typography>
+              <Typography>НДС (20 %): {vat.toLocaleString()} ₽</Typography>
+              <Typography variant="h6" data-testid="gross-price">Итого c НДС: {gross.toLocaleString()} ₽</Typography>
+            </Stack>
 
-          <Stack direction="row" spacing={2}
-            sx={{ mt: isXs ? 2 : 0 }}>
+            <Stack direction="row" spacing={2}
+              sx={{ mt: isXs ? 2 : 0 }}>
 
-          <Button variant="outlined" disabled={gross <= 0} onClick={() => {
-            const csvItems = currentItems;
-            if (!csvItems.length) return;
-            const csv = generateCsv(csvItems, prices);
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", "b2b-calculator.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          }} data-testid="export-csv">
-            Export CSV
-          </Button>
-          <Button
-            variant="contained"
-            disabled={isQuoteLoading || currentItems.length === 0}
-            onClick={async () => {
-              const quoteItems = currentItems;
-              try {
-                const res = await requestQuote({ items: quoteItems }).unwrap();
-                window.open(res.url, "_blank");
-                setSnackbarOpen(true);
-              } catch (err) {
-                console.error(err);
-              }
-            }}
-            data-testid="request-quote"
-          >
-            {isQuoteLoading ? "Отправка..." : "Запросить КП"}
-          </Button>
+              <Button variant="outlined" disabled={gross <= 0} onClick={() => {
+                const csvItems = currentItems;
+                if (!csvItems.length) return;
+                const csv = generateCsv(csvItems, prices, productNames);
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", "b2b-calculator.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+              }} data-testid="export-csv">
+                Export CSV
+              </Button>
+              <Button
+                variant="contained"
+                disabled={isCreateLoading || currentItems.length === 0 || !email || !!quoteId}
+                onClick={async () => {
+                  const quoteItems = currentItems;
+                  try {
+                    const res = await createQuote({ items: quoteItems, userEmail: email }).unwrap();
+                    dispatch(setQuoteId(res.id));
+                    dispatch(setQuoteStatus('pending'));
+                    setSnackbarOpen(true);
+                  } catch (err) {
+                    console.error(err);
+                  }
+                }}
+                data-testid="request-quote"
+              >
+                {isCreateLoading ? "Отправка..." : quoteId ? "Ожидание расчёта" : "Запросить КП"}
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+        )}
         <AddItemDialog
           open={dialogOpen}
           onClose={() => setDialogOpen(false)}
           onAdd={(payload) => dispatch(addItem(payload))}
+          products={productsData}
         />
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={4000}
           onClose={() => setSnackbarOpen(false)}
-          message="Коммерческое предложение готово"
+          message={quoteStatus === 'priced' ? 'Коммерческое предложение готово' : 'Запрос отправлен'}
         />
       </Stack>
     </Box>

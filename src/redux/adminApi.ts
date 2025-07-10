@@ -1,7 +1,6 @@
 import { emptySplitApi } from './api';
-import type { NewsArticle, Product } from '@/data/mock';
-import type { AdminRecipe } from '@/types/admin';
-import type { AdminUser } from '@/types/admin';
+import type { NewsArticle } from '@/data/mock';
+import type { AdminProduct, AdminRecipe, AdminUser } from '@/types/admin';
 
 export const adminApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -34,28 +33,35 @@ export const adminApi = emptySplitApi.injectEndpoints({
         body: patch,
       }),
     }),
-    getAdminProducts: builder.query<Product[], void>({
+    getAdminProducts: builder.query<AdminProduct[], void>({
       query: () => '/api/admin/products',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminProduct' as const, id })), { type: 'AdminProduct', id: 'LIST' }]
+          : [{ type: 'AdminProduct', id: 'LIST' }],
     }),
-    createProduct: builder.mutation<Product, Partial<Product>>({
+    createProduct: builder.mutation<AdminProduct, Partial<AdminProduct>>({
       query: (body) => ({
         url: '/api/admin/products',
         method: 'POST',
         body,
       }),
+      invalidatesTags: [{ type: 'AdminProduct', id: 'LIST' }],
     }),
-    updateAdminProduct: builder.mutation<Product, { id: string; patch: Partial<Product> }>({
+    updateAdminProduct: builder.mutation<AdminProduct, { id: string; patch: Partial<AdminProduct> }>({
       query: ({ id, patch }) => ({
         url: `/api/admin/products/${id}`,
         method: 'PATCH',
         body: patch,
       }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminProduct', id }],
     }),
-    deleteProduct: builder.mutation<Product, string>({
+    deleteProduct: builder.mutation<AdminProduct, string>({
       query: (id) => ({
         url: `/api/admin/products/${id}`,
         method: 'DELETE',
       }),
+      invalidatesTags: [{ type: 'AdminProduct', id: 'LIST' }],
     }),
     // ---------------- recipes ----------------
     getAdminRecipes: builder.query<AdminRecipe[], void>({
@@ -85,6 +91,10 @@ export const adminApi = emptySplitApi.injectEndpoints({
     // ---------------- users ----------------
     getAdminUsers: builder.query<AdminUser[], void>({
       query: () => '/api/admin/users',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminUser' as const, id })), { type: 'AdminUser', id: 'LIST' }]
+          : [{ type: 'AdminUser', id: 'LIST' }],
     }),
     createUser: builder.mutation<AdminUser, Partial<AdminUser>>({
       query: (body) => ({
@@ -92,6 +102,7 @@ export const adminApi = emptySplitApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      invalidatesTags: [{ type: 'AdminUser', id: 'LIST' }],
     }),
     updateAdminUser: builder.mutation<AdminUser, { id: string; patch: Partial<AdminUser> }>({
       query: ({ id, patch }) => ({
@@ -99,12 +110,14 @@ export const adminApi = emptySplitApi.injectEndpoints({
         method: 'PATCH',
         body: patch,
       }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminUser', id }],
     }),
     deleteUser: builder.mutation<AdminUser, string>({
       query: (id) => ({
         url: `/api/admin/users/${id}`,
         method: 'DELETE',
       }),
+      invalidatesTags: [{ type: 'AdminUser', id: 'LIST' }],
     }),
   }),
 });

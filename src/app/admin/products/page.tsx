@@ -8,7 +8,7 @@ import AdminDataGrid from "@/components/admin/AdminDataGrid";
 import { useGetAdminProductsQuery, useCreateProductMutation, useUpdateAdminProductMutation, useDeleteProductMutation } from "@/redux/adminApi";
 
 import AddProductDialog from "@/components/admin/AddProductDialog";
-import type { Product } from "@/data/mock";
+import type { AdminProduct } from "@/types/admin";
 
 const baseColumns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 110 },
@@ -49,13 +49,13 @@ export default function AdminProductsPage() {
   const [deleteProduct] = useDeleteProductMutation();
   const [openAdd, setOpenAdd] = useState(false);
 
-  const handleAdd = async (payload: Partial<Product>) => {
+  const handleAdd = async (payload: Partial<AdminProduct>) => {
     await resolveMutation(createProduct(payload));
     setOpenAdd(false);
     refetch();
   };
 
-  const handleUpdate = async (id: string, patch: Partial<Product>) => {
+  const handleUpdate = async (id: string, patch: Partial<AdminProduct>) => {
     await resolveMutation(updateProduct({ id, patch }));
     refetch();
   };
@@ -95,7 +95,7 @@ export default function AdminProductsPage() {
           </Button>
       </Stack>
       <AdminDataGrid
-        rows={data as Product[]}
+        rows={data as AdminProduct[]}
         columns={columns}
         loading={isLoading}
         onDelete={handleDelete}

@@ -1,12 +1,21 @@
 import { render } from '@testing-library/react';
 import AdminProductsPage from '../page';
 import React, { useEffect } from 'react';
-import type { Product } from '@/data/mock';
+import type { AdminProduct } from '@/types/admin';
 
 // -------- mocks ----------
 
-const sample: Product[] = [
-  { id: '1', name: 'Old', price: 10, weight: '100 г', category: 'new', img: '', description: '', isNew: false },
+const sample: AdminProduct[] = [
+  {
+    id: '1',
+    name: 'Old',
+    slug: 'old',
+    price: 10,
+    weight: '100 г',
+    category: 'new',
+    img: '',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 const updateProduct = jest.fn();

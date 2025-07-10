@@ -9,7 +9,6 @@ import {
   GridCellEditStopParams,
 } from "@mui/x-data-grid";
 
-import { products } from "@/data/mock";
 
 interface Row {
   id: string;
@@ -26,20 +25,21 @@ interface B2BRow extends Row {
 export interface B2BItemsTableProps {
   items: Array<{ id: string; quantity: number }>;
   prices: Record<string, number>;
+  names: Record<string, string>;
+  showPrices?: boolean;
   onRemove: (id: string) => void;
   onQuantityChange: (id: string, quantity: number) => void;
 }
 
-export default function B2BItemsTable({ items, prices, onRemove, onQuantityChange }: B2BItemsTableProps) {
+export default function B2BItemsTable({ items, prices, names, showPrices = true, onRemove, onQuantityChange }: B2BItemsTableProps) {
 
   
 
-    const rows: B2BRow[] = items.map((item) => {
-    const product = products.find((p) => p.id === item.id);
-    const unitPrice = prices[item.id] ?? product?.price ?? 0;
+      const rows: B2BRow[] = items.map((item) => {
+    const unitPrice = prices[item.id] ?? 0;
     return {
       id: item.id,
-      name: product?.name ?? item.id,
+      name: names[item.id] ?? item.id,
       unitPrice,
       quantity: item.quantity,
       total: unitPrice * item.quantity,
@@ -52,7 +52,7 @@ export default function B2BItemsTable({ items, prices, onRemove, onQuantityChang
     }
   };
 
-    const columns: GridColDef<B2BRow>[] = [
+    const baseColumns: GridColDef<B2BRow>[] = [
     { field: "name", headerName: "Товар", flex: 1, minWidth: 200 },
     {
       field: "unitPrice",
@@ -100,6 +100,8 @@ export default function B2BItemsTable({ items, prices, onRemove, onQuantityChang
       ),
     },
   ];
+
+  const columns = showPrices ? baseColumns : baseColumns.filter((c) => !['unitPrice', 'total'].includes(c.field as string));
 
   return (
     <DataGrid<B2BRow>

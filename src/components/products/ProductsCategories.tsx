@@ -1,6 +1,6 @@
 import { Grid, Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/material';
 import Link from 'next/link';
-import type { Category } from '@/data/mock';
+import type { Category } from '@/types/category';
 
 interface ProductsCategoriesProps {
   categories: Category[];

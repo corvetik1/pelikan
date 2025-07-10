@@ -42,6 +42,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { label: "Новости", href: "/admin/news" },
     { label: "Рецепты", href: "/admin/recipes" },
     { label: "Магазины", href: "/admin/stores" },
+    { label: "Заявки", href: "/admin/quotes" },
   ];
 
   return (

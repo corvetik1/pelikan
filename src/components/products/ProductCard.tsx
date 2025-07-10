@@ -4,7 +4,7 @@ import { Card, CardActionArea, CardMedia, CardContent, Typography, Chip, Box, Li
 import Link from 'next/link';
 import { useState } from 'react';
 import ProductQuickView from './ProductQuickView';
-import type { Product } from '@/data/mock';
+import type { Product } from '@/types/product';
 
 interface ProductCardProps {
   product: Product;

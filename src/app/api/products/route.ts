@@ -1,11 +1,19 @@
-import { NextRequest } from 'next/server';
-import { products } from '@/data/mock';
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
-export const runtime = 'edge';
+// Prisma не поддерживается в Edge runtime → используем Node.js
+export const runtime = 'nodejs';
 
-export function GET(request: NextRequest) {
+/**
+ * Public GET /api/products
+ * Optional query param `category` for filtering.
+ */
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
-  const filtered = category ? products.filter((p) => p.category === category) : products;
-  return Response.json(filtered);
+  const list = await prisma.product.findMany({
+    where: category ? { category } : undefined,
+    orderBy: { createdAt: 'desc' },
+  });
+  return NextResponse.json(list);
 }

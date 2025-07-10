@@ -13,26 +13,22 @@ export const emptySplitApi = createApi({
     if (!isBrowser && typeof input === 'string' && input.startsWith('/')) {
       return fetchImpl(`http://localhost${input}`, init);
     }
-    return fetchImpl(input as any, init);
+    return fetchImpl(input as RequestInfo | URL, init);
   }) as typeof fetch,
 }),
-  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole'] as const,
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'Quote'] as const,
   endpoints: (builder) => ({
-    getProductById: builder.query<import('@/data/mock').Product | undefined, string>({
+    getProductById: builder.query<import('@/types/product').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,
     }),
-    getProductsByCategory: builder.query<import('@/data/mock').Product[], string>({
+    getProductsByCategory: builder.query<import('@/types/product').Product[], string>({
       query: (slug) => `/api/products?category=${slug}`,
+    }),
+    getAllProducts: builder.query<import('@/types/product').Product[], void>({
+      query: () => '/api/products',
     }),
     getB2BPrices: builder.query<Array<{ id: string; price: number }>, void>({
       query: () => '/api/b2b/prices',
-    }),
-    requestQuote: builder.mutation<{ url: string }, { items: Array<{ id: string; quantity: number }> }>({
-      query: (body) => ({
-        url: '/api/b2b/quote',
-        method: 'POST',
-        body,
-      }),
     }),
 
     // Admin News endpoints
@@ -77,6 +73,68 @@ export const emptySplitApi = createApi({
       invalidatesTags: [{ type: 'AdminRole', id: 'LIST' }],
     }),
 
+    // Quotes endpoints
+    createQuote: builder.mutation<{ id: string }, { items: Array<{ id: string; quantity: number }>; userEmail: string }>({
+      query: (body) => ({ url: '/api/quotes', method: 'POST', body }),
+    }),
+    getQuote: builder.query<import('@/types/quote').Quote, string>({
+      query: (id) => `/api/quotes/${id}`,
+      providesTags: (result) => (result ? [{ type: 'Quote', id: result.id }] : []),
+    }),
+    updateQuotePrices: builder.mutation<import('@/types/quote').Quote, { id: string; prices: Record<string, number> }>({
+      query: ({ id, prices }) => ({ url: `/api/admin/quotes/${id}/prices`, method: 'PATCH', body: { prices } }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'Quote', id }],
+    }),
+
+    // Admin Quotes endpoints
+    getAdminProducts: builder.query<import('@/types/admin').AdminProduct[], void>({
+      query: () => '/api/admin/products',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminProduct' as const, id })), { type: 'AdminProduct', id: 'LIST' }]
+          : [{ type: 'AdminProduct', id: 'LIST' }],
+    }),
+    createProduct: builder.mutation<import('@/types/admin').AdminProduct, import('@/lib/validation/productSchema').ProductCreateInput>({
+      query: (body) => ({ url: '/api/admin/products', method: 'POST', body }),
+      invalidatesTags: [{ type: 'AdminProduct', id: 'LIST' }],
+    }),
+    updateProduct: builder.mutation<import('@/types/admin').AdminProduct, { id: string; patch: Partial<import('@/lib/validation/productSchema').ProductUpdateInput> }>({
+      query: ({ id, patch }) => ({ url: `/api/admin/products/${id}`, method: 'PATCH', body: patch }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminProduct', id }],
+    }),
+    deleteProduct: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/api/admin/products/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'AdminProduct', id: 'LIST' }],
+    }),
+
+    // Admin Recipes endpoints
+    getAdminRecipes: builder.query<import('@/types/admin').AdminRecipe[], void>({
+      query: () => '/api/admin/recipes',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminRecipe' as const, id })), { type: 'AdminRecipe', id: 'LIST' }]
+          : [{ type: 'AdminRecipe', id: 'LIST' }],
+    }),
+    createRecipe: builder.mutation<import('@/types/admin').AdminRecipe, import('@/lib/validation/recipeSchema').RecipeCreateInput>({
+      query: (body) => ({ url: '/api/admin/recipes', method: 'POST', body }),
+      invalidatesTags: [{ type: 'AdminRecipe', id: 'LIST' }],
+    }),
+    updateRecipe: builder.mutation<import('@/types/admin').AdminRecipe, { id: string; patch: Partial<import('@/lib/validation/recipeSchema').RecipeUpdateInput> }>({
+      query: ({ id, patch }) => ({ url: `/api/admin/recipes/${id}`, method: 'PATCH', body: patch }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminRecipe', id }],
+    }),
+    deleteRecipe: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/api/admin/recipes/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'AdminRecipe', id: 'LIST' }],
+    }),
+
+    // Admin Quotes endpoints
+    getAdminQuotes: builder.query<import('@/types/quote').Quote[], void>({
+      query: () => '/api/admin/quotes',
+      providesTags: (result) =>
+        result ? [...result.map(({ id }) => ({ type: 'Quote' as const, id })), { type: 'Quote', id: 'LIST' }] : [{ type: 'Quote', id: 'LIST' }],
+    }),
+
     // Admin Stores endpoints
     getAdminStores: builder.query<import('@/types/admin').AdminStore[], void>({
       query: () => '/api/admin/stores',
@@ -102,8 +160,8 @@ export const emptySplitApi = createApi({
 
 export const {
   useGetProductsByCategoryQuery,
+  useGetAllProductsQuery,
   useGetB2BPricesQuery,
-  useRequestQuoteMutation,
   useGetAdminNewsQuery,
   useCreateNewsMutation,
   useUpdateNewsMutation,
@@ -116,4 +174,8 @@ export const {
   useCreateRoleMutation,
   useUpdateRoleMutation,
   useDeleteRoleMutation,
+  useCreateQuoteMutation,
+  useGetQuoteQuery,
+  useUpdateQuotePricesMutation,
+  useGetAdminQuotesQuery,
 } = emptySplitApi;

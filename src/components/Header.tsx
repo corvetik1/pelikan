@@ -36,7 +36,7 @@ export default function Header() {
   const drawer = (
     <Box onClick={toggleDrawer(false)} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        Меридиан
+        Бухта пеликанов
       </Typography>
       <List>
         {navItems.map((item) => (
@@ -66,7 +66,7 @@ export default function Header() {
             </IconButton>
           )}
           <Typography variant="h6" component={Link} href="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
-            Меридиан
+            Бухта пеликанов
           </Typography>
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 3 }}>
