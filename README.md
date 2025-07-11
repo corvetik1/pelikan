@@ -9,7 +9,7 @@
 * **Package manager**: pnpm
 * **Node LTS**: ≥ 18
 
-> Бэкенд постепенно подключается: CRUD для **roles**, **users** и **products** уже работают на реальной базе (Next.js API Routes + Prisma + PostgreSQL). Для остальных сущностей (recipes, news, stores) пока остаются MSW-моки.
+> Бэкенд: CRUD для **roles**, **users**, **products**, **news** и **stores** уже работают на реальной базе (Next.js API Routes + Prisma + PostgreSQL). Для остальных сущностей (recipes) пока остаются MSW-моки.
 
 ## Быстрый старт
 
@@ -77,7 +77,7 @@ pnpm dev
 
 ### Entities (public schema)
 
-> Обновление 2025-07-07 — добавлены работающие CRUD-ендпойнты для `Product` (а также Role и User).
+> Обновление 2025-07-11 — добавлены работающие CRUD-ендпойнты для `News` и `Store`.
 
 | Table | Key fields |
 |-------|------------|

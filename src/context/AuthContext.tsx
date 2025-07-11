@@ -21,7 +21,21 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const getInitialUser = (): User | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const stored = localStorage.getItem('app_user');
+      if (stored) return JSON.parse(stored) as User;
+      if (window.location.search.includes('admin=1')) {
+        return { id: 'admin', name: 'Admin', roles: ['admin'] };
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  };
+
+  const [user, setUser] = useState<User | null>(getInitialUser());
 
   // Инициализация из localStorage или query-параметра ?admin=1
   useEffect(() => {

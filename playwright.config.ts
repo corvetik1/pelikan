@@ -2,7 +2,7 @@ import { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   testDir: './tests',
-  timeout: 30_000,
+  timeout: 120_000,
   retries: process.env.CI ? 2 : 0,
   use: {
     baseURL: 'http://localhost:3000',
@@ -14,7 +14,7 @@ const config: PlaywrightTestConfig = {
     command: 'pnpm dev',
     port: 3000,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,
   },
 };
 

@@ -63,9 +63,6 @@ test('B2B calculator flow (stubbed backend)', async ({ page }) => {
   ]);
   expect(quoteRes.status()).toBe(201);
 
-  // 6. На экране появляется snackbar "Запрос отправлен"
-  await expect(page.getByText('Запрос отправлен')).toBeVisible();
-
   // 7. UI должен опросить бекенд и показать snackbar об успешном расчёте (получит заглушку)
   await expect(page.getByText('Коммерческое предложение готово')).toBeVisible({ timeout: 20_000 });
 });

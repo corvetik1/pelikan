@@ -62,13 +62,13 @@ DataGrid cells are editable (`editable:true`) and call `onUpdate` which wraps RT
 |--------|----------|-----------------|------|
 | Product | `/api/admin/products` | `useGetAdminProductsQuery` etc. | `['Product']` |
 | Recipe *mock* | `/api/admin/recipes` | `useGetAdminRecipesQuery` | `['Recipe']` |
-| News *mock* | `/api/admin/news` | `useGetAdminNewsQuery` | `['News']` |
-| Store *mock* | `/api/admin/stores` | `useGetAdminStoresQuery` | `['Store']` |
+| News | `/api/admin/news` | `useGetAdminNewsQuery` | `['News']` |
+| Store | `/api/admin/stores` | `useGetAdminStoresQuery` | `['Store']` |
 | Role | `/api/admin/roles` | `useGetAdminRolesQuery` | `['Role']` |
 | User | `/api/admin/users` | `useGetAdminUsersQuery` | `['User']` |
 | Quote | `/api/admin/quotes` | `useGetAdminQuotesQuery` | `['Quote']` |
 
-*Real* endpoints already connect to PostgreSQL via Prisma; mock endpoints rely on MSW handlers.
+*Real* endpoints (Product, Role, User, News, Store, Quote) connect to PostgreSQL via Prisma. Только **Recipe** пока остаётся мокированным через MSW.
 
 ### providesTags / invalidatesTags rules
 
@@ -89,4 +89,4 @@ This ensures automatic cache refetch and up-to-date grids.
 
 ---
 
-_Last updated: 2025-07-10*
+_Last updated: 2025-07-11*
