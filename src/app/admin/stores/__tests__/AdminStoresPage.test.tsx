@@ -72,7 +72,7 @@ jest.mock('@/redux/api', () => ({
 
 describe('AdminStoresPage', () => {
   it('renders stores and triggers delete', async () => {
-    jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
+    // ConfirmDialog is used instead of window.confirm – no mocking needed
     const user = userEvent.setup();
 
     render(<AdminStoresPage />);
@@ -82,7 +82,9 @@ describe('AdminStoresPage', () => {
 
     // click delete (first button rendered by mock actions)
     await user.click(screen.getByRole('button', { name: /delete/i }));
-
+    // click confirm in dialog
+    await user.click(screen.getByRole('button', { name: /удалить/i }));
+    await screen.findByRole('alert', {}, { timeout: 2000 }).catch(() => {});
     expect(deleteStore).toHaveBeenCalledWith('s1');
   });
 });

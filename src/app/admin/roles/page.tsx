@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Stack, Button, CircularProgress, Chip } from "@mui/material";
+import { Box, Typography, Stack, Button, Snackbar, Alert, Chip } from "@mui/material";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import type { GridRowSelectionModel } from "@mui/x-data-grid";
 import { GridColDef } from "@mui/x-data-grid";
 import { useState } from "react";
@@ -42,29 +43,48 @@ export default function AdminRolesPage() {
 
   const [openAdd, setOpenAdd] = useState(false);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
+  const [snack, setSnack] = useState<{ open:boolean; message:string; severity:'success'|'error' }>({ open:false, message:'', severity:'success' });
+  const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
+  const [confirmAction, setConfirmAction] = useState<null | (() => Promise<void>)>(null);
+
 
   const handleAdd = async (payload: Partial<AdminRole>) => {
-    await createRole(payload).unwrap();
-    setOpenAdd(false);
-    refetch();
+    try {
+      await createRole(payload).unwrap();
+      setOpenAdd(false);
+      refetch();
+      setSnack({ open:true, message:'Роль создана', severity:'success' });
+    } catch {
+      setSnack({ open:true, message:'Ошибка создания', severity:'error' });
+    }
   };
 
   const handleUpdate = async (id: string, patch: Partial<AdminRole>) => {
-    await updateRole({ id, patch }).unwrap();
-    refetch();
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm("Удалить роль?")) {
-      await deleteRole(id).unwrap();
-      await refetch();
+    try {
+      await updateRole({ id, patch }).unwrap();
+      refetch();
+      setSnack({ open:true, message:'Изменено', severity:'success' });
+    } catch {
+      setSnack({ open:true, message:'Ошибка изменения', severity:'error' });
     }
   };
+
+  const handleDelete = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        await deleteRole(id).unwrap();
+        await refetch();
+        setSnack({ open:true, message:'Удалено', severity:'success' });
+      } catch {
+        setSnack({ open:true, message:'Ошибка удаления', severity:'error' });
+      }
+    });
+  };
+
 
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
       </Box>
     );
   }
@@ -90,10 +110,16 @@ export default function AdminRolesPage() {
             size="small"
             disabled={selection.length === 0}
             onClick={async () => {
-              if (!confirm("Удалить выбранные роли?")) return;
-              await Promise.all(selection.map((id) => deleteRole(String(id)).unwrap()));
-              setSelection([]);
-              refetch();
+              setConfirmAction(() => async () => {
+                 try {
+                   await Promise.all(selection.map((id) => deleteRole(String(id)).unwrap()));
+                   setSelection([]);
+                   await refetch();
+                   setSnack({ open:true, message:'Удалено', severity:'success' });
+                 } catch {
+                   setSnack({ open:true, message:'Ошибка удаления', severity:'error' });
+                 }
+               });
             }}
             data-testid="bulk-delete"
           >
@@ -114,7 +140,26 @@ export default function AdminRolesPage() {
         selectionModel={selection}
         onSelectionModelChange={setSelection}
       />
-      <AddRoleDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
+       <AddRoleDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
+       <ConfirmDialog
+         open={Boolean(confirmAction)}
+         title="Удалить?"
+         description="Действие необратимо."
+         confirmText="Удалить"
+         onConfirm={() => {
+           if (confirmAction) {
+             const action = confirmAction;
+             setConfirmAction(null);
+             action();
+           }
+         }}
+         onClose={() => setConfirmAction(null)}
+       />
+       <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+         <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
+           {snack.message}
+         </Alert>
+       </Snackbar>
     </Box>
   );
 }

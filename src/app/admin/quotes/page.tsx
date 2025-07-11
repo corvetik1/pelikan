@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -15,6 +15,8 @@ export default function AdminQuotesPage() {
 
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [snack, setSnack] = useState<{ open:boolean; message:string; severity:'success'|'error' }>({ open:false, message:'', severity:'success' });
+  const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
 
   const openDialog = (quote: Quote) => {
     setSelectedQuote(quote);
@@ -23,19 +25,17 @@ export default function AdminQuotesPage() {
 
   const handleSavePrices = async (prices: Record<string, number>) => {
     if (!selectedQuote) return;
-    await updatePrices({ id: selectedQuote.id, prices }).unwrap();
-    setDialogOpen(false);
-    setSelectedQuote(null);
-    refetch();
+    try {
+      await updatePrices({ id: selectedQuote.id, prices }).unwrap();
+      setSnack({ open:true, message:'Цены утверждены', severity:'success' });
+    } catch {
+      setSnack({ open:true, message:'Ошибка сохранения', severity:'error' });
+    } finally {
+      setDialogOpen(false);
+      setSelectedQuote(null);
+      refetch();
+    }
   };
-
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (isError) {
     return (
@@ -113,6 +113,7 @@ export default function AdminQuotesPage() {
         autoHeight
         density="comfortable"
         hideFooterSelectedRowCount
+        loading={isLoading}
         initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
       />
 
@@ -122,6 +123,11 @@ export default function AdminQuotesPage() {
         onClose={() => setDialogOpen(false)}
         onSave={handleSavePrices}
       />
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical:'bottom', horizontal:'right' }}>
+        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width:'100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

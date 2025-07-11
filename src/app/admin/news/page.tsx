@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
@@ -22,6 +23,9 @@ export default function AdminNewsPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editItem, setEditItem] = useState<AdminNews | null>(null);
+  const [snack, setSnack] = useState<{ open:boolean; message:string; severity:'success'|'error' }>({ open:false, message:'', severity:'success' });
+  const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const columns: GridColDef[] = [
     { field: "title", headerName: "Заголовок", flex: 1, editable: true },
@@ -48,22 +52,58 @@ export default function AdminNewsPage() {
         rows={data}
         columns={columns}
         loading={isLoading}
-        onDelete={(id) => remove(id)}
-        onUpdate={(id, patch) => update({ id, patch })}
+        onDelete={(id) => setDeleteId(id)}
+        onUpdate={async (id, patch) => {
+            try {
+              await update({ id, patch }).unwrap();
+              setSnack({ open:true, message:'Изменено', severity:'success' });
+            } catch {
+              setSnack({ open:true, message:'Ошибка изменения', severity:'error' });
+            }
+          }}
       />
 
       <NewsDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         initial={editItem}
-        onSave={(payload) => {
-          if (payload.id) {
-            update({ id: payload.id, patch: payload });
-          } else {
-            create(payload as Omit<AdminNews, "id">);
+        onSave={async (payload) => {
+          try {
+            if (payload.id) {
+              await update({ id: payload.id, patch: payload }).unwrap();
+              setSnack({ open:true, message:'Изменено', severity:'success' });
+            } else {
+              await create(payload as Omit<AdminNews,'id'>).unwrap();
+              setSnack({ open:true, message:'Создано', severity:'success' });
+            }
+          } catch {
+            setSnack({ open:true, message:'Ошибка сохранения', severity:'error' });
           }
         }}
       />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title="Удалить новость?"
+        description="Действие необратимо."
+        confirmText="Удалить"
+        onConfirm={async () => {
+          if (!deleteId) return;
+          try {
+            await remove(deleteId).unwrap();
+            setSnack({ open:true, message:'Удалено', severity:'success' });
+          } catch {
+            setSnack({ open:true, message:'Ошибка удаления', severity:'error' });
+          } finally {
+            setDeleteId(null);
+          }
+        }}
+        onClose={() => setDeleteId(null)}
+      />
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical:'bottom', horizontal:'right' }}>
+        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width:'100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

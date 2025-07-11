@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdminNewsPage from '../page';
 import type { GridColDef } from '@mui/x-data-grid';
@@ -60,14 +60,15 @@ jest.mock('@/redux/api', () => ({
 
 describe('AdminNewsPage', () => {
   it('renders news and deletes on click', async () => {
-    jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
     const user = userEvent.setup();
     render(<AdminNewsPage />);
 
     expect(screen.getByText('News')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /delete/i }));
-    expect(deleteNews).toHaveBeenCalledWith('1');
+    // Confirm dialog should appear – click "Удалить" to proceed
+    await user.click(screen.getByRole('button', { name: /удалить/i }));
+    await waitFor(() => expect(deleteNews).toHaveBeenCalledWith('1'));
   });
 
   it('opens dialog and creates news', async () => {

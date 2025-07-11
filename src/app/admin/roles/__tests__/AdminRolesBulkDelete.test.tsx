@@ -43,10 +43,12 @@ describe("AdminRolesPage bulk delete", () => {
 
     // select first row
     await user.click(screen.getByLabelText("select-r1"));
-    window.confirm = () => true;
+    // ConfirmDialog handles confirmation – no window.confirm
     const bulkBtn = screen.getByTestId("bulk-delete");
     await waitFor(() => expect(bulkBtn).not.toBeDisabled());
     await user.click(bulkBtn);
+    // confirm dialog
+    await user.click(screen.getByRole("button", { name: /удалить/i }));
 
     // Role1 should disappear
     await waitFor(() => expect(screen.queryByText("Role1")).not.toBeInTheDocument());

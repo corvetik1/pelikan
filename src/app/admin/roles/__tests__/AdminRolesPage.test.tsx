@@ -47,8 +47,6 @@ afterEach(() => jest.clearAllMocks());
 describe("AdminRolesPage", () => {
   
   it("renders roles and handles delete", async () => {
-    jest.spyOn(window, "confirm").mockReturnValueOnce(true);
-
     const user = userEvent.setup();
     render(
       <Provider store={store}>
@@ -61,7 +59,8 @@ describe("AdminRolesPage", () => {
 
     // Click first delete button
     await user.click(screen.getAllByRole("button", { name: /delete/i })[0]);
-    
+    // confirm in dialog
+    await user.click(screen.getByRole("button", { name: /удалить/i }));
     await waitFor(() => expect(screen.queryByText("Role1")).not.toBeInTheDocument(), { timeout: 15000 });
   });
 

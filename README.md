@@ -35,6 +35,8 @@ pnpm dev
 
 Высоко-уровневое описание слоёв, паттернов и структуры папок — см. `docs/Architecture.md`.
 
+Подробная документация админ-панели — см. `docs/AdminPanel.md`.
+
 ## Backend setup (PostgreSQL 17 + Prisma)
 
 -Prerequisites

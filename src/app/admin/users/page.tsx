@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, CircularProgress, Typography, Button, Stack, Checkbox } from "@mui/material";
+import { Box, Snackbar, Alert, Typography, Button, Stack, Checkbox } from "@mui/material";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useState } from "react";
 import { GridColDef, GridRenderEditCellParams } from "@mui/x-data-grid";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
@@ -66,29 +67,52 @@ export default function AdminUsersPage() {
   const [updateUser] = useUpdateAdminUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [openAdd, setOpenAdd] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
 
   const handleAdd = async (payload: Partial<AdminUser>) => {
-    await resolveMutation(createUser(payload));
-    setOpenAdd(false);
-    refetch();
+    try {
+      await resolveMutation(createUser(payload));
+      setOpenAdd(false);
+      refetch();
+      setSnack({ open: true, message: 'Пользователь создан', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка создания', severity: 'error' });
+    }
   };
 
   const handleUpdate = async (id: string, patch: Partial<AdminUser>) => {
-    await resolveMutation(updateUser({ id, patch }));
-    refetch();
+    try {
+      await resolveMutation(updateUser({ id, patch }));
+      refetch();
+      setSnack({ open: true, message: 'Изменено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка изменения', severity: 'error' });
+    }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Удалить пользователя?")) {
-      await resolveMutation(deleteUser(id));
+  const handleDelete = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await resolveMutation(deleteUser(deleteId));
       refetch();
+      setSnack({ open: true, message: 'Удалено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка удаления', severity: 'error' });
+    } finally {
+      setDeleteId(null);
     }
   };
 
   if (isLoading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        {/* Removed CircularProgress block */}
       </Box>
     );
   }
@@ -120,6 +144,19 @@ export default function AdminUsersPage() {
         onUpdate={handleUpdate}
       />
       <AddUserDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title="Удалить пользователя?"
+        description="Действие необратимо."
+        confirmText="Удалить"
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteId(null)}
+      />
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

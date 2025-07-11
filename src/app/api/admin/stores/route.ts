@@ -1,26 +1,26 @@
-import { stores as mockStores } from "@/data/stores";
-import type { NextRequest } from "next/server";
-import { AdminStore } from "@/types/admin";
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
+import { StoreCreateSchema } from '@/lib/validation/storeSchema';
+import { handleError } from '@/lib/errorHandler';
+import type { Store } from '@prisma/client';
 
-// In-memory admin stores collection
-const adminStores: AdminStore[] = mockStores.map((s) => ({ ...s, isActive: true }));
-
-export async function GET() {
-  return Response.json(adminStores, { status: 200 });
+export async function GET(req: Request) {
+  const auth = requireAdmin(req);
+  if (auth) return auth;
+  const list: Store[] = await prisma.store.findMany({ orderBy: { createdAt: 'desc' } });
+  return NextResponse.json(list);
 }
 
-export async function POST(req: NextRequest) {
-  const body = (await req.json()) as Partial<AdminStore>;
-  const id = `store-${Date.now()}`;
-  const item: AdminStore = {
-    id,
-    name: body.name ?? "Unnamed",
-    address: body.address ?? "",
-    region: body.region ?? "",
-    lat: body.lat ?? 0,
-    lng: body.lng ?? 0,
-    isActive: body.isActive ?? true,
-  };
-  adminStores.push(item);
-  return Response.json(item, { status: 201 });
+export async function POST(request: Request) {
+  const auth = requireAdmin(request);
+  if (auth) return auth;
+  try {
+    const payload = await request.json();
+    const data = StoreCreateSchema.parse(payload);
+    const created: Store = await prisma.store.create({ data });
+    return NextResponse.json(created, { status: 201 });
+  } catch (err) {
+    return handleError(err);
+  }
 }

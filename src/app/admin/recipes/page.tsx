@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, CircularProgress, Typography, Button, Stack } from "@mui/material";
+import { Box, Snackbar, Alert, Typography, Button, Stack } from "@mui/material";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
@@ -47,32 +48,48 @@ export default function AdminRecipesPage() {
   const [updateRecipe] = useUpdateAdminRecipeMutation();
   const [deleteRecipe] = useDeleteRecipeMutation();
   const [openAdd, setOpenAdd] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
 
   const handleAdd = async (payload: Partial<AdminRecipe>) => {
-    await resolveMutation(createRecipe(payload));
-    setOpenAdd(false);
-    refetch();
-  };
-
-  const handleUpdate = async (id: string, patch: Partial<AdminRecipe>) => {
-    await resolveMutation(updateRecipe({ id, patch }));
-    refetch();
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm("Удалить рецепт?")) {
-      await resolveMutation(deleteRecipe(id));
+    try {
+      await resolveMutation(createRecipe(payload));
+      setOpenAdd(false);
       refetch();
+      setSnack({ open: true, message: 'Рецепт создан', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка создания', severity: 'error' });
     }
   };
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const handleUpdate = async (id: string, patch: Partial<AdminRecipe>) => {
+    try {
+      await resolveMutation(updateRecipe({ id, patch }));
+      refetch();
+      setSnack({ open: true, message: 'Изменено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка изменения', severity: 'error' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await resolveMutation(deleteRecipe(deleteId));
+      refetch();
+      setSnack({ open: true, message: 'Удалено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка удаления', severity: 'error' });
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
 
   if (isError || !data) {
     return (
@@ -101,6 +118,19 @@ export default function AdminRecipesPage() {
         onUpdate={handleUpdate}
       />
       <AddRecipeDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title="Удалить рецепт?"
+        description="Действие необратимо."
+        confirmText="Удалить"
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteId(null)}
+      />
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

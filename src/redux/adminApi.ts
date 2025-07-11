@@ -66,6 +66,10 @@ export const adminApi = emptySplitApi.injectEndpoints({
     // ---------------- recipes ----------------
     getAdminRecipes: builder.query<AdminRecipe[], void>({
       query: () => '/api/admin/recipes',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminRecipe' as const, id })), { type: 'AdminRecipe', id: 'LIST' }]
+          : [{ type: 'AdminRecipe', id: 'LIST' }],
     }),
     createRecipe: builder.mutation<AdminRecipe, Partial<AdminRecipe>>({
       query: (body) => ({
@@ -73,6 +77,7 @@ export const adminApi = emptySplitApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      invalidatesTags: [{ type: 'AdminRecipe', id: 'LIST' }],
     }),
     updateAdminRecipe: builder.mutation<AdminRecipe, { id: string; patch: Partial<AdminRecipe> }>({
       query: ({ id, patch }) => ({
@@ -80,12 +85,14 @@ export const adminApi = emptySplitApi.injectEndpoints({
         method: 'PATCH',
         body: patch,
       }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminRecipe', id }],
     }),
     deleteRecipe: builder.mutation<AdminRecipe, string>({
       query: (id) => ({
         url: `/api/admin/recipes/${id}`,
         method: 'DELETE',
       }),
+      invalidatesTags: [{ type: 'AdminRecipe', id: 'LIST' }],
     }),
 
     // ---------------- users ----------------

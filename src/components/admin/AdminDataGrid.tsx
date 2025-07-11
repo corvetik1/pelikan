@@ -2,6 +2,7 @@
 
 import {
   DataGrid,
+  GridOverlay,
   GridColDef,
   GridRowId,
   GridRowModel,
@@ -10,9 +11,23 @@ import {
   GridCellEditStopParams,
   type GridActionsCellItemProps,
 } from "@mui/x-data-grid";
-import { IconButton } from "@mui/material";
+import { IconButton, Box, Skeleton } from "@mui/material";
+
+// Skeleton overlay while grid is loading
+function LoadingSkeleton() {
+  return (
+    <GridOverlay>
+      <Box width="100%" px={2}>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <Skeleton key={i} height={40} animation="wave" />
+        ))}
+      </Box>
+    </GridOverlay>
+  );
+}
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useCallback, type ReactElement } from "react";
 
@@ -102,7 +117,7 @@ export default function AdminDataGrid<T extends { id: string }>(
         <DeleteIcon fontSize="small" />
       </IconButton>,
       <IconButton key="edit" aria-label="edit" size="small" onClick={handleEditClick(id)}>
-        <SaveIcon fontSize="small" />
+         <EditIcon fontSize="small" />
       </IconButton>,
     ];
   };
@@ -135,6 +150,8 @@ export default function AdminDataGrid<T extends { id: string }>(
   /* ----------------- render ----------------- */
   return (
     <DataGrid
+      slots={{ loadingOverlay: LoadingSkeleton }}
+
       checkboxSelection={checkboxSelection}
       rowSelectionModel={selectionModel}
       onRowSelectionModelChange={onSelectionModelChange}

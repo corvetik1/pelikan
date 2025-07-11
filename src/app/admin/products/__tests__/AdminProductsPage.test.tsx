@@ -65,9 +65,6 @@ jest.mock('@/redux/adminApi', () => ({
 
 describe('AdminProductsPage', () => {
   it('renders products and deletes on click', async () => {
-    // mock confirm to auto-approve
-    jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
-
     const user = userEvent.setup();
     render(<AdminProductsPage />);
 
@@ -76,7 +73,9 @@ describe('AdminProductsPage', () => {
 
     // click delete button
     await user.click(screen.getByRole('button', { name: /delete/i }));
-
+    // Confirm dialog – click "Удалить"
+    await user.click(screen.getByRole('button', { name: /удалить/i }));
+    await screen.findByRole('alert', {}, { timeout: 2000 }).catch(() => {});
     expect(deleteProduct).toHaveBeenCalledWith('1');
     expect(refetch).toHaveBeenCalled();
   });

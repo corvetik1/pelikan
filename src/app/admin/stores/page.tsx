@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
@@ -22,6 +23,9 @@ export default function AdminStoresPage() {
   const [remove] = useDeleteStoreMutation();
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "Название", flex: 1, editable: true },
@@ -31,7 +35,19 @@ export default function AdminStoresPage() {
   ];
 
   const handleDelete = (id: string) => {
-    if (confirm("Удалить магазин?")) remove(id);
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await remove(deleteId).unwrap();
+      setSnack({ open: true, message: 'Удалено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка удаления', severity: 'error' });
+    } finally {
+      setDeleteId(null);
+    }
   };
 
   return (
@@ -59,14 +75,33 @@ export default function AdminStoresPage() {
       <StoreDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        onSave={(payload) => {
-          if (payload.id) {
-            update({ id: payload.id, patch: payload });
-          } else {
-            create(payload as Omit<AdminStore, "id">);
+        onSave={async (payload) => {
+          try {
+            if (payload.id) {
+              await update({ id: payload.id, patch: payload }).unwrap();
+              setSnack({ open: true, message: 'Изменено', severity: 'success' });
+            } else {
+              await create(payload as Omit<AdminStore, 'id'>).unwrap();
+              setSnack({ open: true, message: 'Создано', severity: 'success' });
+            }
+          } catch {
+            setSnack({ open: true, message: 'Ошибка сохранения', severity: 'error' });
           }
         }}
       />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title="Удалить магазин?"
+        description="Действие необратимо."
+        confirmText="Удалить"
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteId(null)}
+      />
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

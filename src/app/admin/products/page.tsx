@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, CircularProgress, Typography, Button, Stack } from "@mui/material";
+import { Box, Snackbar, Alert, Typography, Button, Stack } from "@mui/material";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
@@ -48,35 +49,51 @@ export default function AdminProductsPage() {
   const [updateProduct] = useUpdateAdminProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
   const [openAdd, setOpenAdd] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
 
   const handleAdd = async (payload: Partial<AdminProduct>) => {
-    await resolveMutation(createProduct(payload));
-    setOpenAdd(false);
-    refetch();
+    try {
+      await resolveMutation(createProduct(payload));
+      setOpenAdd(false);
+      refetch();
+      setSnack({ open: true, message: 'Товар создан', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка создания', severity: 'error' });
+    }
   };
 
   const handleUpdate = async (id: string, patch: Partial<AdminProduct>) => {
-    await resolveMutation(updateProduct({ id, patch }));
-    refetch();
+    try {
+      await resolveMutation(updateProduct({ id, patch }));
+      refetch();
+      setSnack({ open: true, message: 'Изменено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка изменения', severity: 'error' });
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Удалить товар?")) {
-      await resolveMutation(deleteProduct(id));
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await resolveMutation(deleteProduct(deleteId));
       refetch();
+      setSnack({ open: true, message: 'Удалено', severity: 'success' });
+    } catch {
+      setSnack({ open: true, message: 'Ошибка удаления', severity: 'error' });
+    } finally {
+      setDeleteId(null);
     }
   };
 
   const columns: GridColDef[] = baseColumns;
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
+  
   if (isError || !data) {
     return (
       <Stack spacing={2} alignItems="center" sx={{ mt: 4 }}>
@@ -102,6 +119,19 @@ export default function AdminProductsPage() {
         onUpdate={handleUpdate}
       />
       <AddProductDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title="Удалить товар?"
+        description="Действие необратимо."
+        confirmText="Удалить"
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteId(null)}
+      />
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
