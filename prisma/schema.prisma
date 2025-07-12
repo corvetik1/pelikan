@@ -18,10 +18,10 @@ model Role {
   name        String   @unique
   description String?
   permissions String[]
+  users       User[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  // users      User[]
 }
 
 model News {
@@ -128,12 +128,8 @@ model User {
   email     String   @unique
   password  String
   name      String?
-  role      String   @default("viewer")
   isActive  Boolean  @default(true)
-  /*
-  roleId    String?
-  roleRel   Role?    @relation(fields: [roleId], references: [id])
-  */
+  roles     Role[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

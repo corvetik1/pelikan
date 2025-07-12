@@ -73,7 +73,7 @@ describe("/api/admin/roles route", () => {
     const patch = { description: "updated" };
     const req = jsonRequest("PATCH", "http://localhost/api/admin/roles/r1", patch);
     // patchRole expects params argument
-    const res = await patchRole(req, { params: { id: "r1" } });
+    const res = await patchRole(req, { params: Promise.resolve({ id: "r1" }) });
     expect(res.status).toBe(200);
     const json = (await res.json()) as AdminRole;
     expect(json.description).toBe("updated");
@@ -81,7 +81,7 @@ describe("/api/admin/roles route", () => {
 
   it("DELETE removes role", async () => {
     const req = jsonRequest("DELETE", "http://localhost/api/admin/roles/r2");
-    const res = await deleteRole(req, { params: { id: "r2" } });
+    const res = await deleteRole(req, { params: Promise.resolve({ id: "r2" }) });
     expect(res.status).toBe(200);
     const json = (await res.json()) as { ok: boolean };
     expect(json.ok).toBe(true);

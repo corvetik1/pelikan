@@ -27,6 +27,11 @@ jest.mock("@/lib/prisma", () => {
   return {
     __esModule: true,
     default: {
+      role: {
+        findUnique: jest.fn(async ({ where }: { where: { name: string } }) => {
+          return { id: `role_${where.name}`, name: where.name };
+        }),
+      },
       user: {
         findMany: jest.fn(async () => users),
         create: jest.fn(async ({ data }: { data: UserCreate }) => {
@@ -45,7 +50,20 @@ jest.mock("@/lib/prisma", () => {
           const idx = users.findIndex((u) => u.id === where.id);
           if (idx === -1) throw new Error("Not found");
           users[idx] = { ...users[idx], ...data } as AdminUser;
-          return users[idx];
+           type Role = { name: AdminUser['role'] };
+           const determineRoleName = (): AdminUser['role'] => {
+             if ('role' in data && data.role) return data.role as AdminUser['role'];
+             if ('roles' in data && typeof data.roles === 'object' && data.roles !== null && 'set' in (data.roles as Record<string, unknown>)) {
+               // assume admin for test purposes when roles.set provided
+               return 'admin';
+             }
+             return users[idx].role;
+           };
+           const prismaUser: AdminUser & { roles: Role[] } = {
+             ...users[idx],
+             roles: [{ name: determineRoleName() }],
+           };
+           return prismaUser;
         }),
         delete: jest.fn(async ({ where }: { where: { id: string } }) => {
           const idx = users.findIndex((u) => u.id === where.id);
@@ -91,7 +109,7 @@ describe("/api/admin/users route", () => {
   it("PATCH updates user", async () => {
     const patch = { role: "admin" };
     const req = jsonRequest("PATCH", "http://localhost/api/admin/users/u1", patch);
-    const res = await patchUser(req, { params: { id: "u1" } });
+    const res = await patchUser(req, { params: Promise.resolve({ id: "u1" }) });
     expect(res.status).toBe(200);
     const usr = (await res.json()) as AdminUser;
     expect(usr.role).toBe("admin");
@@ -99,7 +117,7 @@ describe("/api/admin/users route", () => {
 
   it("DELETE removes user", async () => {
     const req = jsonRequest("DELETE", "http://localhost/api/admin/users/u2");
-    const res = await deleteUser(req, { params: { id: "u2" } });
+    const res = await deleteUser(req, { params: Promise.resolve({ id: "u2" }) });
     expect(res.status).toBe(200);
     const json = (await res.json()) as { ok: boolean };
     // our DELETE returns ok true

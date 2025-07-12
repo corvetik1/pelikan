@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 import type { NextRequest } from 'next/server';
 
 // PATCH /api/admin/quotes/[id]/prices – администратор заполняет цены и подтверждает расчёт
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // RBAC: simple token-based admin guard
   const authResp = requireAdmin(req);
   if (authResp) return authResp;
@@ -13,8 +13,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const payload = await req.json();
     const data = QuoteUpdatePricesSchema.parse(payload);
 
+    const { id } = await params;
     const updated = await prisma.quote.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         prices: data.prices,
         status: 'priced',

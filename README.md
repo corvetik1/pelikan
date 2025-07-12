@@ -9,7 +9,7 @@
 * **Package manager**: pnpm
 * **Node LTS**: ≥ 18
 
-> Бэкенд: CRUD для **roles**, **users**, **products**, **news** и **stores** уже работают на реальной базе (Next.js API Routes + Prisma + PostgreSQL). Для остальных сущностей (recipes) пока остаются MSW-моки.
+> Бэкенд: CRUD для **roles**, **users**, **products**, **recipes**, **news** и **stores** уже работают на реальной базе (Next.js API Routes + Prisma + PostgreSQL).
 
 ## Быстрый старт
 
@@ -89,6 +89,53 @@ pnpm dev
 | Store | id, name, address, lat, lng |
 
 > Полное описание см. `prisma/schema.prisma`.
+
+## API examples (curl)
+
+### Recipes
+
+```bash
+# List recipes (admin)
+curl -H "Authorization: Bearer $ADMIN_TOKEN" \
+     http://localhost:3000/api/admin/recipes | jq .
+
+# Create recipe
+curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "Tuna Tartare",
+       "category": "Seafood",
+       "ingredients": ["Tuna", "Avocado", "Soy sauce"],
+       "steps": ["Dice tuna", "Mix with sauce"],
+       "cookingTime": 10
+     }' \
+     http://localhost:3000/api/admin/recipes | jq .
+
+# Update recipe (PATCH)
+curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"shortDescription":"Updated"}' \
+     http://localhost:3000/api/admin/recipes/<id> | jq .
+```
+
+### Quotes workflow
+
+```bash
+# Client requests quote
+curl -X POST -H "Content-Type: application/json" \
+     -d '{"userEmail":"user@example.com","items":[{"productId":"p1","qty":5}]}' \
+     http://localhost:3000/api/quotes | jq .  # returns { id }
+
+# Admin lists pending quotes
+curl -H "Authorization: Bearer $ADMIN_TOKEN" \
+     http://localhost:3000/api/admin/quotes | jq .
+
+# Admin sets prices
+curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"prices":[{"productId":"p1","price":999}]}' \
+     http://localhost:3000/api/admin/quotes/<id>/prices | jq .
+```
 
 ### Useful scripts
 

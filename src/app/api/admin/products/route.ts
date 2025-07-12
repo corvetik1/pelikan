@@ -9,9 +9,8 @@ import type { Prisma, Product } from '@prisma/client';
  * GET /api/admin/products
  * Список товаров, отсортированный по времени создания (новые сверху)
  */
-export async function GET(req?: Request) {
-  const _req = req ?? new Request('http://localhost');
-  const auth = requireAdmin(_req);
+export async function GET(request: Request) {
+  const auth = requireAdmin(request);
   if (auth) return auth;
   const list: Product[] = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
   return NextResponse.json(list);

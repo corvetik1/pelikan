@@ -5,24 +5,26 @@ import { StoreUpdateSchema } from '@/lib/validation/storeSchema';
 import { handleError } from '@/lib/errorHandler';
 import type { Store } from '@prisma/client';
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
     const payload = await request.json();
     const data = StoreUpdateSchema.parse(payload);
-    const updated: Store = await prisma.store.update({ where: { id: params.id }, data });
+    const { id } = await params;
+    const updated: Store = await prisma.store.update({ where: { id }, data });
     return NextResponse.json(updated);
   } catch (err) {
     return handleError(err);
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
-    await prisma.store.delete({ where: { id: params.id } });
+    const { id } = await params;
+    await prisma.store.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (err) {
     return handleError(err);

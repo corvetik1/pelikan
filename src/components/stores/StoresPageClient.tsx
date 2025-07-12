@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import StoreFilters from './StoreFilters';
-import StoreMap from './StoreMap';
+import dynamic from 'next/dynamic';
+const StoreMap = dynamic(() => import('./StoreMap'), { ssr: false });
 import { Box } from '@mui/material';
 import type { Store } from '@/data/stores';
 

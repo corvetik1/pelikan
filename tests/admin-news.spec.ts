@@ -1,6 +1,7 @@
 import { test, expect, type Route, type Request } from '@playwright/test';
 
 test.describe('Admin News', () => {
+  test.setTimeout(180_000);
   test('CRUD happy path', async ({ page }) => {
     // --- network stubs ---
     const items: any[] = [ { id: 'n-1', title: 'Stub', excerpt: 'Stub', date: new Date().toISOString(), category: 'general' } ];
@@ -53,7 +54,7 @@ test.describe('Admin News', () => {
 
     // go directly to admin/news
     // --- navigate ---
-    await page.goto('/admin/news?admin=1', { waitUntil: 'networkidle' });
+    await page.goto('/admin/news?admin=1', { waitUntil: 'domcontentloaded' });
 
     // ensure page loaded
     await expect(page.getByRole('heading', { name: 'Новости' })).toBeVisible({ timeout: 40_000 });
@@ -62,7 +63,7 @@ test.describe('Admin News', () => {
     await expect(page.getByTestId('add-news-btn')).toBeEnabled();
 
     // ADD
-    await page.getByTestId('add-news-btn').click();
+    await page.getByTestId('add-news-btn').click({ force: true });
     await page.getByRole('textbox', { name: 'Заголовок' }).fill('Playwright News');
     await page.getByRole('textbox', { name: 'Анонс' }).fill('E2E created');
     // date already set

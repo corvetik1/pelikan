@@ -5,10 +5,10 @@ import { handleError } from '@/lib/errorHandler';
 import prisma from '@/lib/prisma';
 import type { Prisma, Product } from '@prisma/client';
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(req);
   if (auth) return auth;
-  const { id } = params;
+  const { id } = await params;
   try {
     const payload = await req.json();
     const patchData = ProductUpdateSchema.parse(payload) as Prisma.ProductUncheckedUpdateInput;
@@ -23,10 +23,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(_req);
   if (auth) return auth;
-  const { id } = params;
+  const { id } = await params;
   try {
     const removed: Product = await prisma.product.delete({ where: { id } });
     return NextResponse.json(removed);

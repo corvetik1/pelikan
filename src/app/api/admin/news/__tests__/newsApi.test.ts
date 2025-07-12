@@ -77,7 +77,7 @@ describe('/api/admin/news routes', () => {
   it('PATCH updates item', async () => {
     const patch = { excerpt: 'Обновлено' };
     const req = jsonRequest('PATCH', 'http://localhost/api/admin/news/n1', patch);
-    const res = await patchNews(req, { params: { id: 'n1' } });
+    const res = await patchNews(req, { params: Promise.resolve({ id: 'n1' }) });
     expect(res.status).toBe(200);
     const updated = (await res.json()) as AdminNews;
     expect(updated.excerpt).toBe('Обновлено');
@@ -85,7 +85,7 @@ describe('/api/admin/news routes', () => {
 
   it('DELETE removes item', async () => {
     const req = jsonRequest('DELETE', 'http://localhost/api/admin/news/n1');
-    const res = await deleteNews(req, { params: { id: 'n1' } });
+    const res = await deleteNews(req, { params: Promise.resolve({ id: 'n1' }) });
     expect(res.status).toBe(200);
     expect(news.find((n) => n.id === 'n1')).toBeUndefined();
   });

@@ -27,12 +27,18 @@ async function main(): Promise<void> {
   // Users
   await prisma.user.upsert({
     where: { email: 'admin@pelicanbay.local' },
-    update: {},
+    update: {
+      roles: {
+        set: [{ id: adminRole.id }],
+      },
+    },
     create: {
       email: 'admin@pelicanbay.local',
       password: 'admin', // TODO: hash in production
       name: 'Admin',
-      role: adminRole.name,
+      roles: {
+        connect: { id: adminRole.id },
+      },
     },
   });
 

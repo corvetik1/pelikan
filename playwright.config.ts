@@ -11,10 +11,11 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'pnpm dev',
+    // Run production build for stability during e2e (avoids dev-webpack memory issues)
+    command: 'pnpm build && pnpm start',
     port: 3000,
     reuseExistingServer: !process.env.CI,
-    timeout: 300_000,
+    timeout: 600_000,
   },
 };
 

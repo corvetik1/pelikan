@@ -67,7 +67,7 @@ describe('/api/admin/stores routes', () => {
   it('PATCH updates store', async () => {
     const patch = { region: 'Tula' };
     const req = jsonRequest('PATCH', 'http://localhost/api/admin/stores/s1', patch);
-    const res = await patchStore(req, { params: { id: 's1' } });
+    const res = await patchStore(req, { params: Promise.resolve({ id: 's1' }) });
     expect(res.status).toBe(200);
     const json = (await res.json()) as AdminStore;
     expect(json.region).toBe('Tula');
@@ -75,7 +75,7 @@ describe('/api/admin/stores routes', () => {
 
   it('DELETE removes store', async () => {
     const req = jsonRequest('DELETE', 'http://localhost/api/admin/stores/s1');
-    const res = await deleteStore(req, { params: { id: 's1' } });
+    const res = await deleteStore(req, { params: Promise.resolve({ id: 's1' }) });
     expect(res.status).toBe(200);
     expect(stores.find((s) => s.id === 's1')).toBeUndefined();
   });

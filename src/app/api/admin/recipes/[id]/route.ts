@@ -13,10 +13,10 @@ import type { Recipe } from '@prisma/client';
 
 
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(req);
   if (auth) return auth;
-  const { id } = params;
+  const { id } = await params;
   try {
     const payload = await req.json();
     const data = RecipeUpdateSchema.parse(payload);
@@ -34,10 +34,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(_req);
   if (auth) return auth;
-  const { id } = params;
+  const { id } = await params;
   try {
     const removed: Recipe = await prisma.recipe.delete({ where: { id } });
     return NextResponse.json(removed);

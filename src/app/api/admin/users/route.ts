@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import { z } from "zod";
-import { handleError } from "@/lib/errorHandler";
-import type { Prisma } from "@prisma/client";
+import { handleError } from "@/lib/handleError";
 
 /**
  * Admin Users API
@@ -18,16 +17,35 @@ const UserCreateSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().min(1).max(64).optional(),
-  role: z.enum(["admin", "editor", "viewer"]).optional(),
+  role: z.enum(["admin", "viewer", "editor"]).optional(),
   isActive: z.boolean().optional(),
 });
 
 export async function POST(request: Request) {
   try {
     const payload = await request.json();
-    const data = UserCreateSchema.parse(payload) as Prisma.UserUncheckedCreateInput;
+    const data = UserCreateSchema.parse(payload);
 
-    const created = await prisma.user.create({ data });
+    // map role string to Role connection if provided
+    let roleConnect = {};
+    if (data.role) {
+      const role = await prisma.role.findUnique({ where: { name: data.role } });
+      if (!role) throw new Error(`Role ${data.role} not found`);
+      roleConnect = { roles: { connect: { id: role.id } } };
+    }
+
+    const created = await prisma.user.create({
+      data: {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        isActive: data.isActive ?? true,
+        ...roleConnect,
+      },
+      include: {
+        roles: true,
+      },
+    });
     return Response.json(created, { status: 201 });
   } catch (err) {
     return handleError(err);

@@ -79,7 +79,7 @@ const jsonRequest = (method: string, url: string, body?: unknown): NextRequest =
 
 describe('/api/admin/products route', () => {
   it('GET returns products list', async () => {
-    const res = await getProducts();
+    const res = await getProducts(new Request('http://localhost/api/admin/products'));
     expect(res.status).toBe(200);
     const list = (await res.json()) as AdminProduct[];
     expect(list).toHaveLength(2);
@@ -105,7 +105,7 @@ describe('/api/admin/products route', () => {
   it('PATCH updates product fields', async () => {
     const patch = { price: 2500 };
     const req = jsonRequest('PATCH', 'http://localhost/api/admin/products/p1', patch);
-    const res = await patchProduct(req, { params: { id: 'p1' } });
+    const res = await patchProduct(req, { params: Promise.resolve({ id: 'p1' }) });
     expect(res.status).toBe(200);
     const json = (await res.json()) as AdminProduct;
     expect(json.price).toBe(2500);
@@ -113,7 +113,7 @@ describe('/api/admin/products route', () => {
 
   it('DELETE removes product', async () => {
     const req = jsonRequest('DELETE', 'http://localhost/api/admin/products/p2');
-    const res = await deleteProduct(req, { params: { id: 'p2' } });
+    const res = await deleteProduct(req, { params: Promise.resolve({ id: 'p2' }) });
     expect(res.status).toBe(200);
     const removed = (await res.json()) as AdminProduct;
     expect(removed.id).toBe('p2');
