@@ -17,7 +17,9 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d db",
-    "db:setup": "pnpm migrate && pnpm seed"
+    "db:setup": "wait-on tcp:5434 && pnpm migrate && pnpm seed",
+    "monitor:up": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d",
+    "monitor:down": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml down"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -39,6 +41,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "wait-on": "^7.1.2",
     "ts-node": "^10.9.2",
     "tsx": "^3.13.0",
     "@eslint/eslintrc": "^3",

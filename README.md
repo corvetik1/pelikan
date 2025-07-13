@@ -39,6 +39,25 @@ pnpm dev
 
 ## Backend setup (PostgreSQL 17 + Prisma)
 
+### Local development
+
+```bash
+# Start database (detached)
+pnpm db:up
+
+# Run migrations & seed demo data
+pnpm db:setup
+
+# Start Next.js dev server
+pnpm dev
+```
+
+> Database URL: `postgres://postgres:postgres@localhost:5434/pelicanbay`
+>
+> pgAdmin available at <http://localhost:5050> (profile `dev`, optional) — email `admin@pelicanbay.local`, password `admin`.
+
+### Useful scripts
+
 -Prerequisites
 
 | Tool | Version |
@@ -137,7 +156,7 @@ curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" \
      http://localhost:3000/api/admin/quotes/<id>/prices | jq .
 ```
 
-### Useful scripts
+## Usefu scripts
 
 | Script | Purpose |
 |--------|---------|
@@ -149,7 +168,21 @@ curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" \
 
 ## CI/CD
 
-Frontend собирается и тестируется в GitHub Actions (`.github/workflows/ci.yml`): lint → test → build. При успешной сборке выполняется деплой на Vercel Preview.
+В проекте настроен единый GitHub Actions workflow `.github/workflows/ci.yml`, который гарантирует качество кода и автоматический деплой:
+
+1. **Setup** – checkout репозитория, установка Node LTS и pnpm.
+2. **Dependencies** – `pnpm install --frozen-lockfile`.
+3. **Database** – `docker compose up -d db` + `pnpm db:setup` (миграции + сид).
+4. **Static analysis** – `pnpm lint` + `pnpm type-check`.
+5. **Tests**
+   • `pnpm test --coverage` – unit / integration (Jest).
+   • `pnpm exec playwright test` – e2e smoke (quotes ➜ email).
+6. **Build** – `pnpm build` (Next.js ⬆ SSR/ISR).
+7. **Deploy** – (только на `main`) триггер на Vercel Production.
+
+Все шаги выполняются на Ubuntu latest; базовые зависимости (PostgreSQL, Playwright browsers) инсталлируются в рантайме.
+
+Матрица Node версия × OS может быть расширена в `strategy.matrix` при необходимости.
 
 ## Переменные окружения
 

@@ -1,0 +1,29 @@
+groups:
+  - name: pelican-general
+    rules:
+      - alert: HighLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="pelican_healthz"}[5m])) by (le)) * 1000 > 400
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency (p95 > 400 ms)"
+          description: "API latency p95 is > 400 ms for 5m. Investigate performance."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{job="pelican_healthz",status=~"5.."}[5m]) / rate(http_requests_total{job="pelican_healthz"}[5m]) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API error rate (>1%)"
+          description: "Error rate exceeded 1 % for 5m. Check logs and recent deploys."
+
+      - alert: HighDBConnections
+        expr: pg_stat_activity_count{datname="pelicanbay"} / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "DB connections > 80 %"
+          description: "Active PostgreSQL connections exceed 80 % of max. Possible connection leak."

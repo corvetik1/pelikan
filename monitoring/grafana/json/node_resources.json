@@ -1,0 +1,42 @@
+{
+  "uid": "pelican-node-resources",
+  "title": "Node Resources",
+  "tags": ["pelican", "infra"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "CPU Usage %",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "percent"}, "overrides": []},
+      "targets": [
+        {"expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)", "refId": "A"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Usage %",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "percent"}, "overrides": []},
+      "targets": [
+        {"expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100", "refId": "A"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Disk Space Usage %",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"x": 0, "y": 8, "w": 24, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "percent"}, "overrides": []},
+      "targets": [
+        {"expr": "(node_filesystem_size_bytes{fstype!~'tmpfs|overlay'} - node_filesystem_free_bytes{fstype!~'tmpfs|overlay'}) / node_filesystem_size_bytes{fstype!~'tmpfs|overlay'} * 100", "refId": "A"}
+      ]
+    }
+  ]
+}

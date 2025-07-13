@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+
+providers:
+  - name: 'Pelican Default Dashboards'
+    folder: 'Pelican'
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

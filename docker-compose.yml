@@ -12,8 +12,14 @@ services:
       - '5434:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   pgadmin:
     image: dpage/pgadmin4
+    profiles: ["dev"]
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@pelicanbay.local
       PGADMIN_DEFAULT_PASSWORD: admin

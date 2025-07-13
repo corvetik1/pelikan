@@ -28,6 +28,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Start database (PostgreSQL)
+        run: docker compose up -d db
+
+      - name: Prepare database (migrate & seed)
+        run: pnpm db:setup
+
       - name: Lint
         run: pnpm lint
 

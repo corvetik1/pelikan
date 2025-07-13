@@ -44,9 +44,20 @@ UI ↔ Redux hooks ↔ RTK Query baseQuery → /api/* (Next API Route) → Prism
 ## Linting & Type-safety
 
 * ESLint + `@typescript-eslint` строго запрещают `any / unknown / @ts-ignore`.
-* CI запускает `pnpm lint`, `pnpm test`, `pnpm build`.
+* CI выполняет `pnpm lint`, `pnpm type-check`, `pnpm test`, `pnpm build`.
 
-## TODO (серверная часть)
+## Backend overview
 
-* Внедрить Prisma schema, заполнить миграции, подключить реальные API Routes.
-* Перевести MSW-моки на реальные эндпоинты без изменений UI.
+Бэкенд разворачивается в том же репозитории и использует **Next.js API Routes** + **Prisma ORM** поверх PostgreSQL.
+
+| Слой | Папка / Технология | Описание |
+|------|--------------------|----------|
+| API Routes | `src/app/api` | REST-эндпоинты `products`, `recipes`, `news`, `stores`, `users`, `roles`, `quotes` |
+| Business logic | сервисы под `src/lib/**` | Проверка RBAC, хелперы, отправка email |
+| DB access | `@/lib/prisma` | Клиент Prisma с пулом соединений |
+| Схема | `prisma/schema.prisma` | Типы моделей, enum'ы, связи |
+| Mig/Seed | `prisma/migrations`, `prisma/seed.ts` | Авто-миграции и демо-данные |
+
+Процесс: API → Zod-валидация → RBAC → Prisma → PostgreSQL → JSON-ответ.
+
+Все CRUD-роуты покрыты **unit** и **integration** тестами, статическая типизация проходит без ошибок.

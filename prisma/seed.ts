@@ -43,7 +43,7 @@ async function main(): Promise<void> {
   });
 
   // Insert a demo product
-  await prisma.product.upsert({
+  const product = await prisma.product.upsert({
     where: { slug: 'atlantic-salmon-steak' },
     update: {},
     create: {
@@ -85,6 +85,40 @@ async function main(): Promise<void> {
       lat: 55.7558,
       lng: 37.6176,
       region: 'Москва',
+    },
+  });
+
+    // Sample recipe
+  const recipe = await prisma.recipe.upsert({
+    where: { slug: 'salmon-steak-grill' },
+    update: {},
+    create: {
+      slug: 'salmon-steak-grill',
+      title: 'Grilled Salmon Steak',
+      img: '/recipes/salmon-steak.jpg',
+      shortDescription: 'Сочный лосось на гриле за 15 минут',
+      ingredients: ['Лосось', 'Соль', 'Перец', 'Оливковое масло'],
+      steps: ['Замариновать', 'Гриль 7 минут с каждой стороны'],
+      cookingTime: 15,
+      category: 'Seafood',
+      images: ['/recipes/salmon-steak.jpg'],
+    },
+  });
+
+  // Relation recipe <-> product
+  await prisma.recipeProduct.upsert({
+    where: { recipeId_productId: { recipeId: recipe.id, productId: product.id } },
+    update: {},
+    create: { recipeId: recipe.id, productId: product.id },
+  });
+
+  // Demo quote
+  await prisma.quote.create({
+    data: {
+      items: [{ productId: product.id, qty: 10 }],
+      prices: [{ productId: product.id, price: 1299 }],
+      status: 'priced',
+      userEmail: 'client@example.com',
     },
   });
 
