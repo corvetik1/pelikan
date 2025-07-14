@@ -4,20 +4,21 @@ import { requireAdmin } from '@/lib/auth';
 import { RecipeCreateSchema } from '@/lib/validation/recipeSchema';
 import { handleError } from '@/lib/errorHandler';
 import type { Recipe } from '@prisma/client';
+import { withLogger } from '@/lib/logger';
 
 /**
  * CRUD for recipes (GET list, POST create)
  */
 
 
-export async function GET(req: Request) {
+export const GET = withLogger(async (req: Request) => {
   const auth = requireAdmin(req);
   if (auth) return auth;
   const list: Recipe[] = await prisma.recipe.findMany({ orderBy: { createdAt: 'desc' } });
   return NextResponse.json(list);
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withLogger(async (request: Request) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -45,4 +46,4 @@ export async function POST(request: Request) {
   } catch (err) {
     return handleError(err);
   }
-}
+});

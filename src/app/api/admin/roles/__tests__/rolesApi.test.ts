@@ -53,7 +53,8 @@ const jsonRequest = (method: string, url: string, body?: unknown): NextRequest =
 
 describe("/api/admin/roles route", () => {
   it("GET returns roles list", async () => {
-    const res = await getRoles();
+    const req = jsonRequest("GET", "http://localhost/api/admin/roles");
+    const res = await getRoles(req);
     expect(res.status).toBe(200);
     const json = (await res.json()) as AdminRole[];
     expect(json).toHaveLength(2);

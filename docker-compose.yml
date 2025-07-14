@@ -17,6 +17,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: service=db
+        loki-retries: "3"
   pgadmin:
     image: dpage/pgadmin4
     profiles: ["dev"]
@@ -27,5 +33,19 @@ services:
       - "5050:80"
     depends_on:
       - db
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: service=pgadmin
+        loki-retries: "3"
+  loki:
+    image: grafana/loki:2.4.1
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/var/logs
 volumes:
   db_data:
+  loki_data:

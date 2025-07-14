@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdminStoresPage from '../page';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
 import type { GridColDef } from '@mui/x-data-grid';
 import type { ReactNode } from 'react';
 
@@ -61,12 +63,16 @@ const deleteStore = jest.fn(() => ({ unwrap: () => Promise.resolve() }));
 const updateStore = jest.fn();
 const createStore = jest.fn();
 
-jest.mock('@/redux/api', () => ({
-  useGetAdminStoresQuery: () => ({ data: sample, isLoading: false }),
-  useCreateStoreMutation: () => [createStore],
-  useUpdateStoreMutation: () => [updateStore],
-  useDeleteStoreMutation: () => [deleteStore],
-}));
+jest.mock('@/redux/api', () => {
+  const actual = jest.requireActual('@/redux/api');
+  return {
+    ...actual,
+    useGetAdminStoresQuery: () => ({ data: sample, isLoading: false }),
+    useCreateStoreMutation: () => [createStore],
+    useUpdateStoreMutation: () => [updateStore],
+    useDeleteStoreMutation: () => [deleteStore],
+  };
+});
 
 // --------- tests --------------
 
@@ -75,7 +81,11 @@ describe('AdminStoresPage', () => {
     // ConfirmDialog is used instead of window.confirm – no mocking needed
     const user = userEvent.setup();
 
-    render(<AdminStoresPage />);
+    render(
+      <Provider store={store}>
+        <AdminStoresPage />
+      </Provider>,
+    );
 
     // store visible
     expect(screen.getByText('Store One')).toBeInTheDocument();

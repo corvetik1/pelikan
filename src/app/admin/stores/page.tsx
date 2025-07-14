@@ -1,6 +1,8 @@
 "use client";
 
-import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -18,13 +20,14 @@ import { AdminStore } from "@/types/admin";
 
 export default function AdminStoresPage() {
   const { data = [], isLoading } = useGetAdminStoresQuery();
+  const dispatch = useDispatch();
   const [create] = useCreateStoreMutation();
   const [update] = useUpdateStoreMutation();
   const [remove] = useDeleteStoreMutation();
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
-  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
+  
+  
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const columns: GridColDef[] = [
@@ -42,9 +45,9 @@ export default function AdminStoresPage() {
     if (!deleteId) return;
     try {
       await remove(deleteId).unwrap();
-      setSnack({ open: true, message: 'Удалено', severity: 'success' });
+      dispatch(showSnackbar({ message: 'Удалено', severity: 'success' }));
     } catch {
-      setSnack({ open: true, message: 'Ошибка удаления', severity: 'error' });
+      dispatch(showSnackbar({ message: 'Ошибка удаления', severity: 'error' }));
     } finally {
       setDeleteId(null);
     }
@@ -79,13 +82,13 @@ export default function AdminStoresPage() {
           try {
             if (payload.id) {
               await update({ id: payload.id, patch: payload }).unwrap();
-              setSnack({ open: true, message: 'Изменено', severity: 'success' });
+              dispatch(showSnackbar({ message: 'Изменено', severity: 'success' }));
             } else {
               await create(payload as Omit<AdminStore, 'id'>).unwrap();
-              setSnack({ open: true, message: 'Создано', severity: 'success' });
+              dispatch(showSnackbar({ message: 'Создано', severity: 'success' }));
             }
           } catch {
-            setSnack({ open: true, message: 'Ошибка сохранения', severity: 'error' });
+            dispatch(showSnackbar({ message: 'Ошибка сохранения', severity: 'error' }));
           }
         }}
       />
@@ -97,11 +100,11 @@ export default function AdminStoresPage() {
         onConfirm={confirmDelete}
         onClose={() => setDeleteId(null)}
       />
-      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
-          {snack.message}
-        </Alert>
-      </Snackbar>
+      
+        
+          
+        
+      
     </Box>
   );
 }

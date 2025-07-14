@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { handleError } from "@/lib/handleError";
+import { withLogger } from '@/lib/logger';
 import { userUpdateSchema } from "@/lib/validation/userSchema";
 
 /**
@@ -8,7 +9,7 @@ import { userUpdateSchema } from "@/lib/validation/userSchema";
  * DELETE /api/admin/users/[id] – delete user
  */
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = withLogger(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
   try {
     const payload = await req.json();
@@ -41,9 +42,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   } catch (err) {
     return handleError(err);
   }
-}
+});
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = withLogger(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   try {
     await prisma.user.delete({ where: { id } });
@@ -51,4 +52,4 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   } catch (err) {
     return handleError(err);
   }
-}
+});

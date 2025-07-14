@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
 import AdminProductsPage from '../page';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
 import React, { useEffect } from 'react';
 import type { AdminProduct } from '@/types/admin';
 
@@ -43,7 +45,11 @@ jest.mock('@mui/x-data-grid', () => {
 
 describe('AdminProductsPage inline edit', () => {
   it('calls updateProduct mutation on inline cell edit', () => {
-    render(<AdminProductsPage />);
+    render(
+      <Provider store={store}>
+        <AdminProductsPage />
+      </Provider>,
+    );
     expect(updateProduct).toHaveBeenCalledWith({ id: '1', patch: { name: 'New' } });
   });
 });

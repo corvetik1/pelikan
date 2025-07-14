@@ -36,6 +36,8 @@ jest.mock('@/redux/adminApi', () => ({
 }));
 
 import AdminUsersPage from '../page';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
 
 // -------------- scenarios --------------
 
@@ -51,7 +53,11 @@ describe('AdminUsersPage edge cases', () => {
   it('renders placeholder grid when no users', () => {
     mockUseGet.mockReturnValue({ data: [] as AdminUser[], isLoading: false, isError: false, refetch: jest.fn() });
 
-    render(<AdminUsersPage />);
+    render(
+      <Provider store={store}>
+        <AdminUsersPage />
+      </Provider>,
+    );
     expect(screen.getByTestId('grid')).toBeInTheDocument();
   });
 
@@ -60,7 +66,11 @@ describe('AdminUsersPage edge cases', () => {
     mockUseGet.mockReturnValue({ data: undefined, isLoading: false, isError: true, refetch });
 
     const user = userEvent.setup();
-    render(<AdminUsersPage />);
+    render(
+      <Provider store={store}>
+        <AdminUsersPage />
+      </Provider>,
+    );
 
     expect(screen.getByText(/Ошибка загрузки пользователей/i)).toBeInTheDocument();
 
@@ -81,7 +91,11 @@ describe('AdminUsersPage edge cases', () => {
 
     jest.spyOn(window, 'confirm').mockReturnValueOnce(false);
     const user = userEvent.setup();
-    render(<AdminUsersPage />);
+    render(
+      <Provider store={store}>
+        <AdminUsersPage />
+      </Provider>,
+    );
 
     await user.click(screen.getByRole('button', { name: /delete/i }));
     expect(mockDelete).not.toHaveBeenCalled();

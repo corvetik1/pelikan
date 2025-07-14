@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdminProductsPage from '../page';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
 import type { AdminProduct } from '@/types/admin';
 import type { ReactNode } from 'react';
 
@@ -66,7 +68,11 @@ jest.mock('@/redux/adminApi', () => ({
 describe('AdminProductsPage', () => {
   it('renders products and deletes on click', async () => {
     const user = userEvent.setup();
-    render(<AdminProductsPage />);
+    render(
+        <Provider store={store}>
+          <AdminProductsPage />
+        </Provider>,
+      );
 
     // product name visible
     expect(screen.getByText('Sample')).toBeInTheDocument();

@@ -36,6 +36,8 @@ jest.mock('@/redux/adminApi', () => ({
 }));
 
 import AdminProductsPage from '../page';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
 
 // --------------- scenarios --------------------
 
@@ -52,7 +54,11 @@ describe('AdminProductsPage edge cases', () => {
 
     
 
-    render(<AdminProductsPage />);
+    render(
+      <Provider store={store}>
+        <AdminProductsPage />
+      </Provider>,
+    );
     expect(screen.getByTestId('grid')).toBeInTheDocument();
   });
 
@@ -62,7 +68,11 @@ describe('AdminProductsPage edge cases', () => {
     
 
     const user = userEvent.setup();
-    render(<AdminProductsPage />);
+    render(
+      <Provider store={store}>
+        <AdminProductsPage />
+      </Provider>,
+    );
 
     expect(screen.getByText(/Ошибка загрузки товаров/i)).toBeInTheDocument();
 
@@ -84,7 +94,11 @@ describe('AdminProductsPage edge cases', () => {
 
     jest.spyOn(window, 'confirm').mockReturnValueOnce(false);
     const user = userEvent.setup();
-    render(<AdminProductsPage />);
+    render(
+      <Provider store={store}>
+        <AdminProductsPage />
+      </Provider>,
+    );
 
     await user.click(screen.getByRole('button', { name: /delete/i }));
     expect(mockDelete).not.toHaveBeenCalled();

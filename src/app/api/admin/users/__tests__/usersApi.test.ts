@@ -90,7 +90,8 @@ const jsonRequest = (method: string, url: string, body?: unknown): NextRequest =
 
 describe("/api/admin/users route", () => {
   it("GET returns list", async () => {
-    const res = await getUsers();
+    const req = jsonRequest("GET", "http://localhost/api/admin/users");
+    const res = await getUsers(req);
     expect(res.status).toBe(200);
     const list = (await res.json()) as AdminUser[];
     expect(list).toHaveLength(2);

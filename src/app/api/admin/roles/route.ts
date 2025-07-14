@@ -1,15 +1,17 @@
 import prisma from "@/lib/prisma";
 import { roleCreateSchema } from "@/lib/validation/roleSchema";
 import { handleError } from "@/lib/handleError";
+import { withLogger } from '@/lib/logger';
 
-import type { NextRequest } from "next/server";
 
-export async function GET() {
+
+export const GET = withLogger(async (_req: Request) => {
+  void _req.method;
   const roles = await prisma.role.findMany({ orderBy: { name: "asc" } });
-  return Response.json(roles, { status: 200 });
-}
+    return Response.json(roles, { status: 200 });
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withLogger(async (req: Request) => {
   try {
     const payload = await req.json();
     const data = roleCreateSchema.parse(payload);
@@ -25,4 +27,4 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return handleError(err);
   }
-}
+});

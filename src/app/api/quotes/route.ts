@@ -1,10 +1,11 @@
 import { QuoteCreateSchema } from '@/lib/validation/quoteSchema';
 import prisma from '@/lib/prisma';
 import { handleError } from '@/lib/errorHandler';
-import type { NextRequest } from 'next/server';
+
+import { withLogger } from '@/lib/logger';
 
 // POST /api/quotes – создаёт запрос КП (без цен)
-export async function POST(req: NextRequest) {
+export const POST = withLogger(async (req: Request) => {
   try {
     const payload = await req.json();
     const data = QuoteCreateSchema.parse(payload);
@@ -20,8 +21,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return Response.json(quote, { status: 201 });
+        return Response.json(quote, { status: 201 });
   } catch (err) {
     return handleError(err);
   }
-}
+});

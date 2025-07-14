@@ -68,11 +68,13 @@ services:
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
       - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - ./monitoring/grafana/json:/var/lib/grafana/dashboards:ro
+      - './monitoring/grafana/json:/var/lib/grafana/dashboards:ro'
+
     ports:
       - '3001:3000'
     depends_on:

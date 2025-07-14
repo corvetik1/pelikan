@@ -1,9 +1,10 @@
 import prisma from "@/lib/prisma";
 import { handleError } from "@/lib/handleError";
 import { roleUpdateSchema } from "@/lib/validation/roleSchema";
-import type { NextRequest } from "next/server";
+import { withLogger } from '@/lib/logger';
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+
+export const PATCH = withLogger(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
         const { id } = await params;
     const payload = await req.json();
@@ -16,9 +17,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   } catch (err) {
     return handleError(err);
   }
-}
+});
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = withLogger(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
         await prisma.role.delete({ where: { id } });
@@ -26,4 +27,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   } catch (err) {
     return handleError(err);
   }
-}
+});

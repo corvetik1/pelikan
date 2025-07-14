@@ -5,14 +5,16 @@ import { NewsCreateSchema } from '@/lib/validation/newsSchema';
 import { handleError } from '@/lib/errorHandler';
 import type { News } from '@prisma/client';
 
-export async function GET(req: Request) {
+import { withLogger } from '@/lib/logger';
+
+export const GET = withLogger(async (req: Request) => {
   const auth = requireAdmin(req);
   if (auth) return auth;
   const list: News[] = await prisma.news.findMany({ orderBy: { date: 'desc' } });
   return NextResponse.json(list);
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withLogger(async (request: Request) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -23,4 +25,4 @@ export async function POST(request: Request) {
   } catch (err) {
     return handleError(err);
   }
-}
+});

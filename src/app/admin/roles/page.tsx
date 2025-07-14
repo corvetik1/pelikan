@@ -1,6 +1,8 @@
 "use client";
 
-import { Box, Typography, Stack, Button, Snackbar, Alert, Chip } from "@mui/material";
+import { Box, Typography, Stack, Button, Chip } from "@mui/material";
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import type { GridRowSelectionModel } from "@mui/x-data-grid";
 import { GridColDef } from "@mui/x-data-grid";
@@ -37,14 +39,15 @@ const columns: GridColDef[] = [
 
 export default function AdminRolesPage() {
   const { data = [], isLoading, isError, refetch } = useGetAdminRolesQuery();
+  const dispatch = useDispatch();
   const [createRole] = useCreateRoleMutation();
   const [updateRole] = useUpdateRoleMutation();
   const [deleteRole] = useDeleteRoleMutation();
 
   const [openAdd, setOpenAdd] = useState(false);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
-  const [snack, setSnack] = useState<{ open:boolean; message:string; severity:'success'|'error' }>({ open:false, message:'', severity:'success' });
-  const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
+  
+  
   const [confirmAction, setConfirmAction] = useState<null | (() => Promise<void>)>(null);
 
 
@@ -53,9 +56,9 @@ export default function AdminRolesPage() {
       await createRole(payload).unwrap();
       setOpenAdd(false);
       refetch();
-      setSnack({ open:true, message:'Роль создана', severity:'success' });
+      dispatch(showSnackbar({ message: 'Роль создана', severity: 'success' }));
     } catch {
-      setSnack({ open:true, message:'Ошибка создания', severity:'error' });
+      dispatch(showSnackbar({ message: 'Ошибка создания', severity: 'error' }));
     }
   };
 
@@ -63,9 +66,9 @@ export default function AdminRolesPage() {
     try {
       await updateRole({ id, patch }).unwrap();
       refetch();
-      setSnack({ open:true, message:'Изменено', severity:'success' });
+      dispatch(showSnackbar({ message: 'Изменено', severity: 'success' }));
     } catch {
-      setSnack({ open:true, message:'Ошибка изменения', severity:'error' });
+      dispatch(showSnackbar({ message: 'Ошибка изменения', severity: 'error' }));
     }
   };
 
@@ -74,9 +77,9 @@ export default function AdminRolesPage() {
       try {
         await deleteRole(id).unwrap();
         await refetch();
-        setSnack({ open:true, message:'Удалено', severity:'success' });
+        dispatch(showSnackbar({ message: 'Удалено', severity: 'success' }));
       } catch {
-        setSnack({ open:true, message:'Ошибка удаления', severity:'error' });
+        dispatch(showSnackbar({ message: 'Ошибка удаления', severity: 'error' }));
       }
     });
   };
@@ -115,9 +118,9 @@ export default function AdminRolesPage() {
                    await Promise.all(selection.map((id) => deleteRole(String(id)).unwrap()));
                    setSelection([]);
                    await refetch();
-                   setSnack({ open:true, message:'Удалено', severity:'success' });
+                   dispatch(showSnackbar({ message: 'Удалено', severity: 'success' }));
                  } catch {
-                   setSnack({ open:true, message:'Ошибка удаления', severity:'error' });
+                   dispatch(showSnackbar({ message: 'Ошибка удаления', severity: 'error' }));
                  }
                });
             }}
@@ -155,11 +158,11 @@ export default function AdminRolesPage() {
          }}
          onClose={() => setConfirmAction(null)}
        />
-       <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-         <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
-           {snack.message}
-         </Alert>
-       </Snackbar>
+       
+         
+           
+         
+       
     </Box>
   );
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { withLogger } from '@/lib/logger';
 import { requireAdmin } from '@/lib/auth';
 import { ProductCreateSchema } from '@/lib/validation/productSchema';
 import { handleError } from '@/lib/errorHandler';
@@ -9,18 +10,18 @@ import type { Prisma, Product } from '@prisma/client';
  * GET /api/admin/products
  * Список товаров, отсортированный по времени создания (новые сверху)
  */
-export async function GET(request: Request) {
+export const GET = withLogger(async (request: Request) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   const list: Product[] = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
   return NextResponse.json(list);
-}
+});
 
 /**
  * POST /api/admin/products
  * Создание нового товара. Ожидает JSON, соответствующий ProductUncheckedCreateInput.
  */
-export async function POST(request: Request) {
+export const POST = withLogger(async (request: Request) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -35,4 +36,4 @@ export async function POST(request: Request) {
   } catch (err) {
     return handleError(err);
   }
-}
+});

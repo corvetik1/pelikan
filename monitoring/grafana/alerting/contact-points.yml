@@ -1,0 +1,14 @@
+apiVersion: 1
+contactPoints:
+  - uid: pelican-slack
+    orgId: 1
+    name: pelican-slack
+    type: slack
+    settings:
+      url: "${SLACK_WEBHOOK_URL}"
+      recipient: "#pelican-alerts"
+      username: "Pelican Alerts"
+      iconEmoji: ":pelican:"
+      title: "{{ .CommonLabels.alertname }} - {{ .Status }}"
+      text: "{{ range .CommonAnnotations }}{{ .Key }}: {{ .Value }}\n{{ end }}"
+    disableResolveMessage: false

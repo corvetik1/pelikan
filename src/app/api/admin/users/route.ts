@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { handleError } from "@/lib/handleError";
+import { withLogger } from '@/lib/logger';
 
 /**
  * Admin Users API
@@ -8,10 +9,10 @@ import { handleError } from "@/lib/handleError";
  * POST /api/admin/users   – create user
  */
 
-export async function GET() {
+export const GET = withLogger(async () => {
   const list = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
-  return Response.json(list);
-}
+      return Response.json(list);
+});
 
 const UserCreateSchema = z.object({
   email: z.string().email(),
@@ -21,7 +22,7 @@ const UserCreateSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export async function POST(request: Request) {
+export const POST = withLogger(async (request: Request) => {
   try {
     const payload = await request.json();
     const data = UserCreateSchema.parse(payload);
@@ -50,4 +51,4 @@ export async function POST(request: Request) {
   } catch (err) {
     return handleError(err);
   }
-}
+});

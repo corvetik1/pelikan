@@ -4,8 +4,9 @@ import { requireAdmin } from '@/lib/auth';
 import { StoreUpdateSchema } from '@/lib/validation/storeSchema';
 import { handleError } from '@/lib/errorHandler';
 import type { Store } from '@prisma/client';
+import { withLogger } from '@/lib/logger';
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -17,9 +18,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   } catch (err) {
     return handleError(err);
   }
-}
+});
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -29,4 +30,4 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   } catch (err) {
     return handleError(err);
   }
-}
+});

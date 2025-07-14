@@ -1,6 +1,8 @@
 "use client";
 
-import { Box, Snackbar, Alert, Typography, Button, Stack } from "@mui/material";
+import { Box, Typography, Button, Stack } from "@mui/material";
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
@@ -44,22 +46,23 @@ async function resolveMutation(res: MutationResult | undefined): Promise<void> {
 
 export default function AdminRecipesPage() {
   const { data = [], isLoading, isError, refetch } = useGetAdminRecipesQuery();
+  const dispatch = useDispatch();
   const [createRecipe] = useCreateRecipeMutation();
   const [updateRecipe] = useUpdateAdminRecipeMutation();
   const [deleteRecipe] = useDeleteRecipeMutation();
   const [openAdd, setOpenAdd] = useState(false);
-  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
+  
 
   const handleAdd = async (payload: Partial<AdminRecipe>) => {
     try {
       await resolveMutation(createRecipe(payload));
       setOpenAdd(false);
       refetch();
-      setSnack({ open: true, message: 'Рецепт создан', severity: 'success' });
+      dispatch(showSnackbar({ message: 'Рецепт создан', severity: 'success' }));
     } catch {
-      setSnack({ open: true, message: 'Ошибка создания', severity: 'error' });
+      dispatch(showSnackbar({ message: 'Ошибка создания', severity: 'error' }));
     }
   };
 
@@ -67,9 +70,9 @@ export default function AdminRecipesPage() {
     try {
       await resolveMutation(updateRecipe({ id, patch }));
       refetch();
-      setSnack({ open: true, message: 'Изменено', severity: 'success' });
+      dispatch(showSnackbar({ message: 'Изменено', severity: 'success' }));
     } catch {
-      setSnack({ open: true, message: 'Ошибка изменения', severity: 'error' });
+      dispatch(showSnackbar({ message: 'Ошибка изменения', severity: 'error' }));
     }
   };
 
@@ -82,9 +85,9 @@ export default function AdminRecipesPage() {
     try {
       await resolveMutation(deleteRecipe(deleteId));
       refetch();
-      setSnack({ open: true, message: 'Удалено', severity: 'success' });
+      dispatch(showSnackbar({ message: 'Удалено', severity: 'success' }));
     } catch {
-      setSnack({ open: true, message: 'Ошибка удаления', severity: 'error' });
+      dispatch(showSnackbar({ message: 'Ошибка удаления', severity: 'error' }));
     } finally {
       setDeleteId(null);
     }
@@ -126,11 +129,11 @@ export default function AdminRecipesPage() {
         onConfirm={confirmDelete}
         onClose={() => setDeleteId(null)}
       />
-      <Snackbar open={snack.open} autoHideDuration={4000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ width: '100%' }}>
-          {snack.message}
-        </Alert>
-      </Snackbar>
+      
+        
+          
+        
+      
     </Box>
   );
 }

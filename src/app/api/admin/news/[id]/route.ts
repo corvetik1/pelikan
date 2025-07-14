@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
+import { withLogger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import { NewsUpdateSchema } from '@/lib/validation/newsSchema';
 import { handleError } from '@/lib/errorHandler';
 import type { News } from '@prisma/client';
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const GET = withLogger(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(req);
   if (auth) return auth;
   const { id } = await params;
   const item = await prisma.news.findUnique({ where: { id } });
   if (!item) return NextResponse.json({ message: 'Not found' }, { status: 404 });
   return NextResponse.json(item);
-}
+});
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -26,9 +27,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   } catch (err) {
     return handleError(err);
   }
-}
+});
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -38,4 +39,4 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   } catch (err) {
     return handleError(err);
   }
-}
+});
