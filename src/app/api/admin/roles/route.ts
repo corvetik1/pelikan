@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { roleCreateSchema } from "@/lib/validation/roleSchema";
 import { handleError } from "@/lib/handleError";
 import { withLogger } from '@/lib/logger';
+import { broadcastInvalidate } from '@/server/socket';
 
 
 
@@ -23,6 +24,7 @@ export const POST = withLogger(async (req: Request) => {
       permissions: data.permissions ?? [],
     },
   });
+    broadcastInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль создана');
     return Response.json(role, { status: 201 });
   } catch (err) {
     return handleError(err);

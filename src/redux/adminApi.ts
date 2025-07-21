@@ -1,6 +1,6 @@
 import { emptySplitApi } from './api';
 import type { NewsArticle } from '@/data/mock';
-import type { AdminProduct, AdminRecipe, AdminUser } from '@/types/admin';
+import type { AdminProduct, AdminRecipe, AdminUser, AdminReview } from '@/types/admin';
 
 export const adminApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,6 +11,20 @@ export const adminApi = emptySplitApi.injectEndpoints({
         body: patch,
       }),
       
+    }),
+    updateHeroField: builder.mutation<void, { id: string; patch: Record<string, unknown> }>({
+      query: ({ id, patch }) => ({
+        url: `/api/admin/hero/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+    }),
+    updateCategoryField: builder.mutation<void, { id: string; patch: Record<string, unknown> }>({
+      query: ({ id, patch }) => ({
+        url: `/api/admin/categories/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
     }),
     updateProductField: builder.mutation<void, { id: string; patch: Record<string, unknown> }>({
       query: ({ id, patch }) => ({
@@ -33,8 +47,8 @@ export const adminApi = emptySplitApi.injectEndpoints({
         body: patch,
       }),
     }),
-    getAdminProducts: builder.query<AdminProduct[], void>({
-      query: () => '/api/admin/products',
+    getAdminProducts: builder.query<AdminProduct[], { q?: string }>({
+      query: ({ q } = {}) => (q ? `/api/admin/products?q=${encodeURIComponent(q)}` : '/api/admin/products'),
       providesTags: (result) =>
         result
           ? [...result.map(({ id }) => ({ type: 'AdminProduct' as const, id })), { type: 'AdminProduct', id: 'LIST' }]
@@ -95,6 +109,29 @@ export const adminApi = emptySplitApi.injectEndpoints({
       invalidatesTags: [{ type: 'AdminRecipe', id: 'LIST' }],
     }),
 
+    // ---------------- reviews ----------------
+    getAdminReviews: builder.query<{ items: AdminReview[]; total: number }, { status?: 'pending' | 'approved' | 'rejected'; productId?: string; page?: number }>({
+      query: ({ status, productId, page = 1 } = {}) => {
+        const params = new URLSearchParams();
+        if (status) params.append('status', status);
+        if (productId) params.append('productId', productId);
+        if (page) params.append('page', page.toString());
+        return `/api/admin/reviews?${params.toString()}`;
+      },
+      providesTags: (result) =>
+        result && result.items
+          ? [...result.items.map(({ id }) => ({ type: 'AdminReview' as const, id })), { type: 'AdminReview', id: 'LIST' }]
+          : [{ type: 'AdminReview', id: 'LIST' }],
+    }),
+    updateReviewStatus: builder.mutation<AdminReview, { id: string; status: 'approved' | 'rejected' }>({
+      query: ({ id, status }) => ({
+        url: `/api/admin/reviews/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminReview', id }, { type: 'AdminReview', id: 'LIST' }],
+    }),
+
     // ---------------- users ----------------
     getAdminUsers: builder.query<AdminUser[], void>({
       query: () => '/api/admin/users',
@@ -131,6 +168,8 @@ export const adminApi = emptySplitApi.injectEndpoints({
 
 export const {
   useUpdateNewsFieldMutation,
+  useUpdateHeroFieldMutation,
+  useUpdateCategoryFieldMutation,
   useUpdateProductFieldMutation,
   useUpdateRecipeFieldMutation,
   useUpdateStoreFieldMutation,
@@ -146,4 +185,6 @@ export const {
   useCreateUserMutation,
   useUpdateAdminUserMutation,
   useDeleteUserMutation,
+  useGetAdminReviewsQuery,
+  useUpdateReviewStatusMutation,
 } = adminApi;

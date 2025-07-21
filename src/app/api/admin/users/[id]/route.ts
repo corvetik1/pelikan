@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { handleError } from "@/lib/handleError";
 import { withLogger } from '@/lib/logger';
+import { broadcastInvalidate } from '@/server/socket';
 import { userUpdateSchema } from "@/lib/validation/userSchema";
 
 /**
@@ -38,6 +39,7 @@ export const PATCH = withLogger(async (req: Request, { params }: { params: Promi
       ...userWithoutRoles,
       role: roleArray?.[0]?.name ?? null,
     };
+    broadcastInvalidate([{ type: 'AdminUser', id: 'LIST' }], 'Пользователь обновлён');
     return Response.json(responseUser);
   } catch (err) {
     return handleError(err);
@@ -48,6 +50,7 @@ export const DELETE = withLogger(async (_req: Request, { params }: { params: Pro
   const { id } = await params;
   try {
     await prisma.user.delete({ where: { id } });
+    broadcastInvalidate([{ type: 'AdminUser', id: 'LIST' }], 'Пользователь удалён');
     return Response.json({ ok: true });
   } catch (err) {
     return handleError(err);

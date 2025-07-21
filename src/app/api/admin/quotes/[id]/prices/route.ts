@@ -2,6 +2,7 @@ import { QuoteUpdatePricesSchema } from '@/lib/validation/quoteSchema';
 import { requireAdmin } from '@/lib/auth';
 import { handleError } from '@/lib/errorHandler';
 import prisma from '@/lib/prisma';
+import { broadcastInvalidate } from '@/server/socket';
 import type { NextRequest } from 'next/server';
 
 // PATCH /api/admin/quotes/[id]/prices – администратор заполняет цены и подтверждает расчёт
@@ -22,7 +23,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       },
     });
 
-          // отправляем уведомления\n      try {\n        const { userEmail } = updated;\n        if (userEmail) {\n          const { sendQuoteReadyEmail } = await import('@/lib/mailer');\n          await sendQuoteReadyEmail(userEmail, updated.id);\n        }\n      } catch (e) {\n        /* eslint-disable no-console */\n        console.error('Email send failed', e);\n      }\n      // TODO: emit Socket.IO event to room <quoteId> once WS server implemented
+// отправляем уведомление на email и invalidate cache
+    try {
+      const { userEmail } = updated;
+      if (userEmail) {
+        const { sendQuoteReadyEmail } = await import('@/lib/mailer');
+        await sendQuoteReadyEmail(userEmail, updated.id);
+      }
+    } catch (e) {
+      console.error('Email send failed', e);
+    }
+
+    broadcastInvalidate([{ type: 'Quote', id: 'LIST' }], 'КП обновлено');
 
     return Response.json(updated, { status: 200 });
   } catch (err) {

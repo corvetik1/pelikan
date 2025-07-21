@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { broadcastInvalidate } from '@/server/socket';
 import { requireAdmin } from '@/lib/auth';
 import { RecipeCreateSchema } from '@/lib/validation/recipeSchema';
 import { handleError } from '@/lib/errorHandler';
@@ -42,6 +43,7 @@ export const POST = withLogger(async (request: Request) => {
         data: productIds.map((pid) => ({ recipeId: created.id, productId: pid })),
       });
     }
+    broadcastInvalidate([{ type: 'AdminRecipe', id: 'LIST' }], 'Рецепт создан');
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     return handleError(err);

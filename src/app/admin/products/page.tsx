@@ -46,7 +46,7 @@ async function resolveMutation(res: MutationResult | undefined): Promise<void> {
 }
 
 export default function AdminProductsPage() {
-  const { data = [], isLoading, isError, refetch } = useGetAdminProductsQuery();
+    const { data = [], isLoading, isError, refetch } = useGetAdminProductsQuery({});
   const dispatch = useDispatch();
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateAdminProductMutation();

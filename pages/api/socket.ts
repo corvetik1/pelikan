@@ -1,7 +1,8 @@
 import type { NextApiRequest } from "next";
 import type { Server as HTTPServer } from "http";
+import { initSocket } from "@/server/socket";
 import type { Socket } from "net";
-import { Server as IOServer } from "socket.io";
+import type { Socket as IOSocket } from "socket.io";
 import type { Server as IOServerType } from "socket.io";
 
 // Extend the Next.js server to store a Socket.IO instance
@@ -14,6 +15,8 @@ export type NextApiResponseServerIO = NextApiResponse & {
     };
   };
 };
+
+let io: IOServerType | undefined;
 
 export const config = {
   api: {
@@ -31,14 +34,16 @@ export default function handler(
     return;
   }
 
-  // Create new Socket.IO server and attach to underlying HTTP server
-  const io = new IOServer(res.socket.server, {
-    path: "/api/socket", // Clients must connect with this path
-    addTrailingSlash: false,
-  });
+  // Create (or reuse) Socket.IO server
+  if (!io) {
+    io = initSocket(res.socket.server as HTTPServer);
+  }
+
+  // Store instance so that we don't create multiple servers during hot reloads
+  res.socket.server.io = io;
 
   // Basic connection log – extend as needed
-  io.on("connection", (socket) => {
+  io.on("connection", (socket: IOSocket) => {
     console.log("⚡️ New client connected", socket.id);
 
     socket.on("disconnect", () => {
@@ -46,7 +51,5 @@ export default function handler(
     });
   });
 
-  // Store instance so that we don't  create multiple servers during hot reloads
-  res.socket.server.io = io;
   res.end();
 }

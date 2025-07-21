@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withLogger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
+import { broadcastInvalidate } from '@/server/socket';
 import { requireAdmin } from '@/lib/auth';
 import { NewsUpdateSchema } from '@/lib/validation/newsSchema';
 import { handleError } from '@/lib/errorHandler';
@@ -23,6 +24,7 @@ export const PATCH = withLogger(async (request: Request, { params }: { params: P
     const data = NewsUpdateSchema.parse(payload);
     const { id } = await params;
     const updated: News = await prisma.news.update({ where: { id }, data });
+    broadcastInvalidate([{ type: 'AdminNews', id: 'LIST' }], 'Новость обновлена');
     return NextResponse.json(updated);
   } catch (err) {
     return handleError(err);
@@ -35,6 +37,7 @@ export const DELETE = withLogger(async (request: Request, { params }: { params: 
   try {
     const { id } = await params;
     await prisma.news.delete({ where: { id } });
+    broadcastInvalidate([{ type: 'AdminNews', id: 'LIST' }], 'Новость удалена');
     return NextResponse.json({ ok: true });
   } catch (err) {
     return handleError(err);

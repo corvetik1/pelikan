@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { handleError } from "@/lib/handleError";
 import { withLogger } from '@/lib/logger';
+import { broadcastInvalidate } from '@/server/socket';
 
 /**
  * Admin Users API
@@ -47,6 +48,7 @@ export const POST = withLogger(async (request: Request) => {
         roles: true,
       },
     });
+    broadcastInvalidate([{ type: 'AdminUser', id: 'LIST' }], 'Пользователь создан');
     return Response.json(created, { status: 201 });
   } catch (err) {
     return handleError(err);

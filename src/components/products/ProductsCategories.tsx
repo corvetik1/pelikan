@@ -1,5 +1,10 @@
-import { Grid, Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
+import EditableField from '@/components/admin/EditableField';
+import EditableImage from '@/components/admin/EditableImage';
+import { useIsAdmin } from '@/context/AuthContext';
+import { useUpdateCategoryFieldMutation } from '@/redux/adminApi';
 import type { Category } from '@/types/category';
 
 interface ProductsCategoriesProps {
@@ -7,27 +12,60 @@ interface ProductsCategoriesProps {
 }
 
 export default function ProductsCategories({ categories }: ProductsCategoriesProps) {
+  const prefersReduced = useReducedMotion();
+  const isAdmin = useIsAdmin();
+  const [updateCategoryField] = useUpdateCategoryFieldMutation();
   return (
-    <Grid container spacing={4} paddingY={4}>
-      {categories.map((cat) => (
-        <Grid key={cat.slug} size={{ xs: 12, sm: 6, md: 4 }}>
+    <Box display="grid" paddingY={4} gap={4} sx={{ gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' } }}>
+      {categories.map((cat, idx) => (
+        <Box key={cat.slug}>
+          <motion.div
+            custom={idx}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{
+              hidden: { opacity: 0, y: prefersReduced ? 0 : 24 },
+              visible: (i: number) => ({
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.5, delay: i * 0.07 },
+              }),
+            }}
+          >
           <Card sx={{ height: '100%' }}>
-            <CardActionArea component={Link} href={`/products/${cat.slug}`} sx={{ height: '100%' }}>
-              <CardMedia
-                component="img"
-                image={cat.img}
+            {isAdmin ? (
+              <EditableImage
+                src={cat.img}
                 alt={cat.title}
-                sx={{ height: 180, objectFit: 'cover' }}
+                width={400}
+                height={180}
+                onSave={(url) => updateCategoryField({ id: cat.slug, patch: { img: url } })}
+                style={{ height: 180, objectFit: 'cover', width: '100%' }}
               />
+            ) : (
+              <CardActionArea component={Link} href={`/products/${cat.slug}`} sx={{ height: '100%' }}>
+                <img src={cat.img} alt={cat.title} style={{ width: '100%', height: 180, objectFit: 'cover' }} />
+              </CardActionArea>
+            )}
               <CardContent>
-                <Typography component="h2" variant="h6" align="center">
-                  {cat.title}
-                </Typography>
+                {isAdmin ? (
+                    <EditableField
+                      value={cat.title}
+                      typographyProps={{ component: 'h2', variant: 'h6', align: 'center' }}
+                      onSave={(v) => updateCategoryField({ id: cat.slug, patch: { title: v } })}
+                    />
+                  ) : (
+                    <Typography component="h2" variant="h6" align="center">
+                      {cat.title}
+                    </Typography>
+                  )}
               </CardContent>
-            </CardActionArea>
+
           </Card>
-        </Grid>
+                  </motion.div>
+        </Box>
       ))}
-    </Grid>
+    </Box>
   );
 }

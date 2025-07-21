@@ -10,6 +10,10 @@ export const useSocket = (): Socket | null => {
 
   useEffect(() => {
     if (!socketRef.current) {
+      // Ensure the Socket.IO server is initialised (important in dev to avoid first-connect 404)
+      // We don't await this request – it's fire-and-forget.
+      fetch('/api/socket').catch(() => {/* ignore */});
+
       socketRef.current = io({
         path: '/api/socket',
         transports: ['websocket'],

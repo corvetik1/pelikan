@@ -1,0 +1,27 @@
+# Ignore folders that should not be sent to the Docker daemon during build
+# They are re-created inside the image (node_modules) or generated (coverage, test-results, .next)
+# Keeping the context small avoids Windows path-length issues and speeds up build.
+
+# VCS
+.git
+.gitignore
+
+# Dependencies
+node_modules
+.pnpm
+
+# Next.js build output
+.next
+
+# Test artefacts
+coverage
+test-results
+
+# Local configs
+.env*
+
+# Logs
+*.log
+
+# Docker compose overrides themselves are not needed in the image
+docker-compose*.yml

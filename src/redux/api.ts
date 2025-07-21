@@ -16,7 +16,7 @@ export const emptySplitApi = createApi({
     return fetchImpl(input as RequestInfo | URL, init);
   }) as typeof fetch,
 }),
-  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'Quote'] as const,
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'Media', 'Quote', 'Review'] as const,
   endpoints: (builder) => ({
     getProductById: builder.query<import('@/types/product').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,
@@ -135,6 +135,26 @@ export const emptySplitApi = createApi({
         result ? [...result.map(({ id }) => ({ type: 'Quote' as const, id })), { type: 'Quote', id: 'LIST' }] : [{ type: 'Quote', id: 'LIST' }],
     }),
 
+    // Reviews endpoints
+    getProductReviews: builder.query<{ items: import('@/types/review').Review[]; total: number }, { productId: string; page?: number; sort?: 'new' | 'old' | 'rating' }>({
+      query: ({ productId, page = 1, sort = 'new' }) => `/api/products/${productId}/reviews?page=${page}&sort=${sort}`,
+      providesTags: (result, _err, { productId }) =>
+        result && result.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'Review' as const, id })),
+              { type: 'Review', id: `LIST_${productId}` },
+            ]
+          : [{ type: 'Review', id: `LIST_${productId}` }],
+    }),
+    createReview: builder.mutation<import('@/types/review').Review, import('@/types/review').CreateReviewInput>({
+      query: (body) => ({
+        url: `/api/products/${body.productId}/reviews`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (_res, _err, { productId }) => [{ type: 'Review', id: `LIST_${productId}` }],
+    }),
+
     // Admin Stores endpoints
     getAdminStores: builder.query<import('@/types/admin').AdminStore[], void>({
       query: () => '/api/admin/stores',
@@ -178,4 +198,6 @@ export const {
   useGetQuoteQuery,
   useUpdateQuotePricesMutation,
   useGetAdminQuotesQuery,
+  useGetProductReviewsQuery,
+  useCreateReviewMutation,
 } = emptySplitApi;

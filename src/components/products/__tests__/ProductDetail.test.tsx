@@ -8,6 +8,13 @@ import { products } from '@/data/mock';
 const mockProduct: Product = { ...products[0], slug: 'mock-slug' };
 
 describe('ProductDetail', () => {
+  beforeEach(() => {
+    // simulate admin login so price is visible
+    Object.defineProperty(document, 'cookie', {
+      writable: true,
+      value: 'session=admin',
+    });
+  });
   it('renders product name, price and characteristics', () => {
     render(
       <Providers>

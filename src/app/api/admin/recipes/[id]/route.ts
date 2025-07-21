@@ -4,6 +4,7 @@ import { RecipeUpdateSchema } from '@/lib/validation/recipeSchema';
 import { handleError } from '@/lib/errorHandler';
 import prisma from '@/lib/prisma';
 import { withLogger } from '@/lib/logger';
+import { broadcastInvalidate } from '@/server/socket';
 import type { Recipe } from '@prisma/client';
 
 
@@ -23,6 +24,7 @@ export const PATCH = withLogger(async (req: Request, { params }: { params: Promi
     const data = RecipeUpdateSchema.parse(payload);
     const { productIds, ...recipePatch } = data;
     const updated: Recipe = await prisma.recipe.update({ where: { id }, data: recipePatch });
+    broadcastInvalidate([{ type: 'AdminRecipe', id: 'LIST' }], 'Рецепт обновлён');
     if (productIds) {
       await prisma.recipeProduct.deleteMany({ where: { recipeId: id } });
       if (productIds.length) {
@@ -41,6 +43,7 @@ export const DELETE = withLogger(async (_req: Request, { params }: { params: Pro
   const { id } = await params;
   try {
     const removed: Recipe = await prisma.recipe.delete({ where: { id } });
+    broadcastInvalidate([{ type: 'AdminRecipe', id: 'LIST' }], 'Рецепт удалён');
     return NextResponse.json(removed);
   } catch (err) {
     return handleError(err);

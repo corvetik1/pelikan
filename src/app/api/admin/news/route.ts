@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { broadcastInvalidate } from '@/server/socket';
 import { requireAdmin } from '@/lib/auth';
 import { NewsCreateSchema } from '@/lib/validation/newsSchema';
 import { handleError } from '@/lib/errorHandler';
@@ -21,6 +22,7 @@ export const POST = withLogger(async (request: Request) => {
     const payload = await request.json();
     const data = NewsCreateSchema.parse(payload);
     const created: News = await prisma.news.create({ data });
+    broadcastInvalidate([{ type: 'AdminNews', id: 'LIST' }], 'Новость создана');
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     return handleError(err);

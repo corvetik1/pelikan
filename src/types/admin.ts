@@ -52,3 +52,25 @@ export interface AdminUser {
   isActive: boolean;
   createdAt: string; // ISO
 }
+
+export interface AdminReview {
+  id: string;
+  productId: string;
+  productName: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  body: string;
+  author?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface AdminMedia {
+  id: string;
+  filename: string;
+  url: string;
+  mimeType: string;
+  size: number;
+  alt?: string;
+  tags: string[];
+  createdAt: string; // ISO
+}

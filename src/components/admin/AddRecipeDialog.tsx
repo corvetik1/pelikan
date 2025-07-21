@@ -1,6 +1,7 @@
 "use client";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Stack } from "@mui/material";
+import EditableImage from "./EditableImage";
 import { useState, ChangeEvent } from "react";
 import type { AdminRecipe } from "@/types/admin";
 import { categories } from "@/data/mock";
@@ -17,6 +18,7 @@ export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDi
     shortDescription: "",
     cookingTime: "",
     category: categories[0].slug,
+    img: "",
   });
 
   const handle = (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +28,7 @@ export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDi
   const isValid =
     form.title.trim() &&
     form.shortDescription.trim() &&
-    Number(form.cookingTime) > 0;
+    Number(form.cookingTime) > 0 && form.img.trim() !== "";
 
   const submit = () => {
     if (!isValid) return;
@@ -35,9 +37,9 @@ export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDi
       shortDescription: form.shortDescription.trim(),
       cookingTime: Number(form.cookingTime),
       category: form.category,
-      img: "",
+      img: form.img,
     });
-    setForm({ title: "", shortDescription: "", cookingTime: "", category: categories[0].slug });
+    setForm({ title: "", shortDescription: "", cookingTime: "", category: categories[0].slug, img: "" });
   };
 
   return (
@@ -48,6 +50,14 @@ export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDi
           <TextField label="Название" value={form.title} onChange={handle("title")} fullWidth />
           <TextField label="Краткое описание" value={form.shortDescription} onChange={handle("shortDescription")} fullWidth multiline rows={3} />
           <TextField type="number" label="Время приготовления, мин" value={form.cookingTime} onChange={handle("cookingTime")} fullWidth />
+          <EditableImage
+            src={form.img || "https://via.placeholder.com/200x120?text=Image"}
+            alt="Recipe image"
+            width={200}
+            height={120}
+            onSave={(newUrl) => setForm({ ...form, img: newUrl })}
+            style={{ maxWidth: 200, borderRadius: 4 }}
+          />
           <TextField select label="Категория" value={form.category} onChange={handle("category")} fullWidth>
             {categories.map((c) => (
               <MenuItem key={c.slug} value={c.slug}>

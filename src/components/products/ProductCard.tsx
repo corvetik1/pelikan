@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardActionArea, CardMedia, CardContent, Typography, Chip, Box, Link as MuiLink } from '@mui/material';
+import { useIsAdmin } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useState } from 'react';
 import ProductQuickView from './ProductQuickView';
@@ -11,6 +12,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const isAdmin = useIsAdmin();
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
@@ -40,13 +42,15 @@ export default function ProductCard({ product }: ProductCardProps) {
                {product.name}
              </Typography>
            </MuiLink>
-          <Typography variant="body2" color="text.secondary">
-            {product.price.toLocaleString('ru-RU', {
-              style: 'currency',
-              currency: 'RUB',
-              maximumFractionDigits: 0,
-            })}
-          </Typography>
+          {isAdmin && (
+            <Typography variant="body2" color="text.secondary">
+              {product.price.toLocaleString('ru-RU', {
+                style: 'currency',
+                currency: 'RUB',
+                maximumFractionDigits: 0,
+              })}
+            </Typography>
+          )}
         </CardContent>
       </CardActionArea>
       <ProductQuickView product={product} open={open} onClose={handleClose} />

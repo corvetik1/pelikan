@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withLogger } from '@/lib/logger';
+import { getIO } from '@/server/socket';
 import { requireAdmin } from '@/lib/auth';
 import { ProductCreateSchema } from '@/lib/validation/productSchema';
 import { handleError } from '@/lib/errorHandler';
@@ -13,7 +14,21 @@ import type { Prisma, Product } from '@prisma/client';
 export const GET = withLogger(async (request: Request) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
-  const list: Product[] = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
+    const { searchParams } = new URL(request.url);
+  const q = searchParams.get('q');
+
+  const list: Product[] = await prisma.product.findMany({
+    where: q
+      ? {
+          name: {
+            contains: q,
+            mode: 'insensitive',
+          },
+        }
+      : undefined,
+    orderBy: { createdAt: 'desc' },
+    take: q ? 20 : undefined,
+  });
   return NextResponse.json(list);
 });
 
@@ -32,6 +47,11 @@ export const POST = withLogger(async (request: Request) => {
       data.slug = data.name.trim().toLowerCase().replace(/\s+/g, '-');
     }
     const created: Product = await prisma.product.create({ data });
+    // Broadcast invalidate event
+    getIO()?.emit('invalidate', {
+      tags: [{ type: 'AdminProduct', id: 'LIST' }],
+      message: 'Товар создан'
+    });
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     return handleError(err);

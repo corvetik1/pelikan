@@ -11,6 +11,7 @@ import {
   Stack,
 } from "@mui/material";
 import Image from "next/image";
+import { useIsAdmin } from "@/context/AuthContext";
 import type { Product } from '@/types/product';
 
 interface ProductQuickViewProps {
@@ -20,6 +21,7 @@ interface ProductQuickViewProps {
 }
 
 export default function ProductQuickView({ product, open, onClose }: ProductQuickViewProps) {
+  const isAdmin = useIsAdmin();
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{product.name}</DialogTitle>
@@ -38,13 +40,14 @@ export default function ProductQuickView({ product, open, onClose }: ProductQuic
           <Typography variant="subtitle2" color="text.secondary">
             Вес: {product.weight}
           </Typography>
-          <Typography variant="h6" fontWeight={600}>
-            {product.price.toLocaleString("ru-RU", {
-              style: "currency",
-              currency: "RUB",
-              maximumFractionDigits: 0,
-            })}
-          </Typography>
+          {isAdmin && (
+            <Typography variant="h6" fontWeight={600}>
+              {product.price.toLocaleString("ru-RU", {
+                style: "currency",
+                currency: "RUB",
+              })}
+            </Typography>
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>

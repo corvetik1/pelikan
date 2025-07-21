@@ -12,6 +12,13 @@ if (!(global as any).TextDecoder) {
 }
 import 'cross-fetch/polyfill';
 
+// Polyfill setImmediate missing in jsdom environment
+if (!(global as any).setImmediate) {
+  (global as any).setImmediate = (fn: (...args: any[]) => void, ...args: any[]) => {
+    return setTimeout(fn, 0, ...args);
+  };
+}
+
 // Polyfill global Response.json static helper (available in Next.js runtime but not in Node 18)
 if (typeof Response !== 'undefined' && !(Response as any).json) {
   (Response as any).json = (data: unknown, init: ResponseInit = {}): Response => {

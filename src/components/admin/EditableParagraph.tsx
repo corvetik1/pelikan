@@ -12,7 +12,9 @@ interface EditableParagraphProps {
   value: string;
   onSave?: (newValue: string) => void;
   typographyProps?: Omit<TypographyProps<"p">, "children">;
-  textFieldProps?: Omit<TextFieldProps, "value" | "onChange"> & { multilineRows?: number };
+  /** How many rows to show in multiline TextField when editing */
+  multilineRows?: number;
+  textFieldProps?: Omit<TextFieldProps, "value" | "onChange">;
 }
 
 /**
@@ -23,6 +25,7 @@ export default function EditableParagraph({
   onSave,
   typographyProps,
   textFieldProps,
+  multilineRows = 3,
 }: EditableParagraphProps) {
   const isAdmin = useIsAdmin();
   const [display, setDisplay] = useState(value);
@@ -68,7 +71,7 @@ export default function EditableParagraph({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           multiline
-          minRows={textFieldProps?.multilineRows ?? 3}
+          minRows={multilineRows ?? 3}
           fullWidth
           size="small"
           {...textFieldProps}

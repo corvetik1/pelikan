@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: "Корпоративный сайт рыбной компании Бухта пеликанов",
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
