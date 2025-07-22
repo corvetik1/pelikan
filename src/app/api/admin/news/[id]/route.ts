@@ -11,7 +11,7 @@ export const GET = withLogger(async (req: Request, { params }: { params: Promise
   const auth = requireAdmin(req);
   if (auth) return auth;
   const { id } = await params;
-  const item = await prisma.news.findUnique({ where: { id } });
+  const item = await prisma.news.findUnique({ where: { id }, include: { category: true } });
   if (!item) return NextResponse.json({ message: 'Not found' }, { status: 404 });
   return NextResponse.json(item);
 });

@@ -1,9 +1,18 @@
+export interface NewsCategory {
+  id: string;
+  slug: string;
+  title: string;
+  createdAt: string;
+}
+
 export interface AdminNews {
   id: string;
   title: string;
   excerpt: string;
+  content: string;
   date: string; // ISO
-  category: string;
+  categoryId?: string;
+  category?: NewsCategory;
 }
 
 export interface AdminStore {

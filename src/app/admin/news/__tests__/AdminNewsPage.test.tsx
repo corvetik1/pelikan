@@ -1,4 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
+
+// Mock ESM modules that Jest can't parse
+jest.mock('react-markdown', () => ({ __esModule: true, default: () => null }));
+jest.mock('remark-gfm', () => ({ __esModule: true, default: () => null }));
+jest.mock('rehype-sanitize', () => ({ __esModule: true, default: () => null }));
 import userEvent from '@testing-library/user-event';
 import AdminNewsPage from '../page';
 import type { GridColDef } from '@mui/x-data-grid';
@@ -14,7 +19,7 @@ afterEach(() => {
 });
 
 const sample: AdminNews[] = [
-  { id: '1', title: 'News', excerpt: 'Some', date: '2025-01-01', category: 'general' },
+  { id: '1', title: 'News', excerpt: 'Some', content: '', date: '2025-01-01' },
 ];
 
 // Mock MUI DataGrid to simplify DOM
@@ -49,11 +54,19 @@ const createNews = jest.fn();
 const updateNews = jest.fn();
 const deleteNews = jest.fn();
 
+// Stub MediaLibraryDialog to avoid RTK Query mediaApi initialization in tests
+jest.mock('@/components/admin/MediaLibraryDialog', () => () => null);
+
 jest.mock('@/redux/api', () => ({
+  emptySplitApi: { injectEndpoints: () => ({}) },
   useGetAdminNewsQuery: () => ({ data: sample, isLoading: false, isError: false, refetch }),
   useCreateNewsMutation: () => [createNews],
   useUpdateNewsMutation: () => [updateNews],
   useDeleteNewsMutation: () => [deleteNews],
+  useGetAdminNewsCategoriesQuery: () => ({ data: [], isLoading: false, isError: false, refetch: jest.fn() }),
+  useCreateNewsCategoryMutation: () => [jest.fn()],
+  useUpdateNewsCategoryMutation: () => [jest.fn()],
+  useDeleteNewsCategoryMutation: () => [jest.fn()],
 }));
 
 // --------- tests ------------

@@ -6,6 +6,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest --passWithNoTests",
+    "e2e": "playwright test",
     "prepare": "husky install",
     "dev": "next dev",
     "build": "next build",
@@ -19,7 +20,8 @@
     "db:reset": "docker compose down -v && docker compose up -d db",
     "db:setup": "wait-on tcp:5434 && pnpm migrate && pnpm seed",
     "monitor:up": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d",
-    "monitor:down": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml down"
+    "monitor:down": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml down",
+    "docs:build": "redoc-cli bundle docs/openapi.json -o public/api.html"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -30,6 +32,8 @@
     "@mui/x-data-grid": "^7.1.0",
     "@prisma/client": "^6.11.0",
     "@reduxjs/toolkit": "^2.8.2",
+    "@uiw/react-markdown-preview": "^5.1.4",
+    "@uiw/react-md-editor": "^4.0.8",
     "dayjs": "^1.11.10",
     "framer-motion": "^12.23.6",
     "leaflet": "^1.9.4",
@@ -41,7 +45,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-leaflet": "^4.2.1",
+    "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "zod": "^3.23.8"
@@ -78,7 +85,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^3.13.0",
     "typescript": "^5",
-    "wait-on": "^7.1.2"
+    "wait-on": "^7.1.2",
+    "redoc-cli": "0.13.21"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [

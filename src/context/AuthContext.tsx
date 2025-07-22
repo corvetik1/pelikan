@@ -42,24 +42,25 @@ const getInitialUser = (): User | null => {
     if (value === "admin") return { id: "admin", name: "Admin", roles: ["admin"] };
   }
 
-  // 2. SSR-only cookie reading via next/headers (no window available)
-  if (typeof window === "undefined") {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { cookies } = require("next/headers");
-      const v: string | undefined = cookies()?.get?.("session")?.value;
-      if (v === "admin") return { id: "admin", name: "Admin", roles: ["admin"] };
-    } catch {
-      /* silent – next/headers not available outside app router */
-    }
-  }
 
   // 3. CSR localStorage
   if (typeof window !== "undefined") {
     const stored = localStorage.getItem("app_user");
     if (stored) {
       try {
-        return JSON.parse(stored) as User;
+        const userFromStorage = JSON.parse(stored) as User;
+        // Дополнительная проверка безопасности: если в localStorage админ, но в cookie нет — игнорируем.
+        const cookiePair = document.cookie
+          .split(";")
+          .find((c) => c.trim().startsWith("session="));
+        const cookieVal = cookiePair?.split("=")[1];
+        const cookieIsAdmin = cookieVal === "admin";
+        if (userFromStorage.roles.includes("admin") && !cookieIsAdmin) {
+          // Считаем, что сессия истекла → очищаем.
+          localStorage.removeItem("app_user");
+        } else {
+          return userFromStorage;
+        }
       } catch {
         localStorage.removeItem("app_user");
       }

@@ -9,9 +9,10 @@ import pinoHttp from 'pino-http';
  *   а в production остаётся JSON, пригодным для Loki.
  */
 const isDev = process.env.NODE_ENV !== 'production';
+const isNext = Boolean(process.env.NEXT_RUNTIME);
 
 export const logger = pino(
-  isDev
+  isDev && !isNext
     ? {
         level: process.env.LOG_LEVEL ?? 'info',
         transport: {

@@ -1,0 +1,36 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Pelican Bay API",
+    "version": "1.0.0",
+    "description": "Auto-generated spec (subset) for public & admin endpoints."
+  },
+  "servers": [
+    { "url": "https://pelicanbay.vercel.app/api" },
+    { "url": "http://localhost:3000/api" }
+  ],
+  "paths": {
+    "/admin/products": {
+      "get": { "summary": "List products", "tags": ["Product"], "responses": {"200": {"description": "array of products"}}},
+      "post": { "summary": "Create product", "tags": ["Product"], "requestBody": {"required": true}, "responses": {"201": {"description": "created"}}}
+    },
+    "/admin/products/{id}": {
+      "patch": { "summary": "Update product", "tags": ["Product"], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"200": {"description": "updated"}}},
+      "delete": { "summary": "Delete product", "tags": ["Product"], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"204": {"description": "deleted"}}}
+    },
+    "/admin/upload": {
+      "post": {"summary": "Upload media file","tags":["Media"],"requestBody":{"content":{"multipart/form-data":{}}},"responses":{"201":{"description":"uploaded"}}},
+      "get": {"summary": "List media","tags":["Media"],"responses":{"200":{"description":"array of media"}}}
+    },
+    "/admin/news-categories": {
+      "get": {"summary": "List news categories","tags":["NewsCategory"],"responses":{"200":{"description":"array"}}},
+      "post": {"summary": "Create news category","tags":["NewsCategory"],"requestBody":{"required":true},"responses":{"201":{"description":"created"}}}
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {"type": "http", "scheme": "bearer"}
+    }
+  },
+  "security": [{ "bearerAuth": [] }]
+}

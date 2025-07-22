@@ -35,6 +35,10 @@
 | News (single) | `/admin/news/[id]` | `PATCH, DELETE` | admin | |
 | Store | `/admin/stores` | `GET, POST` | admin | `['Store']` |
 | Store (single) | `/admin/stores/[id]` | `PATCH, DELETE` | admin | |
+| Media | `/admin/upload` | `GET, POST` | admin | `['Media']` |
+| Media (single) | `/admin/upload/[id]` | `DELETE` | admin | |
+| NewsCategory | `/admin/news-categories` | `GET, POST` | admin | `['NewsCategory']` |
+| NewsCategory (single) | `/admin/news-categories/[id]` | `PATCH, DELETE` | admin | |
 | Quote | `/quotes` | `POST` | public | `['Quote']` |
 | Quote | `/quotes/[id]` | `GET` | public (owner) | |
 | Quote prices | `/admin/quotes/[id]/prices` | `PATCH` | admin | `['Quote']` |
@@ -160,4 +164,4 @@ export const api = createApi({
 
 * [ ] Покрыть интеграционными тестами MSW → real API switch
 
-_Обновлено: 2025-07-11*
+_Обновлено: 2025-07-22*

@@ -18,7 +18,7 @@ describe('middleware /admin protection', () => {
     const req = createRequest('http://localhost/admin');
     const res = middleware(req);
     expect(res).toBeInstanceOf(NextResponse);
-    expect(res?.headers.get('location')).toBe('http://localhost/login?next=/admin');
+    expect(res?.headers.get('location')).toBe('http://localhost/login?next=%2Fadmin');
   });
 
   it('allows admin with cookie', () => {

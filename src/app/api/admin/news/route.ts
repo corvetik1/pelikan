@@ -11,7 +11,10 @@ import { withLogger } from '@/lib/logger';
 export const GET = withLogger(async (req: Request) => {
   const auth = requireAdmin(req);
   if (auth) return auth;
-  const list: News[] = await prisma.news.findMany({ orderBy: { date: 'desc' } });
+  const list = await prisma.news.findMany({
+    orderBy: { date: 'desc' },
+    include: { category: true },
+  });
   return NextResponse.json(list);
 });
 

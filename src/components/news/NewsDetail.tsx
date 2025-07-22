@@ -1,60 +1,26 @@
 'use client';
 
-import { Box, Chip, Stack } from '@mui/material';
-import EditableField from '@/components/admin/EditableField';
-import EditableParagraph from '@/components/admin/EditableParagraph';
-import EditableImage from '@/components/admin/EditableImage';
-import { useUpdateNewsFieldMutation } from '@/redux/adminApi';
+import { Box } from '@mui/material';
+import NewsContent from './NewsContent';
 import type { NewsArticle } from '@/data/mock';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 
 dayjs.locale('ru');
 
+type Content = string | string[];
 interface NewsDetailProps {
-  article: NewsArticle;
+  article: Omit<NewsArticle, 'content'> & { content: Content };
 }
 
 export default function NewsDetail({ article }: NewsDetailProps) {
-  const { title, img, date, category, content, id } = article;
-  const [updateNewsField] = useUpdateNewsFieldMutation();
+  const { title, date, category, content } = article as { title: string; date: string; category?: string; content: Content };
   return (
     <Box sx={{ py: 4 }}>
-      <Stack spacing={2}>
-        <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-          <EditableField
-            value={title}
-            onSave={(newTitle) => {
-              updateNewsField({ id, patch: { title: newTitle } });
-            }}
-            typographyProps={{ component: 'h1', variant: 'h4', sx: { flexGrow: 1 } }}
-          />
-          <Chip label={dayjs(date).format('D MMMM YYYY')} size="small" />
-          {category && <Chip label={category} size="small" />}
-        </Stack>
+      <h1>{title}</h1>
+      <p style={{ color: '#666', marginTop: 4 }}>{dayjs(date).format('D MMMM YYYY')} {category && `· ${category}`}</p>
 
-        <EditableImage
-          src={img}
-          alt={title}
-          width={800}
-          height={450}
-          style={{ width: '100%', height: 'auto', borderRadius: 8 }}
-          onSave={(newSrc) => updateNewsField({ id, patch: { img: newSrc } })}
-        />
-
-        {content.map((p, idx) => (
-           <EditableParagraph
-             key={idx}
-             value={p}
-             onSave={(newP) => {
-               const updated = [...content];
-               updated[idx] = newP;
-               updateNewsField({ id, patch: { content: updated } });
-             }}
-             typographyProps={{ variant: 'body1', paragraph: true }}
-           />
-         ))}
-      </Stack>
+      <NewsContent markdown={Array.isArray(content) ? content.join('\n\n') : content} />
     </Box>
   );
 }

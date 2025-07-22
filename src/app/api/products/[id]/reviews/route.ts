@@ -13,8 +13,8 @@ const PAGE_SIZE = 10;
  * Returns approved reviews for a product, paginated.
  * Query params: page (number, default 1)
  */
-export const GET = withLogger(async (request: Request, { params }: { params: { id: string } }) => {
-  const { id } = params;
+export const GET = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page') ?? '1');
   const sort = searchParams.get('sort') ?? 'new'; // 'new' | 'old' | 'rating'
@@ -39,11 +39,12 @@ export const GET = withLogger(async (request: Request, { params }: { params: { i
  * POST /api/products/:id/reviews
  * Creates a new review (status pending).
  */
-export const POST = withLogger(async (request: Request, { params }: { params: { id: string } }) => {
+export const POST = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const json = await request.json();
     // Ensure route param productId matches body
-    json.productId = params.id;
+    const { id } = await params;
+    json.productId = id;
     const data = ReviewCreateSchema.parse(json);
 
     const created = await prisma.review.create({

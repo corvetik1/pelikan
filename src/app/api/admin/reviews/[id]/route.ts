@@ -11,16 +11,17 @@ export const runtime = 'nodejs';
  * PATCH /api/admin/reviews/:id
  * Body: { status: 'approved' | 'rejected' }
  */
-export const PATCH = withLogger(async (request: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
 
   try {
+    const { id } = await params;
     const json = await request.json();
     const { status } = ReviewUpdateStatusSchema.parse(json);
 
     const updated = await prisma.review.update({
-      where: { id: params.id },
+      where: { id },
       data: { status },
       include: { product: { select: { name: true } } },
     });

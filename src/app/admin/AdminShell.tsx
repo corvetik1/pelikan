@@ -15,8 +15,8 @@ import {
   CssBaseline,
   Box,
   ThemeProvider,
-  createTheme,
 } from "@mui/material";
+import adminTheme from "@/theme/adminTheme";
 import MenuIcon from "@mui/icons-material/Menu";
 import NextLink from "next/link";
 
@@ -40,7 +40,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
   if (!mounted || !isAdmin) return null;
 
-  const theme = createTheme({ palette: { mode: "dark" } });
+  const theme = adminTheme;
 
   const toggle = () => setOpen((prev) => !prev);
 
@@ -59,7 +59,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       <Box sx={{ display: "flex" }}>
         <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
           <Toolbar>
-            <IconButton color="inherit" edge="start" onClick={toggle} sx={{ mr: 2 }}>
+            <IconButton color="inherit" edge="start" onClick={toggle} aria-label="open drawer" sx={{ mr: 2 }}>
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" noWrap component="div">
@@ -81,7 +81,15 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           <Toolbar />
           <List>
             {navItems.map((item) => (
-              <ListItemButton key={item.href} component={NextLink} href={item.href} onClick={() => setOpen(false)}>
+              <ListItemButton
+              key={item.href}
+              component={NextLink}
+              href={item.href}
+              onClick={() => {
+                router.push(item.href);
+                setOpen(false);
+              }}
+            >
                 <ListItemText primary={item.label} />
               </ListItemButton>
             ))}

@@ -37,6 +37,27 @@ jobs:
       - run: pnpm build
 ```
 
+## docs (story / api)
+
+```yaml
+  docs:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install --frozen-lockfile
+      - name: Build Storybook & API docs
+        run: |
+          pnpm docs:build   # storybook-static + typedoc
+          pnpm exec redoc-cli bundle docs/openapi.json -o public/api.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+```
+
 ## deploy
 
 ```yaml
@@ -70,6 +91,23 @@ pnpm dlx turbo run full-check
 * `feat/*` — feature-ветки, создают PR с предварительным Vercel Preview.
 * `hotfix/*` — критические исправления, мержатся напрямую в `main` после ревью и CI.
 
+## Loki structured logging
+
+Приложение и Nginx-контейнеры настроены на драйвер `loki`:
+
+```yaml
+env:
+  LOKI_URL: http://loki:3100/loki/api/v1/push
+logging:
+  driver: loki
+  options:
+    loki-url: ${LOKI_URL}
+    loki-retries: "3"
+    loki-batch-size: "400"
+```
+
+Логи доступны в Grafana Explore (label `service=pelican-app`).
+
 ## Расширение матрицы
 
 Для проверки на нескольких версиях Node/OS добавьте:
@@ -83,4 +121,4 @@ strategy:
 
 ---
 
-Последнее обновление: 2025-07-13
+Последнее обновление: 2025-07-22

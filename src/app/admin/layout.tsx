@@ -1,3 +1,4 @@
+"use client";
 // src/app/admin/layout.tsx
 // Server-side wrapper for the Admin panel.
 // Dynamically loads the client-only AdminShell with SSR disabled to avoid

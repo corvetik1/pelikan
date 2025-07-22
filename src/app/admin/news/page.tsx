@@ -4,7 +4,7 @@ import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
-import AdminDataGrid from "@/components/admin/AdminDataGrid";
+import NewsTable from "@/components/admin/NewsTable";
 import NewsDialog from "@/components/admin/NewsDialog";
 import {
   useGetAdminNewsQuery,
@@ -12,7 +12,6 @@ import {
   useUpdateNewsMutation,
   useDeleteNewsMutation,
 } from "@/redux/api";
-import type { GridColDef } from "@mui/x-data-grid";
 import { AdminNews } from "@/types/admin";
 
 export default function AdminNewsPage() {
@@ -27,14 +26,7 @@ export default function AdminNewsPage() {
   const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const columns: GridColDef[] = [
-    { field: "title", headerName: "Заголовок", flex: 1, editable: true },
-    { field: "excerpt", headerName: "Анонс", flex: 2, editable: true },
-    { field: "date", headerName: "Дата", width: 150, editable: true },
-    { field: "category", headerName: "Категория", width: 150, editable: true },
-  ];
-
-  const handleAdd = () => {
+    const handleAdd = () => {
     setEditItem(null);
     setDialogOpen(true);
   };
@@ -48,9 +40,8 @@ export default function AdminNewsPage() {
         </Button>
       </Stack>
 
-      <AdminDataGrid<AdminNews>
+      <NewsTable
         rows={data}
-        columns={columns}
         loading={isLoading}
         onDelete={(id) => setDeleteId(id)}
         onUpdate={async (id, patch) => {

@@ -61,14 +61,22 @@ DataGrid cells are editable (`editable:true`) and call `onUpdate` which wraps RT
 | Entity | Base URL | RTK Query hooks | Tags |
 |--------|----------|-----------------|------|
 | Product | `/api/admin/products` | `useGetAdminProductsQuery` etc. | `['Product']` |
-| Recipe *mock* | `/api/admin/recipes` | `useGetAdminRecipesQuery` | `['Recipe']` |
+| Recipe | `/api/admin/recipes` | `useGetAdminRecipesQuery` | `['Recipe']` |
 | News | `/api/admin/news` | `useGetAdminNewsQuery` | `['News']` |
+| NewsCategory | `/api/admin/news-categories` | `useGetAdminNewsCategoriesQuery` | `['NewsCategory']` |
 | Store | `/api/admin/stores` | `useGetAdminStoresQuery` | `['Store']` |
+| Media | `/api/admin/upload` | `useListMediaQuery` / `useUploadMediaMutation` | `['Media']` |
 | Role | `/api/admin/roles` | `useGetAdminRolesQuery` | `['Role']` |
 | User | `/api/admin/users` | `useGetAdminUsersQuery` | `['User']` |
 | Quote | `/api/admin/quotes` | `useGetAdminQuotesQuery` | `['Quote']` |
 
 *Real* endpoints (Product, Role, User, News, Store, Quote) connect to PostgreSQL via Prisma. Только **Recipe** пока остаётся мокированным через MSW.
+
+### Rich Content & Media Library
+
+* **Rich Markdown Editor** – встроен в `NewsDialog` и `RecipeDialog` (вкладки «Editor / Preview»), поддерживает GFM, таблицы, изображения; рендер на сайте через `ReactMarkdown` + `rehype-sanitize`.
+* **MediaLibraryDialog** – глобальный диалог, открывается через `useMediaLibrary()`. Drag-and-drop загрузка, предпросмотр, удаление файлов. Использует RTK Query endpoints `uploadMedia`, `listMedia`, `deleteMedia`.
+* **Глобальный Snackbar** – провайдер `AppSnackbarProvider` слушает события Socket.IO (`product.updated`, `news.created` …) и показывает toast «Данные обновлены»; используется и в CRUD мутациях.
 
 ### providesTags / invalidatesTags rules
 
@@ -89,4 +97,4 @@ This ensures automatic cache refetch and up-to-date grids.
 
 ---
 
-_Last updated: 2025-07-11*
+_Last updated: 2025-07-22*

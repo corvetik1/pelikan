@@ -16,7 +16,7 @@ export const emptySplitApi = createApi({
     return fetchImpl(input as RequestInfo | URL, init);
   }) as typeof fetch,
 }),
-  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'Media', 'Quote', 'Review'] as const,
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'NewsCategory', 'Media', 'Quote', 'Review'] as const,
   endpoints: (builder) => ({
     getProductById: builder.query<import('@/types/product').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,
@@ -50,6 +50,27 @@ export const emptySplitApi = createApi({
     deleteNews: builder.mutation<{ ok: boolean }, string>({
       query: (id) => ({ url: `/api/admin/news/${id}`, method: 'DELETE' }),
       invalidatesTags: [{ type: 'AdminNews', id: 'LIST' }],
+    }),
+
+    // ---------------- news categories ----------------
+    getAdminNewsCategories: builder.query<import('@/types/admin').NewsCategory[], void>({
+      query: () => '/api/admin/news-categories',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'NewsCategory' as const, id })), { type: 'NewsCategory', id: 'LIST' }]
+          : [{ type: 'NewsCategory', id: 'LIST' }],
+    }),
+    createNewsCategory: builder.mutation<import('@/types/admin').NewsCategory, import('@/lib/validation/newsCategorySchema').NewsCategoryCreateInput>({
+      query: (body) => ({ url: '/api/admin/news-categories', method: 'POST', body }),
+      invalidatesTags: [{ type: 'NewsCategory', id: 'LIST' }],
+    }),
+    updateNewsCategory: builder.mutation<import('@/types/admin').NewsCategory, { id: string; patch: import('@/lib/validation/newsCategorySchema').NewsCategoryUpdateInput }>({
+      query: ({ id, patch }) => ({ url: `/api/admin/news-categories/${id}`, method: 'PATCH', body: patch }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'NewsCategory', id }, { type: 'NewsCategory', id: 'LIST' }],
+    }),
+    deleteNewsCategory: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/api/admin/news-categories/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'NewsCategory', id: 'LIST' }],
     }),
 
     // Admin Roles endpoints
@@ -183,8 +204,13 @@ export const {
   useGetAllProductsQuery,
   useGetB2BPricesQuery,
   useGetAdminNewsQuery,
-  useCreateNewsMutation,
   useUpdateNewsMutation,
+  useCreateNewsMutation,
+
+  useGetAdminNewsCategoriesQuery,
+  useCreateNewsCategoryMutation,
+  useUpdateNewsCategoryMutation,
+  useDeleteNewsCategoryMutation,
   useDeleteNewsMutation,
   useGetAdminStoresQuery,
   useCreateStoreMutation,

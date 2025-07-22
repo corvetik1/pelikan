@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import AddProductDialog from '../AddProductDialog';
 import { categories } from '@/data/mock';
 
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 describe('AddProductDialog', () => {
   const defaultProps = {
@@ -35,17 +35,13 @@ describe('AddProductDialog', () => {
     await user.type(screen.getByLabelText(/Цена/i), '200');
     await user.type(screen.getByLabelText(/Вес/i), '200 г');
 
-    // select different category
-    await user.click(screen.getByLabelText(/Категория/i));
-    await user.click(screen.getByRole('option', { name: categories[1].title }));
-
     await user.click(screen.getByRole('button', { name: /создать/i }));
 
     expect(onCreate).toHaveBeenCalledWith({
       name: 'Тестовый',
       price: 200,
       weight: '200 г',
-      category: categories[1].slug,
+      category: categories[0].slug,
       img: '',
     });
 

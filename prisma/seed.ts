@@ -61,6 +61,16 @@ async function main(): Promise<void> {
     },
   });
 
+  // Ensure category exists
+  const corporateCategory = await prisma.newsCategory.upsert({
+    where: { slug: 'corporate' },
+    update: {},
+    create: {
+      slug: 'corporate',
+      title: 'Corporate',
+    },
+  });
+
   // Sample news article
   await prisma.news.upsert({
     where: { id: 'news-sample-1' },
@@ -69,7 +79,9 @@ async function main(): Promise<void> {
       id: 'news-sample-1',
       title: 'Открыт новый распределительный центр',
       excerpt: '«Бухта пеликанов» расширяет логистику.',
-      category: 'corporate',
+      category: {
+        connect: { id: corporateCategory.id },
+      },
       date: new Date('2025-07-01'),
     },
   });

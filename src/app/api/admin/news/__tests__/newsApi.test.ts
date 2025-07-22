@@ -11,7 +11,8 @@ const news: AdminNews[] = [
     id: 'n1',
     title: 'Первая новость',
     excerpt: 'Анонс',
-    category: 'general',
+    content: '',
+
     date: new Date('2025-01-01').toISOString(),
   },
 ];
@@ -65,7 +66,7 @@ describe('/api/admin/news routes', () => {
   });
 
   it('POST creates news', async () => {
-    const payload = { title: 'Новая', excerpt: 'Коротко', category: 'general' } satisfies Partial<AdminNews>;
+    const payload = { title: 'Новая', excerpt: 'Коротко', content: 'Текст' } satisfies Partial<AdminNews>;
     const req = jsonRequest('POST', 'http://localhost/api/admin/news', payload);
     const res = await postNews(req);
     expect(res.status).toBe(201);

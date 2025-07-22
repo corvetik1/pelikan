@@ -149,7 +149,8 @@ export default function AdminDataGrid<T extends { id: string }>(
 
   /* ----------------- render ----------------- */
   return (
-    <DataGrid
+    <Box sx={{ width: '100%', overflowX: 'auto' }}>
+      <DataGrid
       slots={{ loadingOverlay: LoadingSkeleton }}
 
       checkboxSelection={checkboxSelection}
@@ -166,6 +167,8 @@ export default function AdminDataGrid<T extends { id: string }>(
       processRowUpdate={processRowUpdate}
       onCellEditStop={handleCellEditStop}
       disableRowSelectionOnClick
+      sx={{ backgroundColor: 'background.paper', minWidth: 600 }}
     />
+    </Box>
   );
 }

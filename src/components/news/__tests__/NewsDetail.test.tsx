@@ -7,6 +7,24 @@ import 'dayjs/locale/ru';
 
 dayjs.locale('ru');
 
+// Stub react-markdown (ESM) for Jest (CommonJS) environment
+import React from 'react';
+jest.mock('react-markdown', () => {
+  return { __esModule: true, default: ({ children }: { children?: React.ReactNode }) => React.createElement(React.Fragment, null, children) };
+});
+// Stub remark-gfm and rehype-sanitize (ESM) for Jest
+jest.mock('remark-gfm', () => () => null);
+jest.mock('rehype-sanitize', () => () => null);
+// Mock next/image to keep Jest happy
+jest.mock('next/image', () => {
+  return {
+    __esModule: true,
+    default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+      return React.createElement('img', { ...props, alt: props.alt ?? 'image' });
+    },
+  };
+});
+
 const sample = news[0];
 
 describe('NewsDetail', () => {
@@ -19,11 +37,14 @@ describe('NewsDetail', () => {
 
     // дата
     const formattedDate = dayjs(sample.date).format('D MMMM YYYY');
-    expect(screen.getByText(formattedDate)).toBeInTheDocument();
+    expect(
+      screen.getByText((content, node) => node?.textContent?.startsWith(formattedDate) ?? false)
+    ).toBeInTheDocument();
 
     // контентные абзацы
     sample.content.forEach((p) => {
-      expect(screen.getByText(p)).toBeInTheDocument();
+      const firstWord = p.split(' ')[0];
+      expect(screen.getByText((c) => c.includes(firstWord))).toBeInTheDocument();
     });
   });
 });

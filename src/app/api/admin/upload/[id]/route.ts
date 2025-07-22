@@ -8,10 +8,10 @@ import { getIO } from '@/server/socket';
 
 export const runtime = 'nodejs';
 
-export const DELETE = withLogger(async (_req: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withLogger(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const auth = requireAdmin(_req);
   if (auth) return auth;
-  const { id } = params;
+  const { id } = await params;
   try {
     const media = await prisma.media.findUnique({ where: { id } });
     if (!media) {

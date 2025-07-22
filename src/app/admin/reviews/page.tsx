@@ -59,7 +59,7 @@ export default function AdminReviewsPage() {
     } catch {
       dispatch(showSnackbar({ message: 'Ошибка обновления', severity: 'error' }));
     }
-  }, [updateStatus, dispatch]);
+  }, [updateStatus, dispatch, refetch]);
 
   const columns: GridColDef[] = useMemo(() => [
     { field: 'productName', headerName: 'Товар', flex: 1, minWidth: 200 },

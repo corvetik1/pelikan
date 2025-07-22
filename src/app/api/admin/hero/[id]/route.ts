@@ -20,9 +20,9 @@ const patchSchema = z
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const id = params.id;
+  const { id } = await params;
   const json = (await req.json()) as unknown;
   const patch = patchSchema.parse(json);
 

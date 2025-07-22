@@ -8,9 +8,22 @@ import {
   TextField,
   Button,
   Stack,
+  IconButton,
+  Tooltip,
+  Box,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { AdminNews } from "@/types/admin";
+import ImageIcon from "@mui/icons-material/Image";
+import { useEffect, useState, Suspense } from "react";
+import { Tabs, Tab } from "@mui/material";
+import ReactMarkdown from 'react-markdown';
+import Image from 'next/image';
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
+import dynamic from "next/dynamic";
+import { AdminNews, NewsCategory } from "@/types/admin";
+import { Autocomplete } from "@mui/material";
+import { useGetAdminNewsCategoriesQuery } from "@/redux/api";
+import MediaLibraryDialog from "@/components/admin/MediaLibraryDialog";
 
 export interface NewsDialogProps {
   open: boolean;
@@ -24,26 +37,35 @@ export interface NewsDialogProps {
 export default function NewsDialog({ open, onClose, initial, onSave }: NewsDialogProps) {
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
+  const [content, setContent] = useState("# Заголовок\n\nОписание...");
+  const [mediaOpen, setMediaOpen] = useState(false);
+
+  // Lazy load MD editor (SSR-off)
+  const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
   const [date, setDate] = useState("");
-  const [category, setCategory] = useState("general");
+  const { data: categories = [] } = useGetAdminNewsCategoriesQuery();
+  const [tab, setTab] = useState<0 | 1>(0); // 0 = editor, 1 = preview
+  const [categoryId, setCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initial) {
       setTitle(initial.title);
       setExcerpt(initial.excerpt);
       setDate(initial.date.slice(0, 10));
-      setCategory(initial.category);
+      setContent(initial.content ?? "");
+      setCategoryId(initial.categoryId ?? null);
     } else {
       setTitle("");
       setExcerpt("");
       setDate(new Date().toISOString().slice(0, 10));
-      setCategory("general");
+      setCategoryId(null);
+      setContent("# Заголовок\n\nОписание...");
     }
   }, [initial]);
 
   const handleSave = () => {
     if (!title.trim()) return; // basic validation
-    onSave({ title, excerpt, date, category, id: initial?.id });
+    onSave({ title, excerpt, content, date, categoryId: categoryId ?? undefined, id: initial?.id });
     onClose();
   };
 
@@ -75,12 +97,49 @@ export default function NewsDialog({ open, onClose, initial, onSave }: NewsDialo
             InputLabelProps={{ shrink: true }}
             required
           />
-          <TextField
-            label="Категория"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            fullWidth
+          <Autocomplete
+            options={categories}
+            getOptionLabel={(o: NewsCategory) => o.title}
+            value={categories.find((c) => c.id === categoryId) ?? null}
+            onChange={(_e, val) => setCategoryId(val ? val.id : null)}
+            renderInput={(params) => <TextField {...params} label="Категория" fullWidth />}
           />
+                  {/* Markdown editor */}
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <span>Контент</span>
+            <Tooltip title="Вставить изображение">
+              <IconButton size="small" onClick={() => setMediaOpen(true)}>
+                <ImageIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+          {/* Tabs for editor / preview */}
+          <Tabs value={tab} onChange={(_, v) => setTab(v as 0 | 1)} sx={{ mb: 1 }}>
+            <Tab label="Редактор" />
+            <Tab label="Превью" />
+          </Tabs>
+          {tab === 0 ? (
+            <Suspense fallback={<div>Loading editor...</div>}>
+              <MDEditor value={content} onChange={(val?: string) => setContent(val ?? "")} height={300} />
+            </Suspense>
+          ) : (
+            <Box sx={{ height: 300, overflow: 'auto', p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]} components={{
+                img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+                  <Image
+                    src={typeof props.src === 'string' ? props.src : ''}
+                    alt={props.alt ?? ''}
+                    width={800}
+                    height={600}
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                    loading="lazy"
+                  />
+                ),
+              }}>
+                {content}
+              </ReactMarkdown>
+            </Box>
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -89,6 +148,15 @@ export default function NewsDialog({ open, onClose, initial, onSave }: NewsDialo
           Сохранить
         </Button>
       </DialogActions>
+          <MediaLibraryDialog
+        open={mediaOpen}
+        onClose={() => setMediaOpen(false)}
+        onSelect={(media) => {
+          // insert markdown image
+          setContent((prev) => `${prev}\n\n![${media.filename}](${media.url})`);
+          setMediaOpen(false);
+        }}
+      />
     </Dialog>
   );
 }

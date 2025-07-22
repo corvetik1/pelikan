@@ -1,3 +1,5 @@
+'use client';
+/* eslint-disable @next/next/no-img-element */
 import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';

@@ -7,9 +7,16 @@ import { z } from 'zod';
 export const NewsBaseSchema = z.object({
   title: z.string().trim().min(1).max(256),
   excerpt: z.string().trim().min(1).max(1024),
-  category: z.string().trim().min(1).max(64),
-  // Optional ISO date string; if omitted, server sets now()
-  date: z.string().datetime().optional(),
+  content: z.string().trim().min(1).max(50000).refine((v) => !/<script[\s>]/i.test(v), { message: 'Inline <script> tags are not allowed' }),
+  // Optional relation to NewsCategory
+  categoryId: z.string().uuid().nullable().optional(),
+  // Optional date string (YYYY-MM-DD or ISO); if omitted, server sets now()
+  date: z
+    .string()
+    .refine((val) => /^(\d{4}-\d{2}-\d{2})$/.test(val) || !isNaN(Date.parse(val)), {
+      message: 'Invalid date format',
+    })
+    .optional(),
 });
 
 export const NewsCreateSchema = NewsBaseSchema;

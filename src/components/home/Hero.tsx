@@ -74,7 +74,7 @@ export default function Hero() {
   React.useEffect(() => {
     const id = setInterval(() => setIndex((prev) => (prev + 1) % slides.length), 5000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [slides.length]);
 
   const slide = slides[index];
