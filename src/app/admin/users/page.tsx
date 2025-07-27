@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -133,12 +134,14 @@ export default function AdminUsersPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Пользователи</Typography>
-        <Button variant="contained" size="small" onClick={() => setOpenAdd(true)}>
-          + Добавить
-        </Button>
-      </Stack>
+      <AdminPageHeading
+        title="Пользователи"
+        actions={
+          <Button variant="contained" size="small" onClick={() => setOpenAdd(true)}>
+            + Добавить
+          </Button>
+        }
+      />
       <AdminDataGrid
         rows={data as AdminUser[]}
         columns={baseColumns}

@@ -1,4 +1,6 @@
 import { createTheme } from '@mui/material/styles';
+import { adminPalette } from './adminPalette';
+import { adminTypography } from './typography';
 // Extend MUI theme types with DataGrid keys
 import '@mui/x-data-grid/themeAugmentation';
 
@@ -7,26 +9,34 @@ import '@mui/x-data-grid/themeAugmentation';
  * Palette and component overrides adhere to company branding and modern UX.
  */
 const adminTheme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2', // corporate blue
-    },
-    secondary: {
-      main: '#d81b60', // accent pink
-    },
-    background: {
-      default: '#f7f9fc',
-      paper: '#ffffff',
-    },
-  },
+  palette: adminPalette,
+
   shape: {
     borderRadius: 8,
   },
-  typography: {
-    fontSize: 14,
-  },
+  typography: adminTypography,
+
   components: {
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          '&:focus-visible': {
+            outline: '2px solid #1976d2',
+            outlineOffset: 2,
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          '&:focus-visible': {
+            outline: '2px solid #1976d2',
+            outlineOffset: 2,
+          },
+        },
+      },
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {

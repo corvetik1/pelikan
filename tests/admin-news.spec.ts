@@ -7,7 +7,7 @@ test.describe('Admin News', () => {
     const items: any[] = [ { id: 'n-1', title: 'Stub', excerpt: 'Stub', date: new Date().toISOString(), category: 'general' } ];
 
     // List (GET) and Create (POST)
-    await page.route('**/api/admin/news**', (route: Route, request: Request) => {
+    await page.route('**/api/admin/news', (route: Route, request: Request) => {
       if (request.method() === 'GET') {
         route.fulfill({ status: 200, body: JSON.stringify(items), contentType: 'application/json' });
       } else if (request.method() === 'POST') {
@@ -71,6 +71,8 @@ test.describe('Admin News', () => {
 
     // ADD
     await page.getByTestId('add-news-btn').click({ force: true });
+    // Wait for dialog to appear
+    await page.waitForSelector('[role="dialog"]', { timeout: 10000 });
     await page.getByRole('textbox', { name: 'Заголовок' }).fill('Playwright News');
     await page.getByRole('textbox', { name: 'Анонс' }).fill('E2E created');
     // date already set

@@ -8,7 +8,7 @@ import type { AdminMedia } from "@/types/admin";
 
 interface FileUploaderProps {
   /** Callback после успешной загрузки файла(ов) */
-  onUploaded?: (files: AdminMedia[]) => void;
+  onUploaded?: (files: AdminMedia[] | FileList | File[]) => void;
   /** Разрешить множественную загрузку */
   multiple?: boolean;
   /** Ограничение типов. По умолчанию images */

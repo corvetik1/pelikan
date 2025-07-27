@@ -39,4 +39,26 @@ describe('Providers – Socket invalidate handling', () => {
       expect(spyDispatch).toHaveBeenCalledWith(showSnackbar({ message: payload.message, severity: 'success' }));
     }));
   });
+
+  it('handles multiple tag objects without message', async () => {
+    render(
+      <Providers>
+        <div>child</div>
+      </Providers>
+    );
+
+    const payload = {
+      tags: [
+        { type: 'AdminProduct', id: 'LIST' },
+        { type: 'Theme', id: 'LIST' },
+      ],
+    } as Parameters<typeof fakeSocket.emit>[1];
+    fakeSocket.emit('invalidate', payload);
+
+    await import('@testing-library/react').then(({ waitFor }) => waitFor(() => {
+      expect(spyDispatch).toHaveBeenCalledWith(emptySplitApi.util.invalidateTags(payload.tags));
+      // should NOT show snackbar because no message
+      expect(spyDispatch).not.toHaveBeenCalledWith(expect.objectContaining(showSnackbar({ message: '', severity: 'success' })));
+    }));
+  });
 });

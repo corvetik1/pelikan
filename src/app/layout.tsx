@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Providers from "@/providers/Providers";
+import { getActiveThemeTokens } from '@/lib/themeServer';
 import Header from "@/components/Header";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -13,15 +14,16 @@ export const metadata: Metadata = {
 
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialTokens = await getActiveThemeTokens();
   return (
     <html lang="en">
       <body>
-        <Providers>
+        <Providers initialTokens={initialTokens}>
           <Header />
             <main>
               <Box sx={{ display: 'flex', justifyContent: 'center' }}>

@@ -1,33 +1,43 @@
-import prisma from "@/lib/prisma";
-import { handleError } from "@/lib/handleError";
-import { roleUpdateSchema } from "@/lib/validation/roleSchema";
+import prisma from '@/lib/prisma';
+import { handleError } from '@/lib/handleError';
+import { roleUpdateSchema } from '@/lib/validation/roleSchema';
 import { withLogger } from '@/lib/logger';
-import { broadcastInvalidate } from '@/server/socket';
+import { withInvalidate } from '@/lib/withInvalidate';
+import { requireAdmin } from '@/lib/auth';
+import type { Role } from '@prisma/client';
 
-
-export const PATCH = withLogger(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
-  try {
+// PATCH /api/admin/roles/[id] – обновить роль
+export const PATCH = withLogger(
+  withInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль обновлена')(
+    async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+      const auth = requireAdmin(req);
+      if (auth) return auth;
+      try {
         const { id } = await params;
-    const payload = await req.json();
+        const payload = await req.json();
         const data = roleUpdateSchema.parse(payload);
-    const role = await prisma.role.update({
-            where: { id },
-            data,
-    });
-        broadcastInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль обновлена');
-    return Response.json(role);
-  } catch (err) {
-    return handleError(err);
-  }
-});
+        const role: Role = await prisma.role.update({ where: { id }, data });
+        return Response.json(role);
+      } catch (err) {
+        return handleError(err);
+      }
+    },
+  ),
+);
 
-export const DELETE = withLogger(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
-  try {
-    const { id } = await params;
+// DELETE /api/admin/roles/[id] – удалить роль
+export const DELETE = withLogger(
+  withInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль удалена')(
+    async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+      const auth = requireAdmin(req);
+      if (auth) return auth;
+      try {
+        const { id } = await params;
         await prisma.role.delete({ where: { id } });
-        broadcastInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль удалена');
         return Response.json({ ok: true });
-  } catch (err) {
-    return handleError(err);
-  }
-});
+      } catch (err) {
+        return handleError(err);
+      }
+    },
+  ),
+);

@@ -1,28 +1,35 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
-import { useIsAdmin } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import {
+  CssBaseline,
+  Box,
   AppBar,
   Toolbar,
-  Typography,
   IconButton,
+  Typography,
   Drawer,
   List,
   ListItemButton,
   ListItemText,
-  CssBaseline,
-  Box,
-  ThemeProvider,
 } from "@mui/material";
-import adminTheme from "@/theme/adminTheme";
 import MenuIcon from "@mui/icons-material/Menu";
-import NextLink from "next/link";
+import Link from "next/link";
+import { useTheme } from "@mui/material/styles";
+
+import { ReactNode, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useIsAdmin } from "@/context/AuthContext";
+
+import { ThemeRegistry } from "@/components/ThemeRegistry";
+import { useActiveThemeTokens } from "@/hooks/useActiveThemeTokens";
+import adminTheme from "@/theme/adminTheme";
 
 const drawerWidth = 240;
 
 export default function AdminShell({ children }: { children: ReactNode }) {
+  const theme = useTheme();
+  const tokens = useActiveThemeTokens();
+
   const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
@@ -39,8 +46,12 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   }, [isAdmin, router]);
 
   if (!mounted || !isAdmin) return null;
-
-  const theme = adminTheme;
+  const themeWrapper = (content: ReactNode) => {
+    if (tokens) {
+      return <ThemeRegistry tokens={tokens}>{content}</ThemeRegistry>;
+    }
+    return <ThemeRegistry tokens={adminTheme as unknown as Record<string, unknown>}>{content}</ThemeRegistry>; // fallback to static adminTheme tokens cast
+  };
 
   const toggle = () => setOpen((prev) => !prev);
 
@@ -50,11 +61,13 @@ export default function AdminShell({ children }: { children: ReactNode }) {
     { label: "Рецепты", href: "/admin/recipes" },
     { label: "Магазины", href: "/admin/stores" },
     { label: "Отзывы", href: "/admin/reviews" },
+    { label: "Темы", href: "/admin/themes" },
+    { label: "Настройки", href: "/admin/settings" },
     { label: "Заявки", href: "/admin/quotes" },
   ];
 
-  return (
-    <ThemeProvider theme={theme}>
+  return themeWrapper(
+    <>
       <CssBaseline />
       <Box sx={{ display: "flex" }}>
         <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
@@ -83,7 +96,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             {navItems.map((item) => (
               <ListItemButton
               key={item.href}
-              component={NextLink}
+              component={Link}
               href={item.href}
               onClick={() => {
                 router.push(item.href);
@@ -100,6 +113,6 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           {children}
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 }

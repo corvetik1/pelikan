@@ -23,6 +23,7 @@ const sample: AdminProduct[] = [
 const updateProduct = jest.fn();
 
 jest.mock('@/redux/adminApi', () => ({
+  useImportProductsMutation: () => [jest.fn()],
   useGetAdminProductsQuery: () => ({ data: sample, isLoading: false, isError: false, refetch: jest.fn() }),
   useCreateProductMutation: () => [jest.fn()],
   useUpdateAdminProductMutation: () => [updateProduct],

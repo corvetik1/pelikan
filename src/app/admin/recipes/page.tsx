@@ -1,12 +1,16 @@
 "use client";
 
 import { Box, Typography, Button, Stack } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
+import ViewToggle from '@/components/admin/ViewToggle';
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
+import AdminRecipeCard from '@/components/admin/AdminRecipeCard';
+import { useViewMode } from '@/hooks/useViewMode';
 
 import {
   useGetAdminRecipesQuery,
@@ -45,12 +49,17 @@ async function resolveMutation(res: MutationResult | undefined): Promise<void> {
 }
 
 export default function AdminRecipesPage() {
-  const { data = [], isLoading, isError, refetch } = useGetAdminRecipesQuery();
+
+  const [viewMode] = useViewMode('recipes');
+  const { data = [], isLoading, isError, refetch } = useGetAdminRecipesQuery(undefined, { skip: typeof window === 'undefined' });
   const dispatch = useDispatch();
   const [createRecipe] = useCreateRecipeMutation();
   const [updateRecipe] = useUpdateAdminRecipeMutation();
   const [deleteRecipe] = useDeleteRecipeMutation();
   const [openAdd, setOpenAdd] = useState(false);
+  const openAddDialog = () => {
+    setOpenAdd(true);
+  };
   
   const [deleteId, setDeleteId] = useState<string | null>(null);
   
@@ -107,19 +116,34 @@ export default function AdminRecipesPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Рецепты</Typography>
-        <Button variant="contained" size="small" onClick={() => setOpenAdd(true)}>
-          + Добавить
-        </Button>
-      </Stack>
-      <AdminDataGrid
-        rows={data as AdminRecipe[]}
-        columns={baseColumns}
-        loading={isLoading}
-        onDelete={handleDelete}
-        onUpdate={handleUpdate}
+      <AdminPageHeading
+        title="Рецепты"
+        actions={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ViewToggle section="recipes" />
+            <Button variant="contained" size="small" onClick={openAddDialog}>
+              + Добавить
+            </Button>
+          </Stack>
+        }
       />
+      {viewMode === 'list' ? (
+        <AdminDataGrid
+          rows={data as AdminRecipe[]}
+          columns={baseColumns}
+          loading={isLoading}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
+      ) : (
+        <Box display="flex" flexWrap="wrap" gap={2}>
+          {(data as AdminRecipe[]).map((item) => (
+            <Box key={item.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)' } }}>
+              <AdminRecipeCard item={item} onClick={() => {/* open edit dialog later */}} />
+            </Box>
+          ))}
+        </Box>
+      )}
       <AddRecipeDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
       <ConfirmDialog
         open={Boolean(deleteId)}

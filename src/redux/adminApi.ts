@@ -77,6 +77,15 @@ export const adminApi = emptySplitApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'AdminProduct', id: 'LIST' }],
     }),
+    importProducts: builder.mutation<{ imported: number; errors?: string[] }, FormData>({
+      query: (body) => ({
+        url: '/api/admin/products/import',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'AdminProduct', id: 'LIST' }],
+    }),
+
     // ---------------- recipes ----------------
     getAdminRecipes: builder.query<AdminRecipe[], void>({
       query: () => '/api/admin/recipes',
@@ -177,6 +186,7 @@ export const {
   useCreateProductMutation,
   useUpdateAdminProductMutation,
   useDeleteProductMutation,
+  useImportProductsMutation,
   useGetAdminRecipesQuery,
   useCreateRecipeMutation,
   useUpdateAdminRecipeMutation,

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useMemo, useCallback } from 'react';
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
+import ViewToggle from '@/components/admin/ViewToggle';
+import { useViewMode } from '@/hooks/useViewMode';
 import {
   Box,
   Typography,
@@ -14,8 +17,10 @@ import {
   CircularProgress,
   TextField,
   Autocomplete,
+
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import AdminReviewCard from '@/components/admin/AdminReviewCard';
 import type { ChipProps } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -31,12 +36,15 @@ import type { AdminReview } from '@/types/admin';
 
 const PAGE_SIZE = 20;
 
+  
+
 export default function AdminReviewsPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [page, setPage] = useState(1);
   const [productFilter, setProductFilter] = useState<string | null>(null);
   const [productQuery, setProductQuery] = useState('');
   const dispatch = useDispatch();
+  const [viewMode] = useViewMode('reviews');
 
   const { data, isLoading, isError, refetch } = useGetAdminReviewsQuery({
     status: statusFilter === 'all' ? undefined : statusFilter,
@@ -114,65 +122,84 @@ export default function AdminReviewsPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h5">Отзывы</Typography>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Autocomplete
-            size="small"
-            sx={{ minWidth: 220 }}
-            options={productOptions}
-            getOptionLabel={(o) => o.name}
-            onInputChange={(_, val) => setProductQuery(val)}
-            onChange={(_, val) => {
-              setProductFilter(val ? val.id : null);
-              setPage(1);
-            }}
-            renderInput={(params) => <TextField {...params} label="Товар" placeholder="Поиск..." />}
-          />
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel id="status-label">Статус</InputLabel>
-          <Select
-            labelId="status-label"
-            label="Статус"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as typeof statusFilter);
-              setPage(1);
-            }}
-          >
-            <MenuItem value="all">Все</MenuItem>
-            <MenuItem value="pending">Ожидает</MenuItem>
-            <MenuItem value="approved">Одобрено</MenuItem>
-            <MenuItem value="rejected">Отклонено</MenuItem>
-          </Select>
-          </FormControl>
-        </Stack>
-      </Stack>
+      <AdminPageHeading
+        title="Отзывы"
+        actions={
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Autocomplete
+              size="small"
+              sx={{ minWidth: 220 }}
+              options={productOptions}
+              getOptionLabel={(o) => o.name}
+              onInputChange={(_, val) => setProductQuery(val)}
+              onChange={(_, val) => {
+                setProductFilter(val ? val.id : null);
+                setPage(1);
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Товар" placeholder="Поиск..." />
+              )}
+            />
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="status-label">Статус</InputLabel>
+              <Select
+                labelId="status-label"
+                label="Статус"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as typeof statusFilter);
+                  setPage(1);
+                }}
+              >
+                <MenuItem value="all">Все</MenuItem>
+                <MenuItem value="pending">Ожидает</MenuItem>
+                <MenuItem value="approved">Одобрено</MenuItem>
+                <MenuItem value="rejected">Отклонено</MenuItem>
+              </Select>
+            </FormControl>
+            <ViewToggle section="reviews" />
+          </Stack>
+        }
+      />
 
       {isError ? (
         <Typography color="error">Ошибка загрузки</Typography>
       ) : (
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          autoHeight
-          paginationMode="server"
-          rowCount={total}
-          pageSizeOptions={[PAGE_SIZE]}
-          paginationModel={{ page: page - 1, pageSize: PAGE_SIZE }}
-          onPaginationModelChange={(model) => setPage(model.page + 1)}
-          loading={isLoading}
-          density="comfortable"
-          getRowId={(row) => row.id}
-          disableRowSelectionOnClick
-          slots={{
-            loadingOverlay: () => (
-              <Stack alignItems="center" sx={{ py: 4 }}>
-                <CircularProgress />
-              </Stack>
-            ),
-          }}
-        />
+        viewMode === 'list' ? (
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            autoHeight
+            paginationMode="server"
+            rowCount={total}
+            pageSizeOptions={[PAGE_SIZE]}
+            paginationModel={{ page: page - 1, pageSize: PAGE_SIZE }}
+            onPaginationModelChange={(model) => setPage(model.page + 1)}
+            loading={isLoading}
+            density="comfortable"
+            getRowId={(row) => row.id}
+            disableRowSelectionOnClick
+            slots={{
+              loadingOverlay: () => (
+                <Stack alignItems="center" sx={{ py: 4 }}>
+                  <CircularProgress />
+                </Stack>
+              ),
+            }}
+          />
+        ) : (
+          <Box display="flex" flexWrap="wrap" gap={2}>
+            {rows.map((review) => (
+              <Box key={review.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)', lg: 'calc(25% - 16px)' } }}>
+                <AdminReviewCard
+                  review={review}
+                  onApprove={() => handleStatusChange(review.id, 'approved')}
+                  onReject={() => handleStatusChange(review.id, 'rejected')}
+                />
+              </Box>
+            ))}
+          </Box>
+        )
       )}
     </Box>
   );

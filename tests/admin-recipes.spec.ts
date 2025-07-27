@@ -74,6 +74,8 @@ test.describe('Admin Recipes', () => {
 
     /* ---------------- create ---------------- */
     await page.getByRole('button', { name: '+ Добавить' }).click({ force: true });
+    // Wait for dialog to appear
+    await page.waitForSelector('[role="dialog"]', { timeout: 10000 });
     await page.getByRole('textbox', { name: 'Название' }).fill('Playwright Recipe');
     // категория оставляем значение по умолчанию
     await page.getByRole('spinbutton', { name: /время/i }).fill('42');

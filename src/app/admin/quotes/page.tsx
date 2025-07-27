@@ -1,16 +1,21 @@
 "use client";
 
 import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
+import ViewToggle from '@/components/admin/ViewToggle';
+import AdminQuoteCard from '@/components/admin/AdminQuoteCard';
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useState } from "react";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
 
 import { useGetAdminQuotesQuery, useUpdateQuotePricesMutation } from "@/redux/api";
+import { useViewMode } from '@/hooks/useViewMode';
 import type { Quote } from "@/types/quote";
 import QuotesPricesDialog from "@/components/admin/QuotesPricesDialog";
 
 export default function AdminQuotesPage() {
   const { data: quotes = [], isLoading, isError, refetch } = useGetAdminQuotesQuery();
+  const [viewMode] = useViewMode('quotes');
   const [updatePrices] = useUpdateQuotePricesMutation();
 
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
@@ -103,9 +108,12 @@ export default function AdminQuotesPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Заявки</Typography>
-      </Stack>
+      <AdminPageHeading
+        title="Заявки"
+        actions={<ViewToggle section="quotes" />}
+      />
+
+      {viewMode === 'list' ? (
 
       <DataGrid
         rows={quotes}
@@ -116,6 +124,16 @@ export default function AdminQuotesPage() {
         loading={isLoading}
         initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
       />
+
+      ) : (
+        <Box display="flex" flexWrap="wrap" gap={2}>
+          {quotes.map((quote) => (
+            <Box key={quote.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)', lg: 'calc(25% - 16px)' } }}>
+              <AdminQuoteCard quote={quote} onOpen={() => openDialog(quote)} />
+            </Box>
+          ))}
+        </Box>
+      )}
 
       <QuotesPricesDialog
         open={dialogOpen}

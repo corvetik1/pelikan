@@ -1,10 +1,14 @@
 "use client";
 
-import { Box, Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
+import { Box, Button, Stack, Snackbar, Alert } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
+import ViewToggle from '@/components/admin/ViewToggle';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import NewsTable from "@/components/admin/NewsTable";
+import AdminNewsCard from '@/components/admin/AdminNewsCard';
+import { useViewMode } from '@/hooks/useViewMode';
 import NewsDialog from "@/components/admin/NewsDialog";
 import {
   useGetAdminNewsQuery,
@@ -15,7 +19,8 @@ import {
 import { AdminNews } from "@/types/admin";
 
 export default function AdminNewsPage() {
-  const { data = [], isLoading } = useGetAdminNewsQuery();
+  const [viewMode] = useViewMode('news');
+  const { data = [], isLoading } = useGetAdminNewsQuery(undefined, { skip: typeof window === 'undefined' });
   const [create] = useCreateNewsMutation();
   const [update] = useUpdateNewsMutation();
   const [remove] = useDeleteNewsMutation();
@@ -26,25 +31,31 @@ export default function AdminNewsPage() {
   const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-    const handleAdd = () => {
+  const handleAdd = () => {
     setEditItem(null);
     setDialogOpen(true);
   };
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h5">Новости</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd} data-testid="add-news-btn">
-          Добавить
-        </Button>
-      </Stack>
+      <AdminPageHeading
+        title="Новости"
+        actions={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ViewToggle section="news" />
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd} data-testid="add-news-btn">
+              Добавить
+            </Button>
+          </Stack>
+        }
+      />
 
-      <NewsTable
-        rows={data}
-        loading={isLoading}
-        onDelete={(id) => setDeleteId(id)}
-        onUpdate={async (id, patch) => {
+      {viewMode === 'list' ? (
+        <NewsTable
+          rows={data}
+          loading={isLoading}
+          onDelete={(id) => setDeleteId(id)}
+          onUpdate={async (id, patch) => {
             try {
               await update({ id, patch }).unwrap();
               setSnack({ open:true, message:'Изменено', severity:'success' });
@@ -52,7 +63,19 @@ export default function AdminNewsPage() {
               setSnack({ open:true, message:'Ошибка изменения', severity:'error' });
             }
           }}
-      />
+        />
+      ) : (
+        <Box display="flex" flexWrap="wrap" gap={2}>
+          {data.map((item: AdminNews) => (
+            <Box
+              key={item.id}
+              sx={{ width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)' } }}
+            >
+              <AdminNewsCard item={item} onClick={() => { setEditItem(item); setDialogOpen(true); }} />
+            </Box>
+          ))}
+        </Box>
+      )}
 
       <NewsDialog
         open={dialogOpen}

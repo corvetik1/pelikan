@@ -92,7 +92,7 @@ describe('/api/admin/reviews route', () => {
   it('PATCH updates status when admin', async () => {
     const body = { status: 'approved' } as const;
     const req = jsonRequest('PATCH', 'http://localhost/api/admin/reviews/r1', body);
-    const res = await patchReview(req, { params: { id: 'r1' } });
+    const res = await patchReview(req, { params: Promise.resolve({ id: 'r1' }) });
     expect(res.status).toBe(200);
     const updated = (await res.json()) as Review;
     expect(updated.status).toBe('approved');
@@ -105,7 +105,7 @@ describe('/api/admin/reviews route', () => {
 
     const body = { status: 'rejected' };
     const req = jsonRequest('PATCH', 'http://localhost/api/admin/reviews/r2', body);
-    const res = await patchReview(req, { params: { id: 'r2' } });
+    const res = await patchReview(req, { params: Promise.resolve({ id: 'r2' }) });
     expect(res.status).toBe(403);
   });
 });

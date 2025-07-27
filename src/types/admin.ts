@@ -73,6 +73,18 @@ export interface AdminReview {
   createdAt: string;
 }
 
+import type { JsonValue } from '@/lib/validation/themeSchema';
+
+export interface AdminTheme {
+  /** Duplicate of slug for DataGrid id requirements */
+  id: string; // equals slug
+  slug: string;
+  name: string;
+  tokens: Record<string, JsonValue>;
+  preview?: string | null;
+  createdAt: string;
+}
+
 export interface AdminMedia {
   id: string;
   filename: string;

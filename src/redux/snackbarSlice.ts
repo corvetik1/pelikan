@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type SnackbarSeverity = 'success' | 'error' | 'info';
+export type SnackbarSeverity = 'success' | 'error' | 'info' | 'warning';
 
 interface SnackbarState {
   open: boolean;

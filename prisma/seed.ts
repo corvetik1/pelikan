@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { readFileSync } from 'fs';
 
 const prisma = new PrismaClient();
 
@@ -122,6 +123,28 @@ async function main(): Promise<void> {
     where: { recipeId_productId: { recipeId: recipe.id, productId: product.id } },
     update: {},
     create: { recipeId: recipe.id, productId: product.id },
+  });
+
+  // Default theme and settings
+  const defaultTokens = JSON.parse(
+    readFileSync(__dirname + '/../public/themes/default.json', 'utf-8'),
+  );
+
+  await prisma.theme.upsert({
+    where: { slug: 'default' },
+    update: { tokens: defaultTokens },
+    create: {
+      slug: 'default',
+      name: 'Default',
+      tokens: defaultTokens,
+      preview: null,
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { id: 1 },
+    update: { activeThemeSlug: 'default' },
+    create: { activeThemeSlug: 'default' },
   });
 
   // Demo quote

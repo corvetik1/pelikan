@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withLogger } from '@/lib/logger';
-import { getIO } from '@/server/socket';
+import { withInvalidate } from '@/lib/withInvalidate';
 import { requireAdmin } from '@/lib/auth';
 import { ProductCreateSchema } from '@/lib/validation/productSchema';
 import { handleError } from '@/lib/errorHandler';
@@ -36,7 +36,9 @@ export const GET = withLogger(async (request: Request) => {
  * POST /api/admin/products
  * Создание нового товара. Ожидает JSON, соответствующий ProductUncheckedCreateInput.
  */
-export const POST = withLogger(async (request: Request) => {
+export const POST = withLogger(
+  withInvalidate([{ type: 'AdminProduct', id: 'LIST' }], 'Товар создан')(
+    async (request: Request) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
   try {
@@ -47,13 +49,8 @@ export const POST = withLogger(async (request: Request) => {
       data.slug = data.name.trim().toLowerCase().replace(/\s+/g, '-');
     }
     const created: Product = await prisma.product.create({ data });
-    // Broadcast invalidate event
-    getIO()?.emit('invalidate', {
-      tags: [{ type: 'AdminProduct', id: 'LIST' }],
-      message: 'Товар создан'
-    });
-    return NextResponse.json(created, { status: 201 });
-  } catch (err) {
+        return NextResponse.json(created, { status: 201 });
+    } catch (err) {
     return handleError(err);
-  }
-});
+   }
+  }));

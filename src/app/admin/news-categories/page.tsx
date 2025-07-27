@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Stack, Button } from "@mui/material";
+import { Box, Stack, Button } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useState } from "react";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useDispatch } from "react-redux";
@@ -68,22 +69,29 @@ export default function AdminNewsCategoriesPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Категории новостей</Typography>
-        <Stack direction="row" spacing={1}>
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={selection.length === 0}
-            onClick={() => handleDelete(selection.map(String))}
-          >
-            Удалить выбранные
-          </Button>
-          <Button variant="contained" size="small" onClick={() => setOpenAdd(true)} data-testid="add-category-btn">
-            + Добавить
-          </Button>
-        </Stack>
-      </Stack>
+      <AdminPageHeading
+        title="Категории новостей"
+        actions={
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={selection.length === 0}
+              onClick={() => handleDelete(selection.map(String))}
+            >
+              Удалить выбранные
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setOpenAdd(true)}
+              data-testid="add-category-btn"
+            >
+              + Добавить
+            </Button>
+          </Stack>
+        }
+      />
       <AdminDataGrid<NewsCategory>
         rows={data as NewsCategory[]}
         columns={columns}

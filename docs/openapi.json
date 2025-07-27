@@ -14,6 +14,19 @@
       "get": { "summary": "List products", "tags": ["Product"], "responses": {"200": {"description": "array of products"}}},
       "post": { "summary": "Create product", "tags": ["Product"], "requestBody": {"required": true}, "responses": {"201": {"description": "created"}}}
     },
+    "/admin/products/import": {
+      "post": {
+        "summary": "Import products (Excel)",
+        "tags": ["Product"],
+        "requestBody": {
+          "required": true,
+          "content": {"multipart/form-data": {}}
+        },
+        "responses": {
+          "200": {"description": "import result"}
+        }
+      }
+    },
     "/admin/products/{id}": {
       "patch": { "summary": "Update product", "tags": ["Product"], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"200": {"description": "updated"}}},
       "delete": { "summary": "Delete product", "tags": ["Product"], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"204": {"description": "deleted"}}}

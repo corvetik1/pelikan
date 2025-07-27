@@ -11,17 +11,23 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const rows = await prisma.product.groupBy({ by: ['category'] });
-  return rows.map((r) => ({ slug: r.category }));
+  try {
+    const rows = await prisma.product.groupBy({ by: ['category'] });
+    return rows.map((r) => ({ slug: r.category }));
+  } catch {
+    // Database unavailable during CI – generate no static params
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  // Преобразуем slug в Title-cased string for title meta
-  const title = slug.charAt(0).toUpperCase() + slug.slice(1);
-  return {
-    title: `${title} | Продукция`,
-  } as Metadata;
+  try {
+    const { slug } = await params;
+    const title = slug.charAt(0).toUpperCase() + slug.slice(1);
+    return { title: `${title} | Продукция` } as Metadata;
+  } catch {
+    return { title: 'Продукция' } as Metadata;
+  }
 }
 
 export default async function CategoryPage({ params }: Props) {

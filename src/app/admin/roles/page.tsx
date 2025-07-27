@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Typography, Stack, Button, Chip } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -105,9 +106,11 @@ export default function AdminRolesPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Роли</Typography>
-        <Stack direction="row" spacing={1}>
+      <AdminPageHeading
+        title="Роли"
+        actions={
+          <Stack direction="row" spacing={1}>
+        
           <Button
             variant="outlined"
             size="small"
@@ -132,7 +135,8 @@ export default function AdminRolesPage() {
             + Добавить
           </Button>
         </Stack>
-      </Stack>
+        }
+      />
       <AdminDataGrid<AdminRole>
         rows={data as AdminRole[]}
         columns={columns}

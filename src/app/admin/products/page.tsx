@@ -1,17 +1,23 @@
 "use client";
 
 import { Box, Typography, Button, Stack } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
+import ViewToggle from '@/components/admin/ViewToggle';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { useState } from "react";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
 import { GridColDef } from "@mui/x-data-grid";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
+import ProductCard from '@/components/products/ProductCard';
+import { useViewMode } from '@/hooks/useViewMode';
 
 import { useGetAdminProductsQuery, useCreateProductMutation, useUpdateAdminProductMutation, useDeleteProductMutation } from "@/redux/adminApi";
 
 import AddProductDialog from "@/components/admin/AddProductDialog";
+import ImportProductsDialog from '@/components/admin/ImportProductsDialog';
 import type { AdminProduct } from "@/types/admin";
+import type { Product } from "@/types/product";
 
 const baseColumns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 110 },
@@ -46,12 +52,14 @@ async function resolveMutation(res: MutationResult | undefined): Promise<void> {
 }
 
 export default function AdminProductsPage() {
+  const [viewMode] = useViewMode('products');
     const { data = [], isLoading, isError, refetch } = useGetAdminProductsQuery({});
   const dispatch = useDispatch();
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateAdminProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
   const [openAdd, setOpenAdd] = useState(false);
+  const [openImport, setOpenImport] = useState(false);
   
   const [deleteId, setDeleteId] = useState<string | null>(null);
   
@@ -108,20 +116,41 @@ export default function AdminProductsPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Товары</Typography>
-        <Button variant="contained" size="small" onClick={() => setOpenAdd(true)}>
-            + Добавить
-          </Button>
-      </Stack>
-      <AdminDataGrid
-        rows={data as AdminProduct[]}
-        columns={columns}
-        loading={isLoading}
-        onDelete={handleDelete}
-        onUpdate={handleUpdate}
+      <AdminPageHeading
+        title="Товары"
+        actions={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ViewToggle section="products" />
+            <Button variant="contained" size="small" onClick={() => setOpenAdd(true)}>
+              + Добавить
+            </Button>
+            <Button variant="outlined" size="small" onClick={() => setOpenImport(true)}>
+              Импорт
+            </Button>
+          </Stack>
+        }
       />
+      {viewMode === 'list' ? (
+        <AdminDataGrid
+          rows={data as AdminProduct[]}
+          columns={columns}
+          loading={isLoading}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
+      ) : (
+        <Box display="flex" flexWrap="wrap" gap={2}>
+          {(data as AdminProduct[]).map((p) => (
+            <Box key={p.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)' } }}>
+              <ProductCard product={p as unknown as Product} />
+            </Box>
+          ))}
+        </Box>
+      )}
       <AddProductDialog open={openAdd} onClose={() => setOpenAdd(false)} onCreate={handleAdd} />
+      {openImport && (
+        <ImportProductsDialog open={openImport} onClose={() => setOpenImport(false)} />
+      )}
       <ConfirmDialog
         open={Boolean(deleteId)}
         title="Удалить товар?"

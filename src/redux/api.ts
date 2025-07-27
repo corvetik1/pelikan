@@ -16,7 +16,7 @@ export const emptySplitApi = createApi({
     return fetchImpl(input as RequestInfo | URL, init);
   }) as typeof fetch,
 }),
-  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'NewsCategory', 'Media', 'Quote', 'Review'] as const,
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'NewsCategory', 'Theme', 'Media', 'Quote', 'Review', 'Settings', 'Dashboard'] as const,
   endpoints: (builder) => ({
     getProductById: builder.query<import('@/types/product').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,
@@ -176,6 +176,42 @@ export const emptySplitApi = createApi({
       invalidatesTags: (_res, _err, { productId }) => [{ type: 'Review', id: `LIST_${productId}` }],
     }),
 
+    // ---------------- settings ----------------
+    getSettings: builder.query<import('@/types/settings').Settings, void>({
+      query: () => '/api/settings',
+      providesTags: ['Settings'],
+    }),
+
+    updateSettings: builder.mutation<import('@/types/settings').Settings, Partial<import('@/types/settings').Settings>>({
+      query: (patch) => ({
+        url: '/api/settings',
+        method: 'PATCH',
+        body: patch,
+      }),
+      invalidatesTags: ['Settings', { type: 'Theme', id: 'LIST' }],
+    }),
+
+    // ---------------- themes ----------------
+    getAdminThemes: builder.query<import('@/types/admin').AdminTheme[], void>({
+      query: () => '/api/admin/themes',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ slug }) => ({ type: 'Theme' as const, id: slug })), { type: 'Theme', id: 'LIST' }]
+          : [{ type: 'Theme', id: 'LIST' }],
+    }),
+    createTheme: builder.mutation<import('@/types/admin').AdminTheme, import('@/lib/validation/themeSchema').ThemeCreateInput>({
+      query: (body) => ({ url: '/api/admin/themes', method: 'POST', body }),
+      invalidatesTags: [{ type: 'Theme', id: 'LIST' }],
+    }),
+    updateTheme: builder.mutation<import('@/types/admin').AdminTheme, { slug: string; patch: import('@/lib/validation/themeSchema').ThemeUpdateInput }>({
+      query: ({ slug, patch }) => ({ url: `/api/admin/themes/${slug}`, method: 'PATCH', body: patch }),
+      invalidatesTags: (res, err, { slug }) => [{ type: 'Theme', id: slug }],
+    }),
+    deleteTheme: builder.mutation<{ ok: boolean }, string>({
+      query: (slug) => ({ url: `/api/admin/themes/${slug}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'Theme', id: 'LIST' }],
+    }),
+
     // Admin Stores endpoints
     getAdminStores: builder.query<import('@/types/admin').AdminStore[], void>({
       query: () => '/api/admin/stores',
@@ -226,4 +262,11 @@ export const {
   useGetAdminQuotesQuery,
   useGetProductReviewsQuery,
   useCreateReviewMutation,
+
+  useGetAdminThemesQuery,
+  useCreateThemeMutation,
+  useUpdateThemeMutation,
+  useDeleteThemeMutation,
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
 } = emptySplitApi;

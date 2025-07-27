@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -55,17 +56,19 @@ export default function AdminStoresPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h5">Магазины</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-          data-testid="add-store-btn"
-        >
-          Добавить
-        </Button>
-      </Stack>
+      <AdminPageHeading
+        title="Магазины"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+            data-testid="add-store-btn"
+          >
+            Добавить
+          </Button>
+        }
+      />
 
       <AdminDataGrid<AdminStore>
         rows={data}

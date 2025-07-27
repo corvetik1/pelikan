@@ -9,6 +9,8 @@ const replaceMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock, replace: replaceMock }),
+  // In JSDOM we don't have server-side rendering; provide noop to satisfy ThemeRegistry
+  useServerInsertedHTML: () => {},
 }));
 
 // Simulate admin cookie for AuthContext

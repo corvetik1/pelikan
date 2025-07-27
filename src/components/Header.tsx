@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import BrandLogo from '@/components/BrandLogo';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 
@@ -49,9 +50,7 @@ export default function Header() {
 
   const drawer = (
     <Box onClick={toggleDrawer(false)} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        Бухта пеликанов
-      </Typography>
+      <BrandLogo disableLink sx={{ my: 2, mx: 'auto' }} />
       <List>
         {navItems.map((item) => (
           <ListItem key={item.href} disablePadding>
@@ -79,9 +78,9 @@ export default function Header() {
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" component={Link} href="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
-            Бухта пеликанов
-          </Typography>
+          <Box sx={{ flexGrow: 1 }}>
+            <BrandLogo />
+          </Box>
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 3 }}>
               {navItems.map((item) => (

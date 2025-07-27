@@ -1,5 +1,7 @@
 import { createTheme } from "@mui/material/styles";
 
+const PRIMARY_GRADIENT = "linear-gradient(90deg, #2563EB 0%, #7C3AED 100%)";
+
 // Цветовая палитра и типографика согласно ТЗ «Современный морской минимализм»
 const theme = createTheme({
   palette: {
@@ -19,8 +21,8 @@ const theme = createTheme({
       paper: "#FFFFFF",
     },
     text: {
-      primary: "#2D3748", // Charcoal
-      secondary: "#718096", // Medium Gray
+      primary: "#1A202C", // Darker Charcoal for 4.5:1 contrast on white
+      secondary: "#4A5568", // Adjusted Gray
     },
   },
   typography: {
@@ -75,7 +77,32 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          minWidth: 48,
+          minHeight: 48,
+          '& .MuiSvgIcon-root': {
+            fontSize: 20,
+          },
+        },
+      },
+    },
     MuiButton: {
+      variants: [
+        {
+          props: { variant: "contained", color: "primary" },
+          style: {
+            backgroundImage: PRIMARY_GRADIENT,
+            color: "#FFF",
+            '&:hover': {
+              backgroundImage: PRIMARY_GRADIENT,
+              boxShadow: 'none',
+              filter: 'brightness(0.9)',
+            },
+          },
+        },
+      ],
       defaultProps: {
         disableRipple: true,
       },

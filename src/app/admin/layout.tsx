@@ -5,10 +5,8 @@
 // hydration mismatches caused by MUI / Emotion style injection order.
 
 import type { ReactNode } from 'react';
-import dynamic from 'next/dynamic';
-
-// Client component that holds all interactive MUI admin UI.
-const AdminShell = dynamic(() => import('./AdminShell'), { ssr: false });
+// Direct import of client shell for instant render (was dynamic import causing test flake)
+import AdminShell from './AdminRootShell';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return <AdminShell>{children}</AdminShell>;

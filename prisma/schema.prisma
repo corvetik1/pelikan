@@ -191,3 +191,20 @@ model Media {
   tags      String[]
   createdAt DateTime @default(now())
 }
+
+// -------------------- THEMES --------------------
+model Theme {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  tokens    Json
+  preview   String?
+  createdAt DateTime @default(now())
+}
+
+// -------------------- SETTINGS --------------------
+/// Синглтон-таблица для глобальных настроек
+model Settings {
+  id              Int     @id @default(1)
+  activeThemeSlug String  @default("default")
+}

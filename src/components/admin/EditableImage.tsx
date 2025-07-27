@@ -13,6 +13,7 @@ import { useIsAdmin } from "@/context/AuthContext";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import FileUploader from "./FileUploader";
+import type { AdminMedia } from "@/types/admin";
 
 interface EditableImageProps {
   src: string;
@@ -165,15 +166,16 @@ export default function EditableImage({ src, alt, width, height, onSave, style }
             <FileUploader
               multiple={false}
               onUploaded={(files) => {
-                if (files.length > 0) {
-                  const url = files[0].url;
-                  setDisplaySrc(url);
+                if (files.length === 0) return;
+                const item = Array.isArray(files) ? files[0] : files[0];
+                const url = (item as AdminMedia).url ?? (item as File).name;
+                setDisplaySrc(url);
                   setUploadOpen(false);
                   setEditing(false);
                   onSave?.(url);
                   showSuccess("Загружено");
                 }
-              }}
+              }
             />
           </DialogContent>
         </Dialog>

@@ -49,5 +49,22 @@ jobs:
       - name: E2E Tests
         run: pnpm exec playwright test --reporter=line
 
-      - name: Build
+      - name: Next.js Build
         run: pnpm build
+
+      - name: Build docs (ReDoc)
+        run: pnpm docs:build
+
+      - name: Build Storybook
+        run: pnpm storybook:build
+
+      - name: Copy Storybook to public
+        run: cp -r storybook-static public/storybook
+
+      - name: Deploy Docs to GitHub Pages
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages

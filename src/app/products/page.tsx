@@ -10,17 +10,23 @@ export const revalidate = 3600;
 export default async function ProductsPage() {
   // Получаем уникальные категории из товаров
   type CategoryGroup = { category: string; _min: { img: string | null } };
-  const rows = await prisma.product.groupBy({
-    by: ['category'],
-    _min: {
-      img: true,
-    },
-  });
-  const categories: Category[] = (rows as CategoryGroup[]).map((r: CategoryGroup) => ({
-    slug: r.category,
-    title: r.category.charAt(0).toUpperCase() + r.category.slice(1),
-    img: r._min.img ?? '/placeholder.jpg',
-  }));
+  let categories: Category[] = [];
+  try {
+    const rows = await prisma.product.groupBy({
+      by: ['category'],
+      _min: {
+        img: true,
+      },
+    });
+    categories = (rows as CategoryGroup[]).map((r: CategoryGroup) => ({
+      slug: r.category,
+      title: r.category.charAt(0).toUpperCase() + r.category.slice(1),
+      img: r._min.img ?? '/placeholder.jpg',
+    }));
+  } catch {
+    // База данных недоступна (CI), отображаем пустой список категорий
+    categories = [];
+  }
   return (
     <>
       <CatalogFiltersPanel />
