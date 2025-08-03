@@ -21,7 +21,11 @@ export const POST = withLogger(async (req: Request) => {
       },
     });
 
-        return Response.json(quote, { status: 201 });
+    // Broadcast invalidate for admin panel realtime updates
+    const { broadcastInvalidate } = await import('@/server/socket');
+    broadcastInvalidate([{ type: 'AdminQuote', id: 'LIST' }], 'Новая заявка');
+
+    return Response.json(quote, { status: 201 });
   } catch (err) {
     return handleError(err);
   }

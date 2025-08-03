@@ -85,6 +85,22 @@ DataGrid cells are editable (`editable:true`) and call `onUpdate` which wraps RT
 
 This ensures automatic cache refetch and up-to-date grids.
 
+### 4. Media Management (WIP)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/admin/upload` | POST | Multipart upload single/multiple files |
+| `/api/admin/upload` | GET | List media with pagination/filter |
+| `/api/admin/upload/:id` | DELETE | Remove file & DB record |
+
+RTK Query hooks: `useUploadMediaMutation`, `useListMediaQuery`, `useDeleteMediaMutation`.
+
+*Provides tag:* `['Media']` to ensure cache invalidation after uploads/deletes.
+
+### 5. Forms & Native Select
+
+Для стабильных e2e-тестов используйте `native` режим компонента MUI `Select`. Это позволяет Playwright корректно находить элемент по метке (`getByLabel`) и проверять значение через `toHaveValue()`.
+
 ---
 
 ## Development Guidelines
@@ -97,4 +113,4 @@ This ensures automatic cache refetch and up-to-date grids.
 
 ---
 
-_Last updated: 2025-07-22*
+_Last updated: 2025-07-27*

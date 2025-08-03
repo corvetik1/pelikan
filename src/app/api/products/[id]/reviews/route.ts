@@ -57,6 +57,10 @@ export const POST = withLogger(async (request: Request, { params }: { params: Pr
       },
     });
 
+    // Broadcast invalidate for admin review list realtime
+    const { broadcastInvalidate } = await import('@/server/socket');
+    broadcastInvalidate([{ type: 'AdminReview', id: 'LIST' }], 'Новый отзыв');
+
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     return handleError(err);

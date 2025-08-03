@@ -2,10 +2,10 @@
 
 import { Card, CardContent, Stack, Typography, Chip, Button, type ChipProps } from '@mui/material';
 import dayjs from 'dayjs';
-import type { Quote } from '@/types/quote';
+import type { AdminQuote } from '@/types/admin';
 
 interface AdminQuoteCardProps {
-  quote: Quote;
+  quote: AdminQuote;
   onOpen: () => void;
 }
 
@@ -14,6 +14,8 @@ interface AdminQuoteCardProps {
  */
 export default function AdminQuoteCard({ quote, onOpen }: AdminQuoteCardProps) {
   const { userEmail, status, items, createdAt } = quote;
+
+  const itemsArr = Array.isArray(items) ? (items as unknown[]) : [];
 
   const statusLabel =
     status === 'pending' ? 'Ожидает' : status === 'priced' ? 'Готово' : 'Отклонено';
@@ -31,7 +33,7 @@ export default function AdminQuoteCard({ quote, onOpen }: AdminQuoteCardProps) {
             </Typography>
             <Chip label={statusLabel} color={statusColor} size="small" />
           </Stack>
-          <Typography variant="body2">Позиций: {items.length}</Typography>
+          <Typography variant="body2">Позиций: {itemsArr.length}</Typography>
           <Typography variant="caption" color="text.secondary">
             {dayjs(createdAt).format('DD.MM.YYYY HH:mm')}
           </Typography>

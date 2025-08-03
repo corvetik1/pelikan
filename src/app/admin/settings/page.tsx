@@ -8,7 +8,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
@@ -54,16 +53,19 @@ export default function AdminSettingsPage() {
       <Stack spacing={2} maxWidth={400}>
         <FormControl fullWidth size="small" disabled={loadingSettings || loadingThemes}>
           <InputLabel id="theme-select-label">Активная тема</InputLabel>
+          {/* Используем native Select, чтобы Playwright корректно взаимодействовал через getByLabel / toHaveValue */}
           <Select
+            native
             labelId="theme-select-label"
+            id="theme-select"
             value={selected}
             label="Активная тема"
-            onChange={(e) => setSelected(e.target.value)}
+            onChange={(e) => setSelected((e.target as HTMLSelectElement).value)}
           >
             {themes.map((t) => (
-              <MenuItem key={t.slug} value={t.slug}>
+              <option key={t.slug} value={t.slug}>
                 {t.name}
-              </MenuItem>
+              </option>
             ))}
           </Select>
         </FormControl>

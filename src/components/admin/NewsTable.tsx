@@ -19,6 +19,23 @@ interface NewsTableProps {
 export default function NewsTable({ rows, loading = false, onDelete, onUpdate }: NewsTableProps) {
   const columns: GridColDef[] = [
     {
+      field: "img",
+      headerName: "Фото",
+      width: 80,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={(params.value as string) || "/placeholder.png"}
+          alt="thumb"
+          width={40}
+          height={40}
+          style={{ objectFit: "cover", borderRadius: 4 }}
+        />
+      ),
+    },
+    {
       field: "title",
       headerName: "Заголовок",
       flex: 2,

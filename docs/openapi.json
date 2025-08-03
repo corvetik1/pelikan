@@ -1,49 +1,751 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Pelican Bay API",
+    "title": "Pelican Bay Corporate API",
+    "description": "Complete REST API for corporate website 'Бухта пеликанов' including admin panel, public endpoints, and B2B functionality",
     "version": "1.0.0",
-    "description": "Auto-generated spec (subset) for public & admin endpoints."
+    "contact": {
+      "name": "API Support",
+      "url": "https://pelicanbay.local"
+    }
   },
   "servers": [
-    { "url": "https://pelicanbay.vercel.app/api" },
-    { "url": "http://localhost:3000/api" }
-  ],
-  "paths": {
-    "/admin/products": {
-      "get": { "summary": "List products", "tags": ["Product"], "responses": {"200": {"description": "array of products"}}},
-      "post": { "summary": "Create product", "tags": ["Product"], "requestBody": {"required": true}, "responses": {"201": {"description": "created"}}}
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
     },
-    "/admin/products/import": {
-      "post": {
-        "summary": "Import products (Excel)",
-        "tags": ["Product"],
-        "requestBody": {
-          "required": true,
-          "content": {"multipart/form-data": {}}
+    {
+      "url": "https://pelicanbay.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "price": { "type": "number" },
+          "description": { "type": "string" },
+          "img": { "type": "string", "format": "uri" },
+          "categoryId": { "type": "string", "format": "uuid", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
         },
+        "required": ["id", "name", "slug", "price", "createdAt", "updatedAt"]
+      },
+      "News": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "slug": { "type": "string" },
+          "excerpt": { "type": "string" },
+          "content": { "type": "string" },
+          "published": { "type": "boolean" },
+          "categoryId": { "type": "string", "format": "uuid", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "title", "slug", "published", "createdAt", "updatedAt"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "email", "roles", "isActive", "createdAt", "updatedAt"]
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "permissions": { "type": "array", "items": { "type": "string" } },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "name", "permissions", "createdAt", "updatedAt"]
+      },
+      "Quote": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "userEmail": { "type": "string", "format": "email" },
+          "status": { "type": "string", "enum": ["pending", "priced", "rejected"] },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": { "type": "string", "format": "uuid" },
+                "qty": { "type": "integer" },
+                "price": { "type": "number", "nullable": true }
+              }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "userEmail", "status", "items", "createdAt", "updatedAt"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" },
+          "statusCode": { "type": "integer" }
+        },
+        "required": ["error", "statusCode"]
+      }
+    }
+  },
+  "paths": {
+    "/api/healthz": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Returns service health status",
+        "tags": ["System"],
+        "security": [],
         "responses": {
-          "200": {"description": "import result"}
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/admin/products/{id}": {
-      "patch": { "summary": "Update product", "tags": ["Product"], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"200": {"description": "updated"}}},
-      "delete": { "summary": "Delete product", "tags": ["Product"], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"204": {"description": "deleted"}}}
+    "/api/auth/login": {
+      "post": {
+        "summary": "User authentication",
+        "description": "Authenticate user with email and password",
+        "tags": ["Authentication"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 6 }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" },
+                    "token": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
     },
-    "/admin/upload": {
-      "post": {"summary": "Upload media file","tags":["Media"],"requestBody":{"content":{"multipart/form-data":{}}},"responses":{"201":{"description":"uploaded"}}},
-      "get": {"summary": "List media","tags":["Media"],"responses":{"200":{"description":"array of media"}}}
+    "/api/products": {
+      "get": {
+        "summary": "Get products (public)",
+        "description": "Retrieve list of all products for public display",
+        "tags": ["Products"],
+        "security": [],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Product" }
+                }
+              }
+            }
+          }
+        }
+      }
     },
-    "/admin/news-categories": {
-      "get": {"summary": "List news categories","tags":["NewsCategory"],"responses":{"200":{"description":"array"}}},
-      "post": {"summary": "Create news category","tags":["NewsCategory"],"requestBody":{"required":true},"responses":{"201":{"description":"created"}}}
+    "/api/quotes": {
+      "post": {
+        "summary": "Create quote request",
+        "description": "Submit a new quote request for products",
+        "tags": ["Quotes"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userEmail": { "type": "string", "format": "email" },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "productId": { "type": "string", "format": "uuid" },
+                        "qty": { "type": "integer", "minimum": 1 }
+                      },
+                      "required": ["productId", "qty"]
+                    }
+                  }
+                },
+                "required": ["userEmail", "items"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Quote created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Quote" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/products": {
+      "get": {
+        "summary": "Get products (admin)",
+        "description": "Retrieve list of all products for admin management",
+        "tags": ["Admin - Products"],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Product" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create product",
+        "description": "Create a new product (admin only)",
+        "tags": ["Admin - Products"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "price": { "type": "number" },
+                  "description": { "type": "string" },
+                  "img": { "type": "string", "format": "uri" },
+                  "categoryId": { "type": "string", "format": "uuid", "nullable": true }
+                },
+                "required": ["name", "slug", "price"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/products/{id}": {
+      "patch": {
+        "summary": "Update product",
+        "description": "Update an existing product (admin only)",
+        "tags": ["Admin - Products"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "price": { "type": "number" },
+                  "description": { "type": "string" },
+                  "img": { "type": "string", "format": "uri" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete product",
+        "description": "Delete a product (admin only)",
+        "tags": ["Admin - Products"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/products/import": {
+      "post": {
+        "summary": "Import products from Excel",
+        "description": "Bulk import products from XLSX file (admin only)",
+        "tags": ["Admin - Products"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Excel file with products data"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Products imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imported": { "type": "integer" },
+                    "errors": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file or data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/news": {
+      "get": {
+        "summary": "Get news (admin)",
+        "description": "Retrieve list of all news articles for admin management",
+        "tags": ["Admin - News"],
+        "responses": {
+          "200": {
+            "description": "List of news articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/News" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create news article",
+        "description": "Create a new news article (admin only)",
+        "tags": ["Admin - News"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "excerpt": { "type": "string" },
+                  "content": { "type": "string" },
+                  "published": { "type": "boolean" },
+                  "categoryId": { "type": "string", "format": "uuid", "nullable": true }
+                },
+                "required": ["title", "slug", "published"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "News article created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/News" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "summary": "Get users (admin)",
+        "description": "Retrieve list of all users for admin management",
+        "tags": ["Admin - Users"],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create user",
+        "description": "Create a new user (admin only)",
+        "tags": ["Admin - Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "name": { "type": "string" },
+                  "password": { "type": "string", "minLength": 6 },
+                  "roles": { "type": "array", "items": { "type": "string" } },
+                  "isActive": { "type": "boolean" }
+                },
+                "required": ["email", "password", "roles"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/roles": {
+      "get": {
+        "summary": "Get roles (admin)",
+        "description": "Retrieve list of all roles for admin management",
+        "tags": ["Admin - Roles"],
+        "responses": {
+          "200": {
+            "description": "List of roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Role" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create role",
+        "description": "Create a new role (admin only)",
+        "tags": ["Admin - Roles"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "permissions": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["name", "permissions"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Role created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Role" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/quotes": {
+      "get": {
+        "summary": "Get quotes (admin)",
+        "description": "Retrieve list of all quotes for admin management",
+        "tags": ["Admin - Quotes"],
+        "responses": {
+          "200": {
+            "description": "List of quotes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Quote" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/quotes/{id}": {
+      "patch": {
+        "summary": "Update quote status",
+        "description": "Update quote status (admin only)",
+        "tags": ["Admin - Quotes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "string", "enum": ["pending", "priced", "rejected"] }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quote updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Quote" }
+              }
+            }
+          }
+        }
+      }
     }
   },
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {"type": "http", "scheme": "bearer"}
+  "tags": [
+    {
+      "name": "System",
+      "description": "System health and status endpoints"
+    },
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization"
+    },
+    {
+      "name": "Products",
+      "description": "Public product endpoints"
+    },
+    {
+      "name": "Quotes",
+      "description": "Quote request endpoints"
+    },
+    {
+      "name": "Admin - Products",
+      "description": "Admin product management"
+    },
+    {
+      "name": "Admin - News",
+      "description": "Admin news management"
+    },
+    {
+      "name": "Admin - Users",
+      "description": "Admin user management"
+    },
+    {
+      "name": "Admin - Roles",
+      "description": "Admin role management"
+    },
+    {
+      "name": "Admin - Quotes",
+      "description": "Admin quote management"
     }
-  },
-  "security": [{ "bearerAuth": [] }]
+  ]
 }

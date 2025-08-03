@@ -42,6 +42,7 @@ export interface AdminProduct {
   weight: string;
   category: string;
   img?: string;
+  images?: string[];
   createdAt: string; // ISO
 }
 
@@ -52,6 +53,7 @@ export interface AdminRecipe {
   cookingTime: number;
   shortDescription: string;
   img?: string;
+  images?: string[];
 }
 
 export interface AdminUser {
@@ -74,6 +76,18 @@ export interface AdminReview {
 }
 
 import type { JsonValue } from '@/lib/validation/themeSchema';
+
+export type QuoteStatus = 'pending' | 'priced' | 'rejected';
+
+export interface AdminQuote {
+  id: string;
+  items: JsonValue;
+  prices?: JsonValue;
+  status: QuoteStatus;
+  userEmail: string;
+  createdAt: string; // ISO
+  updatedAt: string; // ISO
+}
 
 export interface AdminTheme {
   /** Duplicate of slug for DataGrid id requirements */

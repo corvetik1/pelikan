@@ -16,7 +16,7 @@ export const emptySplitApi = createApi({
     return fetchImpl(input as RequestInfo | URL, init);
   }) as typeof fetch,
 }),
-  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'NewsCategory', 'Theme', 'Media', 'Quote', 'Review', 'Settings', 'Dashboard'] as const,
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'AdminQuote', 'NewsCategory', 'Theme', 'Media', 'Quote', 'Review', 'Settings', 'Dashboard'] as const,
   endpoints: (builder) => ({
     getProductById: builder.query<import('@/types/product').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,

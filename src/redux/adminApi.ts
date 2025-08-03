@@ -1,6 +1,6 @@
 import { emptySplitApi } from './api';
 import type { NewsArticle } from '@/data/mock';
-import type { AdminProduct, AdminRecipe, AdminUser, AdminReview } from '@/types/admin';
+import type { AdminProduct, AdminRecipe, AdminUser, AdminReview, AdminQuote, QuoteStatus } from '@/types/admin';
 
 export const adminApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -141,6 +141,35 @@ export const adminApi = emptySplitApi.injectEndpoints({
       invalidatesTags: (res, err, { id }) => [{ type: 'AdminReview', id }, { type: 'AdminReview', id: 'LIST' }],
     }),
 
+    // ---------------- quotes ----------------
+    getAdminQuotes: builder.query<{ items: AdminQuote[]; total: number }, { status?: QuoteStatus; page?: number }>({
+      query: ({ status, page = 1 } = {}) => {
+        const params = new URLSearchParams();
+        if (status) params.append('status', status);
+        if (page) params.append('page', page.toString());
+        return `/api/admin/quotes?${params.toString()}`;
+      },
+      providesTags: (result) =>
+        result && result.items
+          ? [...result.items.map(({ id }) => ({ type: 'AdminQuote' as const, id })), { type: 'AdminQuote', id: 'LIST' }]
+          : [{ type: 'AdminQuote', id: 'LIST' }],
+    }),
+    updateQuoteStatus: builder.mutation<AdminQuote, { id: string; status: QuoteStatus }>({
+      query: ({ id, status }) => ({
+        url: `/api/admin/quotes/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: (res, err, { id }) => [{ type: 'AdminQuote', id }, { type: 'AdminQuote', id: 'LIST' }],
+    }),
+    deleteQuote: builder.mutation<AdminQuote, string>({
+      query: (id) => ({
+        url: `/api/admin/quotes/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'AdminQuote', id: 'LIST' }],
+    }),
+
     // ---------------- users ----------------
     getAdminUsers: builder.query<AdminUser[], void>({
       query: () => '/api/admin/users',
@@ -197,4 +226,7 @@ export const {
   useDeleteUserMutation,
   useGetAdminReviewsQuery,
   useUpdateReviewStatusMutation,
+  useGetAdminQuotesQuery,
+  useUpdateQuoteStatusMutation,
+  useDeleteQuoteMutation,
 } = adminApi;

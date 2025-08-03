@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Typography, Button, Stack } from "@mui/material";
+import RequirePermission from '@/components/RBAC/RequirePermission';
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import ViewToggle from '@/components/admin/ViewToggle';
 import { useDispatch } from 'react-redux';
@@ -23,6 +24,23 @@ import AddRecipeDialog from "@/components/admin/AddRecipeDialog";
 import type { AdminRecipe } from "@/types/admin";
 
 const baseColumns: GridColDef[] = [
+  {
+    field: "img",
+    headerName: "Фото",
+    width: 80,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={params.value || "/placeholder.png"}
+        alt="thumb"
+        width={40}
+        height={40}
+        style={{ objectFit: "cover", borderRadius: 4 }}
+      />
+    ),
+  },
   { field: "id", headerName: "ID", width: 110 },
   { field: "title", headerName: "Название", flex: 1, minWidth: 200, editable: true },
   { field: "category", headerName: "Категория", width: 150, editable: true },
@@ -121,9 +139,11 @@ export default function AdminRecipesPage() {
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             <ViewToggle section="recipes" />
+            <RequirePermission permission="recipes:create">
             <Button variant="contained" size="small" onClick={openAddDialog}>
               + Добавить
             </Button>
+            </RequirePermission>
           </Stack>
         }
       />

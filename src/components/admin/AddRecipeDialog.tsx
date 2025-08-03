@@ -2,6 +2,7 @@
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Stack } from "@mui/material";
 import EditableImage from "./EditableImage";
+import ImageArrayField from "./ImageArrayField";
 import { useState, ChangeEvent } from "react";
 import type { AdminRecipe } from "@/types/admin";
 import { categories } from "@/data/mock";
@@ -13,12 +14,22 @@ interface AddRecipeDialogProps {
 }
 
 export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDialogProps) {
-  const [form, setForm] = useState({
+  type FormState = {
+    title: string;
+    shortDescription: string;
+    cookingTime: string;
+    category: string;
+    img: string;
+    images: string[];
+  };
+
+  const [form, setForm] = useState<FormState>({
     title: "",
     shortDescription: "",
     cookingTime: "",
     category: categories[0].slug,
     img: "",
+    images: [],
   });
 
   const handle = (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -38,8 +49,9 @@ export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDi
       cookingTime: Number(form.cookingTime),
       category: form.category,
       img: form.img,
+      images: form.images,
     });
-    setForm({ title: "", shortDescription: "", cookingTime: "", category: categories[0].slug, img: "" });
+    setForm({ title: "", shortDescription: "", cookingTime: "", category: categories[0].slug, img: "", images: [] });
   };
 
   return (
@@ -65,6 +77,9 @@ export default function AddRecipeDialog({ open, onClose, onCreate }: AddRecipeDi
               </MenuItem>
             ))}
           </TextField>
+
+          {/* Дополнительные изображения */}
+          <ImageArrayField value={form.images} onChange={(arr) => setForm({ ...form, images: arr })} />
         </Stack>
       </DialogContent>
       <DialogActions>

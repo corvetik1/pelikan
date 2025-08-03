@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Stack, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useState } from "react";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -71,26 +71,12 @@ export default function AdminNewsCategoriesPage() {
     <Box>
       <AdminPageHeading
         title="Категории новостей"
-        actions={
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={selection.length === 0}
-              onClick={() => handleDelete(selection.map(String))}
-            >
-              Удалить выбранные
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => setOpenAdd(true)}
-              data-testid="add-category-btn"
-            >
-              + Добавить
-            </Button>
-          </Stack>
-        }
+        actions={undefined}
+        onBulkDelete={() => handleDelete(selection.map(String))}
+        bulkDeletePerm="news-categories:delete"
+        bulkDeleteDisabled={selection.length === 0}
+        onCreate={() => setOpenAdd(true)}
+        createPerm="news-categories:create"
       />
       <AdminDataGrid<NewsCategory>
         rows={data as NewsCategory[]}

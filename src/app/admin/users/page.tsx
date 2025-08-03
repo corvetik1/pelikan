@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
+import { Box, Typography, Stack, Checkbox, Button } from "@mui/material";
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
@@ -136,11 +136,8 @@ export default function AdminUsersPage() {
     <Box>
       <AdminPageHeading
         title="Пользователи"
-        actions={
-          <Button variant="contained" size="small" onClick={() => setOpenAdd(true)}>
-            + Добавить
-          </Button>
-        }
+        onCreate={() => setOpenAdd(true)}
+        createPerm="users:create"
       />
       <AdminDataGrid
         rows={data as AdminUser[]}

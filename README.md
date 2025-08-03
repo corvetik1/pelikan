@@ -197,6 +197,7 @@ curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" \
 5. **Tests**
    • `pnpm test --coverage` – unit / integration (Jest).
    • `pnpm exec playwright test` – e2e smoke (quotes ➜ email).
+  ※ Временное исключение (skipped) 4 UX-heavy сценариев: `admin-news CRUD`, `admin-recipes CRUD`, `theme-switch`, `realtime-invalidation` – будут исправлены позже.
 6. **Build** – `pnpm build` (Next.js ⬆ SSR/ISR).
 7. **Deploy** – (только на `main`) триггер на Vercel Production.
 

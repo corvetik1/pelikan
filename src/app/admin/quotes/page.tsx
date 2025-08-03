@@ -8,22 +8,25 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 
-import { useGetAdminQuotesQuery, useUpdateQuotePricesMutation } from "@/redux/api";
+import { useUpdateQuotePricesMutation } from "@/redux/api";
+import { useGetAdminQuotesQuery, useUpdateQuoteStatusMutation } from "@/redux/adminApi";
 import { useViewMode } from '@/hooks/useViewMode';
-import type { Quote } from "@/types/quote";
+import type { AdminQuote } from "@/types/admin";
 import QuotesPricesDialog from "@/components/admin/QuotesPricesDialog";
 
 export default function AdminQuotesPage() {
-  const { data: quotes = [], isLoading, isError, refetch } = useGetAdminQuotesQuery();
+  const { data, isLoading, isError, refetch } = useGetAdminQuotesQuery({});
+  const quotes = data?.items ?? [];
   const [viewMode] = useViewMode('quotes');
   const [updatePrices] = useUpdateQuotePricesMutation();
+  const [updateStatus] = useUpdateQuoteStatusMutation();
 
-  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [selectedQuote, setSelectedQuote] = useState<AdminQuote | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snack, setSnack] = useState<{ open:boolean; message:string; severity:'success'|'error' }>({ open:false, message:'', severity:'success' });
   const handleSnackClose = () => setSnack((s)=>({ ...s, open:false }));
 
-  const openDialog = (quote: Quote) => {
+  const openDialog = (quote: AdminQuote) => {
     setSelectedQuote(quote);
     setDialogOpen(true);
   };
@@ -32,6 +35,7 @@ export default function AdminQuotesPage() {
     if (!selectedQuote) return;
     try {
       await updatePrices({ id: selectedQuote.id, prices }).unwrap();
+      await updateStatus({ id: selectedQuote.id, status: 'priced' }).unwrap();
       setSnack({ open:true, message:'Цены утверждены', severity:'success' });
     } catch {
       setSnack({ open:true, message:'Ошибка сохранения', severity:'error' });
@@ -61,7 +65,7 @@ export default function AdminQuotesPage() {
       headerName: "Статус",
       width: 110,
       valueFormatter: ({ value }) => {
-        switch (value as Quote["status"]) {
+        switch (value as AdminQuote["status"]) {
           case "pending":
             return "Ожидает";
           case "priced":
@@ -77,7 +81,10 @@ export default function AdminQuotesPage() {
       field: "itemsCount",
       headerName: "Позиций",
       width: 110,
-      valueGetter: (_value, row) => (row as Quote).items.length,
+      valueGetter: (_value, row) => {
+        const items = (row as AdminQuote).items;
+        return Array.isArray(items) ? items.length : 0;
+      },
     },
     {
       field: "createdAt",
@@ -91,16 +98,32 @@ export default function AdminQuotesPage() {
       width: 160,
       sortable: false,
       renderCell: (params: GridRenderCellParams) => {
-        const quote = params.row as Quote;
+        const quote = params.row as AdminQuote;
+        
+        const handleReject = async () => {
+          try {
+            await updateStatus({ id: quote.id, status: 'rejected' }).unwrap();
+            setSnack({ open:true, message:'Заявка отклонена', severity:'success' });
+          } catch {
+            setSnack({ open:true, message:'Ошибка', severity:'error' });
+          }
+        };
         return (
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => openDialog(quote)}
-            disabled={quote.status === "priced"}
-          >
-            {quote.status === "priced" ? "Просмотр" : "Утвердить цены"}
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => openDialog(quote)}
+              disabled={quote.status !== 'pending'}
+            >
+              {quote.status === 'pending' ? 'Утвердить' : 'Просмотр'}
+            </Button>
+            {quote.status === 'pending' && (
+              <Button variant="text" color="error" size="small" onClick={handleReject}>
+                Отклонить
+              </Button>
+            )}
+          </Stack>
         );
       },
     },

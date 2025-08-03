@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       console.error('Email send failed', e);
     }
 
-    broadcastInvalidate([{ type: 'Quote', id: 'LIST' }], 'КП обновлено');
+    broadcastInvalidate([{ type: 'AdminQuote', id }, { type: 'AdminQuote', id: 'LIST' }], 'Заявка обновлена');
 
     return Response.json(updated, { status: 200 });
   } catch (err) {

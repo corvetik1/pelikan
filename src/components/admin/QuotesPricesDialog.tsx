@@ -2,11 +2,11 @@
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
-import type { Quote } from "@/types/quote";
+import type { AdminQuote } from "@/types/admin";
 
 export interface QuotesPricesDialogProps {
   open: boolean;
-  quote: Quote | null;
+  quote: AdminQuote | null;
   onClose: () => void;
   onSave: (prices: Record<string, number>) => void;
 }
@@ -27,7 +27,8 @@ export default function QuotesPricesDialog({ open, quote, onClose, onSave }: Quo
   }, [quote]);
 
   // sync when quote changes
-  const items = quote?.items ?? [];
+  const itemsRaw = quote?.items ?? [] as unknown;
+  const items = Array.isArray(itemsRaw) ? (itemsRaw as Array<{ productId: string; quantity: number }>) : [];
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>

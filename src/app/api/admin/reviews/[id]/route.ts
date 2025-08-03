@@ -26,6 +26,10 @@ export const PATCH = withLogger(async (request: Request, { params }: { params: P
       include: { product: { select: { name: true } } },
     });
 
+    // Broadcast invalidate for realtime updates
+    const { broadcastInvalidate } = await import('@/server/socket');
+    broadcastInvalidate([{ type: 'AdminReview', id }, { type: 'AdminReview', id: 'LIST' }], 'Отзыв обновлён');
+
     return NextResponse.json({
       ...updated,
       productName: updated.product?.name ?? '',

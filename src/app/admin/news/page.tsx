@@ -1,10 +1,10 @@
 "use client";
 
-import { Box, Button, Stack, Snackbar, Alert } from "@mui/material";
+import { Box, Snackbar, Alert } from "@mui/material";
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import ViewToggle from '@/components/admin/ViewToggle';
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
-import AddIcon from "@mui/icons-material/Add";
+
 import { useState } from "react";
 import NewsTable from "@/components/admin/NewsTable";
 import AdminNewsCard from '@/components/admin/AdminNewsCard';
@@ -40,14 +40,9 @@ export default function AdminNewsPage() {
     <Box>
       <AdminPageHeading
         title="Новости"
-        actions={
-          <Stack direction="row" spacing={1} alignItems="center">
-            <ViewToggle section="news" />
-            <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd} data-testid="add-news-btn">
-              Добавить
-            </Button>
-          </Stack>
-        }
+        actions={<ViewToggle section="news" />}
+        onCreate={handleAdd}
+        createPerm="news:create"
       />
 
       {viewMode === 'list' ? (

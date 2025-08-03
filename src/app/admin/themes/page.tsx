@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Stack, Button, Avatar, Tooltip } from "@mui/material";
+import { Box, Avatar } from "@mui/material";
+import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import AdminDataGrid from "@/components/admin/AdminDataGrid";
@@ -83,26 +84,15 @@ export default function AdminThemesPage() {
   /* ----------------- render ----------------- */
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Темы</Typography>
-        <Stack direction="row" spacing={1}>
-          <Tooltip title={selection.includes(activeSlug ?? '') ? 'Нельзя удалить активную тему' : ''}>
-            <span>
-              <Button
-                variant="outlined"
-                size="small"
-                disabled={selection.length === 0 || selection.includes(activeSlug ?? '')}
-                onClick={() => handleDelete(selection.map(String))}
-              >
-                Удалить выбранные
-              </Button>
-            </span>
-          </Tooltip>
-          <Button variant="contained" size="small" onClick={() => setOpenAdd(true)} data-testid="add-theme-btn">
-            + Добавить
-          </Button>
-        </Stack>
-      </Stack>
+      <AdminPageHeading
+        title="Темы"
+        onCreate={() => setOpenAdd(true)}
+        createPerm="themes:create"
+        onBulkDelete={() => handleDelete(selection.map(String))}
+        bulkDeletePerm="themes:delete"
+        bulkDeleteDisabled={selection.length === 0 || selection.includes(activeSlug ?? '')}
+        bulkDeleteLabel={selection.includes(activeSlug ?? '') ? 'Нельзя удалить активную тему' : 'Удалить выбранные'}
+      />
 
       <AdminDataGrid<AdminTheme>
         rows={data as AdminTheme[]}

@@ -60,4 +60,27 @@ UI ↔ Redux hooks ↔ RTK Query baseQuery → /api/* (Next API Route) → Prism
 
 Процесс: API → Zod-валидация → RBAC → Prisma → PostgreSQL → JSON-ответ.
 
+### Новые endpoints Media (WIP)
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/admin/upload` | POST | Upload single/multiple images (multipart) |
+| `/api/admin/upload` | GET | Paginated list of media |
+| `/api/admin/upload/:id` | DELETE | Remove file from storage & DB |
+
+Hooks: `useUploadMediaMutation`, `useListMediaQuery`, `useDeleteMediaMutation`.  Tag: `Media`.
+
+---
+
+## API документация (Swagger)
+
+JSON-спецификация OpenAPI генерируется из Zod-схем командой:
+
+```bash
+pnpm docs:openapi   # tsx scripts/generate-openapi.ts > docs/openapi.json
+pnpm docs:build     # redoc-cli bundle docs/openapi.json -o public/api.html
+```
+
+CI вызывает оба шага и публикует `/api.html` на Vercel / GitHub Pages.
+
 Все CRUD-роуты покрыты **unit** и **integration** тестами, статическая типизация проходит без ошибок.

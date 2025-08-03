@@ -14,14 +14,24 @@ export const mediaApi = emptySplitApi.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: [{ type: 'Media', id: 'LIST' }],
+      invalidatesTags: [
+        { type: 'Media', id: 'LIST' },
+        { type: 'AdminProduct', id: 'LIST' },
+        { type: 'AdminRecipe', id: 'LIST' },
+        { type: 'AdminNews', id: 'LIST' },
+      ],
     }),
     deleteMedia: builder.mutation<AdminMedia, string>({
       query: (id) => ({
         url: `/api/admin/upload/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [{ type: 'Media', id: 'LIST' }],
+      invalidatesTags: [
+        { type: 'Media', id: 'LIST' },
+        { type: 'AdminProduct', id: 'LIST' },
+        { type: 'AdminRecipe', id: 'LIST' },
+        { type: 'AdminNews', id: 'LIST' },
+      ],
     }),
   }),
 });

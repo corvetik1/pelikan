@@ -1,5 +1,10 @@
 import type { NextRequest } from 'next/server';
 
+// Narrow type guard for Headers-like objects (supports polyfills)
+function isHeadersLike(h: unknown): h is Headers {
+  return !!h && typeof (h as Headers).get === 'function';
+}
+
 /**
  * Checks that the incoming request is authorized as an admin.
  * Strategy: expect header `Authorization: Bearer <ADMIN_TOKEN>` where
@@ -31,7 +36,7 @@ export function requireRole(req: NextRequest | Request, roles: string[]): Respon
   // In test environment, bypass auth for API route handlers (/api/...) so that unit tests can focus on business logic
   if (process.env.NODE_ENV === 'test') {
     try {
-      const pathname = new URL((req as any).url ?? '').pathname;
+      const pathname = new URL(req.url).pathname;
       if (pathname.startsWith('/api/')) {
         return null;
       }
@@ -42,12 +47,14 @@ export function requireRole(req: NextRequest | Request, roles: string[]): Respon
   // 1. Try Authorization Bearer flow for server-to-server calls
   // Support both WHATWG Headers as well as plain object used in Jest mocks
   let authHeader = '';
-  const headersAny = (req as any).headers;
-  if (headersAny) {
-    if (typeof headersAny.get === 'function') {
-      authHeader = headersAny.get('authorization') ?? '';
-    } else if (typeof headersAny === 'object') {
-      authHeader = headersAny['authorization'] ?? headersAny['Authorization'] ?? '';
+  const rawHeaders: Headers | Record<string, string | undefined> | undefined =
+    (req as Request).headers;
+  if (rawHeaders) {
+    if (isHeadersLike(rawHeaders)) {
+      authHeader = rawHeaders.get('authorization') ?? '';
+    } else if (rawHeaders) {
+      const rec = rawHeaders;
+      authHeader = rec['authorization'] ?? rec['Authorization'] ?? '';
     }
   }
   const expected = process.env.ADMIN_TOKEN ? `Bearer ${process.env.ADMIN_TOKEN}` : undefined;
@@ -58,18 +65,23 @@ export function requireRole(req: NextRequest | Request, roles: string[]): Respon
   // 2. Try session cookie (JSON string of user)
     // Extract session cookie from headers (support both WHATWG Headers / plain object)
   let cookieValue: string | undefined;
-  if (headersAny) {
+  if (rawHeaders) {
     let cookieHeader = '';
-    if (typeof headersAny.get === 'function') {
-      cookieHeader = headersAny.get('cookie') ?? '';
-    } else if (typeof headersAny === 'object') {
-      cookieHeader = headersAny['cookie'] ?? headersAny['Cookie'] ?? '';
+    if (isHeadersLike(rawHeaders)) {
+      cookieHeader = rawHeaders.get('cookie') ?? '';
+    } else if (rawHeaders) {
+      const rec = rawHeaders;
+      cookieHeader = rec['cookie'] ?? rec['Cookie'] ?? '';
     }
     cookieValue = cookieHeader.match(/session=([^;]+)/)?.[1];
   }
   // Fallback to NextRequest cookies helper if available (tests/mock)
-  if (!cookieValue && 'cookies' in req && typeof (req as any).cookies?.get === 'function') {
-    cookieValue = (req as any).cookies.get('session')?.value;
+  if (
+    !cookieValue &&
+    'cookies' in req &&
+    typeof (req as NextRequest).cookies?.get === 'function'
+  ) {
+    cookieValue = (req as NextRequest).cookies.get('session')?.value;
   }
   const user = parseSessionCookie(cookieValue);
   if (!user) {

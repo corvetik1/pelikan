@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Typography, Stack, Button, Chip } from "@mui/material";
+import RequirePermission from '@/components/RBAC/RequirePermission';
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
@@ -111,11 +112,12 @@ export default function AdminRolesPage() {
         actions={
           <Stack direction="row" spacing={1}>
         
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={selection.length === 0}
-            onClick={async () => {
+          <RequirePermission permission="roles:delete">
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={selection.length === 0}
+              onClick={async () => {
               setConfirmAction(() => async () => {
                  try {
                    await Promise.all(selection.map((id) => deleteRole(String(id)).unwrap()));
@@ -128,12 +130,15 @@ export default function AdminRolesPage() {
                });
             }}
             data-testid="bulk-delete"
-          >
-            Удалить выбранные
-          </Button>
-          <Button variant="contained" size="small" onClick={() => setOpenAdd(true)} data-testid="add-role">
+            >
+              Удалить выбранные
+            </Button>
+          </RequirePermission>
+          <RequirePermission permission="roles:create">
+            <Button variant="contained" size="small" onClick={() => setOpenAdd(true)} data-testid="add-role">
             + Добавить
           </Button>
+          </RequirePermission>
         </Stack>
         }
       />

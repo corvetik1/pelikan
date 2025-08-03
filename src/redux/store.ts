@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './authSlice';
 import catalogFiltersReducer from './catalogFiltersSlice';
 import b2bCalculatorReducer from './b2bCalculatorSlice';
 import snackbarReducer from './snackbarSlice';
@@ -10,6 +11,7 @@ export const store = configureStore({
     catalogFilters: catalogFiltersReducer,
     b2bCalculator: b2bCalculatorReducer,
     snackbar: snackbarReducer,
+    auth: authReducer,
   },
   middleware: (getDefault) => getDefault().concat(emptySplitApi.middleware),
 });

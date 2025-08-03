@@ -21,6 +21,7 @@
     "db:setup": "wait-on tcp:5434 && pnpm migrate && pnpm seed",
     "monitor:up": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d",
     "monitor:down": "docker compose -f docker-compose.yml -f docker-compose.monitoring.yml down",
+    "docs:openapi": "tsx scripts/generate-openapi.ts",
     "docs:build": "redoc-cli bundle docs/openapi.json -o public/api.html",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build"
@@ -101,6 +102,7 @@
     "ts-node": "^10.9.2",
     "tsx": "^3.13.0",
     "typescript": "^5",
+    "@playwright/test": "^1.44.1",
     "wait-on": "^7.1.2"
   },
   "lint-staged": {

@@ -2,6 +2,7 @@
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Stack } from "@mui/material";
 import EditableImage from "./EditableImage";
+import ImageArrayField from "./ImageArrayField";
 import { useState, ChangeEvent } from "react";
 import type { AdminProduct } from "@/types/admin";
 import { categories } from "@/data/mock";
@@ -13,8 +14,8 @@ interface AddProductDialogProps {
 }
 
 export default function AddProductDialog({ open, onClose, onCreate }: AddProductDialogProps) {
-  type FormState = { name: string; price: string; weight: string; category: string; img: string };
-  const [form, setForm] = useState<FormState>({ name: "", price: "", weight: "", category: categories[0].slug, img: "" });
+  type FormState = { name: string; price: string; weight: string; category: string; img: string; images: string[] };
+  const [form, setForm] = useState<FormState>({ name: "", price: "", weight: "", category: categories[0].slug, img: "", images: [] });
 
   const handle = (field: keyof FormState) => (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [field]: e.target.value });
@@ -24,9 +25,9 @@ export default function AddProductDialog({ open, onClose, onCreate }: AddProduct
 
   const submit = () => {
     if (!isValid) return;
-    onCreate({ name: form.name.trim(), price: Number(form.price), weight: form.weight.trim(), category: form.category, img: form.img });
+    onCreate({ name: form.name.trim(), price: Number(form.price), weight: form.weight.trim(), category: form.category, img: form.img, images: form.images });
     // Reset form fields
-    setForm({ name: "", price: "", weight: "", category: categories[0].slug, img: "" });
+    setForm({ name: "", price: "", weight: "", category: categories[0].slug, img: "", images: [] });
 
   };
 
@@ -55,6 +56,9 @@ export default function AddProductDialog({ open, onClose, onCreate }: AddProduct
               </MenuItem>
             ))}
           </TextField>
+
+            {/* Дополнительные изображения */}
+            <ImageArrayField value={form.images} onChange={(arr) => setForm({ ...form, images: arr })} />
         </Stack>
       </DialogContent>
       <DialogActions>
