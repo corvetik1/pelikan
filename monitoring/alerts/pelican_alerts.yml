@@ -19,6 +19,16 @@ groups:
           summary: "High API error rate (>1%)"
           description: "Error rate exceeded 1 % for 5m. Check logs and recent deploys."
 
+      - alert: SettingsApiHigh5xx
+        expr: rate(http_requests_total{job="pelican_healthz",path="/api/settings",status=~"5.."}[5m]) / rate(http_requests_total{job="pelican_healthz",path="/api/settings"}[5m]) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+          component: settings-api
+        annotations:
+          summary: "/api/settings high 5xx rate (>1%)"
+          description: "Settings API endpoint is returning >1% 5xx responses for 5 minutes. Investigate recent changes to settings backend or DB."
+
       - alert: HighDBConnections
         expr: pg_stat_activity_count{datname="pelicanbay"} / pg_settings_max_connections > 0.8
         for: 5m

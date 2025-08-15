@@ -118,6 +118,58 @@
           "statusCode": { "type": "integer" }
         },
         "required": ["error", "statusCode"]
+      },
+      "SocialLink": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "icon": { "type": "string" }
+        },
+        "required": ["id", "name", "url"]
+      },
+      "ContactItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["phone", "email", "address", "link"] },
+          "label": { "type": "string" },
+          "value": { "type": "string" }
+        },
+        "required": ["id", "type", "value"]
+      },
+      "Settings": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "activeThemeSlug": { "type": "string" },
+          "logoUrl": { "type": "string", "format": "uri", "nullable": true },
+          "heroSpeedMs": { "type": "integer" },
+          "socials": { "type": "array", "items": { "$ref": "#/components/schemas/SocialLink" } },
+          "contacts": { "type": "array", "items": { "$ref": "#/components/schemas/ContactItem" } },
+          "priceListUrl": { "type": "string", "format": "uri", "nullable": true },
+          "ctaTitle": { "type": "string", "nullable": true },
+          "ctaSubtitle": { "type": "string", "nullable": true },
+          "homeNewsTitle": { "type": "string", "nullable": true },
+          "homeRecipesTitle": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "activeThemeSlug", "heroSpeedMs"]
+      },
+      "SettingsPatch": {
+        "type": "object",
+        "properties": {
+          "activeThemeSlug": { "type": "string" },
+          "logoUrl": { "type": "string", "format": "uri", "nullable": true },
+          "heroSpeedMs": { "type": "integer", "minimum": 1000, "maximum": 60000 },
+          "socials": { "type": "array", "items": { "$ref": "#/components/schemas/SocialLink" } },
+          "contacts": { "type": "array", "items": { "$ref": "#/components/schemas/ContactItem" } },
+          "priceListUrl": { "type": "string", "format": "uri", "nullable": true },
+          "ctaTitle": { "type": "string", "nullable": true, "maxLength": 120 },
+          "ctaSubtitle": { "type": "string", "nullable": true, "maxLength": 240 },
+          "homeNewsTitle": { "type": "string", "nullable": true, "maxLength": 120 },
+          "homeRecipesTitle": { "type": "string", "nullable": true, "maxLength": 120 }
+        }
       }
     }
   },
@@ -140,6 +192,63 @@
                     "timestamp": { "type": "string", "format": "date-time" }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings": {
+      "get": {
+        "summary": "Get global settings",
+        "description": "Returns singleton settings row. Creates a default one if not exists.",
+        "tags": ["Settings"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Current settings",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Settings" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update global settings",
+        "description": "Partial update of global settings (admin only). Fields with null are stored as NULL.",
+        "tags": ["Settings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SettingsPatch" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Settings" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
               }
             }
           }
@@ -746,6 +855,10 @@
     {
       "name": "Admin - Quotes",
       "description": "Admin quote management"
+    },
+    {
+      "name": "Settings",
+      "description": "Global application settings"
     }
   ]
 }
