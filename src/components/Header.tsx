@@ -22,6 +22,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Link from 'next/link';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useGetSettingsQuery } from '@/redux/api';
 
 const navItems: { label: string; href: string }[] = [
   { label: 'О компании', href: '/about' },
@@ -30,13 +31,15 @@ const navItems: { label: string; href: string }[] = [
   { label: 'Рецепты', href: '/recipes' },
   { label: 'Новости', href: '/news' },
   { label: 'Где купить', href: '/locations' },
+  { label: 'Вакансии', href: '/vacancies' },
   { label: 'Контакты', href: '/contacts' },
 ];
 
-export default function Header() {
+export default function Header(): React.JSX.Element {
   const isAdmin = useIsAdmin();
   const { logout } = useAuth();
   const router = useRouter();
+  const { data: settings } = useGetSettingsQuery();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -50,7 +53,7 @@ export default function Header() {
 
   const drawer = (
     <Box onClick={toggleDrawer(false)} sx={{ textAlign: 'center' }}>
-      <BrandLogo disableLink sx={{ my: 2, mx: 'auto' }} />
+      <BrandLogo disableLink sx={{ my: 2, mx: 'auto' }} src={settings?.logoUrl ?? null} />
       <List>
         {navItems.map((item) => (
           <ListItem key={item.href} disablePadding>
@@ -79,7 +82,7 @@ export default function Header() {
             </IconButton>
           )}
           <Box sx={{ flexGrow: 1 }}>
-            <BrandLogo />
+            <BrandLogo src={settings?.logoUrl ?? null} />
           </Box>
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 3 }}>

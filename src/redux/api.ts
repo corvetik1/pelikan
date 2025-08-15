@@ -1,22 +1,21 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-
 // Пустой API для подключения RTK Query middleware. В дальнейшем здесь будут описаны endpoints.
 export const emptySplitApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-  baseUrl: '',
-  // Convert relative URLs to absolute when running in Node/Jest (no real browser)
-  fetchFn: ((input: RequestInfo | URL, init?: RequestInit) => {
-    const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
-    const fetchImpl = (globalThis.fetch as typeof fetch);
-    if (!isBrowser && typeof input === 'string' && input.startsWith('/')) {
-      return fetchImpl(`http://localhost${input}`, init);
-    }
-    return fetchImpl(input as RequestInfo | URL, init);
-  }) as typeof fetch,
-}),
-  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'AdminQuote', 'NewsCategory', 'Theme', 'Media', 'Quote', 'Review', 'Settings', 'Dashboard'] as const,
+    baseUrl: '',
+    // Convert relative URLs to absolute when running in Node/Jest (no real browser)
+    fetchFn: ((input: RequestInfo | URL, init?: RequestInit) => {
+      const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+      const fetchImpl = (globalThis.fetch as typeof fetch);
+      if (!isBrowser && typeof input === 'string' && input.startsWith('/')) {
+        return fetchImpl(`http://localhost${input}`, init);
+      }
+      return fetchImpl(input as RequestInfo | URL, init);
+    }) as typeof fetch,
+  }),
+  tagTypes: ['AdminNews', 'AdminStore', 'AdminRole', 'AdminUser', 'AdminProduct', 'AdminRecipe', 'AdminReview', 'AdminQuote', 'NewsCategory', 'Theme', 'Media', 'Quote', 'Review', 'Settings', 'Hero', 'Advantages', 'Dashboard', 'Subscriber'] as const,
   endpoints: (builder) => ({
     getProductById: builder.query<import('@/types/product').Product | undefined, string>({
       query: (id) => `/api/products/${id}`,
@@ -31,6 +30,47 @@ export const emptySplitApi = createApi({
       query: () => '/api/b2b/prices',
     }),
 
+    // Hero slides
+    getHeroSlides: builder.query<import('@/types/hero').HeroSlide[], void>({
+      query: () => '/api/hero',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'Hero' as const, id })), { type: 'Hero', id: 'LIST' }]
+          : [{ type: 'Hero', id: 'LIST' }],
+    }),
+
+    // Advantages
+    getAdvantages: builder.query<import('@/types/advantages').Advantage[], void>({
+      query: () => '/api/advantages',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'Advantages' as const, id })), { type: 'Advantages', id: 'LIST' }]
+          : [{ type: 'Advantages', id: 'LIST' }],
+    }),
+
+    // Newsletter subscription
+    subscribeNewsletter: builder.mutation<{ ok: boolean; message?: string }, { email: string }>({
+      query: (body) => ({ url: '/api/subscribe', method: 'POST', body }),
+    }),
+
+    // Public News (for homepage and public sections)
+    getNewsPublic: builder.query<import('@/types/admin').AdminNews[], void>({
+      query: () => '/api/news',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminNews' as const, id })), { type: 'AdminNews', id: 'PUBLIC_LIST' }]
+          : [{ type: 'AdminNews', id: 'PUBLIC_LIST' }],
+    }),
+
+    // Public Recipes (for homepage and public sections)
+    getRecipesPublic: builder.query<import('@/types/admin').AdminRecipe[], void>({
+      query: () => '/api/recipes',
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminRecipe' as const, id })), { type: 'AdminRecipe', id: 'PUBLIC_LIST' }]
+          : [{ type: 'AdminRecipe', id: 'PUBLIC_LIST' }],
+    }),
+
     // Admin News endpoints
     getAdminNews: builder.query<import('@/types/admin').AdminNews[], void>({
       query: () => '/api/admin/news',
@@ -39,11 +79,11 @@ export const emptySplitApi = createApi({
           ? [...result.map(({ id }) => ({ type: 'AdminNews' as const, id })), { type: 'AdminNews', id: 'LIST' }]
           : [{ type: 'AdminNews', id: 'LIST' }],
     }),
-    createNews: builder.mutation<import('@/types/admin').AdminNews, Partial<import('@/types/admin').AdminNews>>({
+    createNews: builder.mutation<import('@/types/admin').AdminNews, import('@/lib/validation/newsSchema').NewsCreateInput>({
       query: (body) => ({ url: '/api/admin/news', method: 'POST', body }),
       invalidatesTags: [{ type: 'AdminNews', id: 'LIST' }],
     }),
-    updateNews: builder.mutation<import('@/types/admin').AdminNews, { id: string; patch: Partial<import('@/types/admin').AdminNews> }>({
+    updateNews: builder.mutation<import('@/types/admin').AdminNews, { id: string; patch: import('@/lib/validation/newsSchema').NewsUpdateInput }>({
       query: ({ id, patch }) => ({ url: `/api/admin/news/${id}`, method: 'PATCH', body: patch }),
       invalidatesTags: (res, err, { id }) => [{ type: 'AdminNews', id }],
     }),
@@ -232,6 +272,38 @@ export const emptySplitApi = createApi({
       query: (id) => ({ url: `/api/admin/stores/${id}`, method: 'DELETE' }),
       invalidatesTags: [{ type: 'AdminStore', id: 'LIST' }],
     }),
+
+    // ---------------- subscribers (admin) ----------------
+    getAdminSubscribers: builder.query<
+      import('@/types/subscriber').SubscriberListResponse,
+      { page?: number; pageSize?: number; sort?: string; status?: import('@/types/subscriber').SubscriptionStatus }
+    >({
+      query: (args = {}) => {
+        const { page = 1, pageSize = 20, sort, status } = args;
+        const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+        if (sort) params.set('sort', sort);
+        if (status) params.set('status', status);
+        return `/api/admin/subscribers?${params.toString()}`;
+      },
+      providesTags: (result) =>
+        result && result.items && result.items.length > 0
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'Subscriber' as const, id })),
+              { type: 'Subscriber', id: 'LIST' },
+            ]
+          : [{ type: 'Subscriber', id: 'LIST' }],
+    }),
+    updateSubscriber: builder.mutation<
+      import('@/types/subscriber').Subscriber,
+      { id: string; status: import('@/types/subscriber').SubscriptionStatus }
+    >({
+      query: ({ id, status }) => ({ url: `/api/admin/subscribers/${id}`, method: 'PATCH', body: { status } }),
+      invalidatesTags: (_res, _err, { id }) => [{ type: 'Subscriber' as const, id }, { type: 'Subscriber', id: 'LIST' }],
+    }),
+    deleteSubscriber: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/api/admin/subscribers/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'Subscriber', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -239,6 +311,11 @@ export const {
   useGetProductsByCategoryQuery,
   useGetAllProductsQuery,
   useGetB2BPricesQuery,
+  useGetHeroSlidesQuery,
+  useGetAdvantagesQuery,
+  useSubscribeNewsletterMutation,
+  useGetNewsPublicQuery,
+  useGetRecipesPublicQuery,
   useGetAdminNewsQuery,
   useUpdateNewsMutation,
   useCreateNewsMutation,
@@ -269,4 +346,7 @@ export const {
   useDeleteThemeMutation,
   useGetSettingsQuery,
   useUpdateSettingsMutation,
+  useGetAdminSubscribersQuery,
+  useUpdateSubscriberMutation,
+  useDeleteSubscriberMutation,
 } = emptySplitApi;

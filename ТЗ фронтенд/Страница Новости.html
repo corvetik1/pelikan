@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости - Рыбный Завод</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .wave-animation {
+            animation: wave 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 20px;
+            padding: 0;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Стили для режима списка */
+        .list-view .news-card {
+            display: flex;
+            flex-direction: row;
+            max-width: 100%;
+        }
+        
+        .list-view .news-image {
+            width: 200px;
+            height: 150px;
+            flex-shrink: 0;
+        }
+        
+        .list-view .news-content {
+            flex: 1;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Шапка -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-fish text-blue-600 text-3xl wave-animation"></i>
+                    <span class="text-2xl font-bold text-gray-800">Рыбный Завод</span>
+                </div>
+                
+                <!-- Меню для десктопа -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                    <a href="#" class="text-blue-600 font-medium">Новости</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+                </div>
+                
+                <!-- Мобильное меню -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Мобильное меню (скрыто) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                <a href="#" class="block text-blue-600 font-medium">Новости</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="#" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>
+                        Главная
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <span class="text-gray-500">Новости</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Заголовок страницы -->
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Новости</h1>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Боковая панель фильтров (десктоп) -->
+            <aside class="lg:w-1/4 hidden lg:block">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold">Фильтры</h2>
+                        <button id="clear-filters" class="text-sm text-blue-600 hover:text-blue-700">
+                            Сбросить
+                        </button>
+                    </div>
+                    
+                    <!-- Поиск -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Поиск по заголовкам" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Категории -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3">Категории</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="all" class="mr-2" checked>
+                                <span class="text-sm">Все новости</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="company" class="mr-2">
+                                <span class="text-sm">Компания</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="products" class="mr-2">
+                                <span class="text-sm">Продукция</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="events" class="mr-2">
+                                <span class="text-sm">События</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="promotions" class="mr-2">
+                                <span class="text-sm">Акции</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Период -->
+                    <div>
+                        <h3 class="text-lg font-medium mb-3">Период</h3>
+                        <select id="period-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="all">За все время</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Основной контент -->
+            <div class="lg:w-3/4">
+                <!-- Панель управления -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6 flex flex-col sm:flex-row justify-between items-center">
+                    <div class="flex items-center mb-4 sm:mb-0">
+                        <span class="text-gray-600 mr-4">Найдено: <span id="news-count">9</span> новостей</span>
+                        
+                        <select id="sort-select" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>Новые сначала</option>
+                            <option>Старые сначала</option>
+                            <option>Популярные</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button id="view-grid" class="p-2 rounded-lg bg-blue-100 text-blue-600">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="view-list" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        
+                        <button id="mobile-filters-btn" class="lg:hidden ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-filter mr-2"></i>Фильтры
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Новости -->
+                <div id="news-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Новость 1 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="products" data-date="2024-11-15">
+                        <img src="https://picsum.photos/seed/news1/400/300.jpg" alt="Новый улов" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>15 ноября 2024</span>
+                                </div>
+                                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-semibold">Продукция</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Новый улов: рекордный объем лосося</h3>
+                            <p class="text-gray-600 text-sm mb-3">В этом сезоне мы выловили рекордное количество лосося высшего качества...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="1">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 2 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="events" data-date="2024-11-10">
+                        <img src="https://picsum.photos/seed/news2/400/300.jpg" alt="Выставка" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>10 ноября 2024</span>
+                                </div>
+                                <span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-semibold">События</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Участие в международной выставке</h3>
+                            <p class="text-gray-600 text-sm mb-3">Представили нашу продукцию на крупнейшей рыбной выставке в Москве...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="2">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 3 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="company" data-date="2024-11-05">
+                        <img src="https://picsum.photos/seed/news3/400/300.jpg" alt="Сертификаты" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>5 ноября 2024</span>
+                                </div>
+                                <span class="bg-purple-100 text-purple-600 px-2 py-1 rounded text-xs font-semibold">Компания</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Новые сертификаты качества</h3>
+                            <p class="text-gray-600 text-sm mb-3">Получили международные сертификаты ISO и HACCP...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="3">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 4 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="promotions" data-date="2024-11-01">
+                        <img src="https://picsum.photos/seed/news4/400/300.jpg" alt="Акция" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>1 ноября 2024</span>
+                                </div>
+                                <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-semibold">Акции</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Скидка 20% на всю продукцию</h3>
+                            <p class="text-gray-600 text-sm mb-3">Только до конца месяца - специальное предложение для наших клиентов...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="4">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 5 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="products" data-date="2024-10-25">
+                        <img src="https://picsum.photos/seed/news5/400/300.jpg" alt="Новый продукт" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>25 октября 2024</span>
+                                </div>
+                                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-semibold">Продукция</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Новый продукт: икра осетровых</h3>
+                            <p class="text-gray-600 text-sm mb-3">Расширили ассортимент - теперь в продаже черная икра высшего качества...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="5">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 6 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="company" data-date="2024-10-20">
+                        <img src="https://picsum.photos/seed/news6/400/300.jpg" alt="Награда" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>20 октября 2024</span>
+                                </div>
+                                <span class="bg-purple-100 text-purple-600 px-2 py-1 rounded text-xs font-semibold">Компания</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Получили награду "Лучший поставщик"</h3>
+                            <p class="text-gray-600 text-sm mb-3">Нашу компанию признали лучшим поставщиком рыбной продукции в России...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="6">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 7 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="events" data-date="2024-10-15">
+                        <img src="https://picsum.photos/seed/news7/400/300.jpg" alt="Конференция" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>15 октября 2024</span>
+                                </div>
+                                <span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-semibold">События</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Участие в конференции по экологии</h3>
+                            <p class="text-gray-600 text-sm mb-3">Приняли участие в международной конференции по устойчивому рыболовству...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="7">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 8 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="promotions" data-date="2024-10-10">
+                        <img src="https://picsum.photos/seed/news8/400/300.jpg" alt="Подарок" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>10 октября 2024</span>
+                                </div>
+                                <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-semibold">Акции</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Подарок при покупке от 5000 ₽</h3>
+                            <p class="text-gray-600 text-sm mb-3">При покупке на сумму от 5000 рублей - набор специй для рыбы в подарок...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="8">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Новость 9 -->
+                    <div class="news-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="products" data-date="2024-10-05">
+                        <img src="https://picsum.photos/seed/news9/400/300.jpg" alt="Сезон" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i>
+                                    <span>5 октября 2024</span>
+                                </div>
+                                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-semibold">Продукция</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">Начался сезон свежей кеты</h3>
+                            <p class="text-gray-600 text-sm mb-3">Поступила свежая кета дальневосточная - сочная и нежная...</p>
+                            <button class="read-more text-blue-600 font-semibold hover:text-blue-700" data-id="9">
+                                Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Пагинация -->
+                <div class="flex justify-center mb-8">
+                    <nav class="flex space-x-1">
+                        <button class="px-3 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-4 py-2 rounded-lg bg-blue-600 text-white">1</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">2</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">3</button>
+                        <button class="px-3 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно для детального просмотра новости -->
+    <div id="news-modal" class="modal">
+        <div class="modal-content">
+            <div class="relative">
+                <img id="modal-image" src="" alt="" class="w-full h-64 md:h-80 object-cover">
+                <button id="close-modal" class="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-calendar mr-1"></i>
+                        <span id="modal-date"></span>
+                    </div>
+                    <span id="modal-category" class="px-3 py-1 rounded text-sm font-semibold"></span>
+                </div>
+                <h2 id="modal-title" class="text-2xl md:text-3xl font-bold mb-4"></h2>
+                <div id="modal-content" class="text-gray-600 leading-relaxed"></div>
+                <div class="mt-6 flex justify-between items-center">
+                    <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-share-alt mr-2"></i>Поделиться
+                    </button>
+                    <button id="back-to-list" class="text-blue-600 hover:text-blue-700">
+                        <i class="fas fa-arrow-left mr-1"></i>К списку новостей
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- О компании -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-fish text-blue-400 text-2xl"></i>
+                        <span class="text-xl font-bold">Рыбный Завод</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Лидер по производству и поставкам свежей рыбы и морепродуктов в России
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Контакты -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <div class="space-y-3 text-gray-400">
+                        <p class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            г. Москва, ул. Рыбная, 1
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            +7 (495) 123-45-67
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@rybnyzavod.ru
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            Пн-Пт: 9:00 - 18:00
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Навигация</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">О компании</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Продукция</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Новости</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Рецепты</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">B2B</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Вакансии</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Подписка -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Подписка на новости</h3>
+                    <p class="text-gray-400 mb-4">Получайте информацию о новинках и акциях</p>
+                    <form class="space-y-3">
+                        <input type="email" placeholder="Ваш email" class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Подписаться
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Рыбный Завод. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Мобильные фильтры -->
+    <div id="mobile-filters-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden lg:hidden"></div>
+    <div id="mobile-filters" class="mobile-filters fixed left-0 top-0 h-full w-80 bg-white z-50 overflow-y-auto lg:hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold">Фильтры</h2>
+                <button id="close-mobile-filters" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Поиск -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
+                <div class="relative">
+                    <input type="text" placeholder="Поиск по заголовкам" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <!-- Категории -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-3">Категории</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="mobile-category" value="all" class="mr-2" checked>
+                        <span class="text-sm">Все новости</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="mobile-category" value="company" class="mr-2">
+                        <span class="text-sm">Компания</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="mobile-category" value="products" class="mr-2">
+                        <span class="text-sm">Продукция</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="mobile-category" value="events" class="mr-2">
+                        <span class="text-sm">События</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="mobile-category" value="promotions" class="mr-2">
+                        <span class="text-sm">Акции</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Период -->
+            <div>
+                <h3 class="text-lg font-medium mb-3">Период</h3>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option>За все время</option>
+                    <option>2024</option>
+                    <option>2023</option>
+                    <option>2022</option>
+                </select>
+            </div>
+            
+            <div class="mt-6 space-y-3">
+                <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    Применить
+                </button>
+                <button class="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Мобильные фильтры
+        const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
+        const mobileFilters = document.getElementById('mobile-filters');
+        const mobileFiltersOverlay = document.getElementById('mobile-filters-overlay');
+        const closeMobileFilters = document.getElementById('close-mobile-filters');
+        
+        mobileFiltersBtn.addEventListener('click', () => {
+            mobileFilters.classList.add('active');
+            mobileFiltersOverlay.classList.remove('hidden');
+        });
+        
+        closeMobileFilters.addEventListener('click', () => {
+            mobileFilters.classList.remove('active');
+            mobileFiltersOverlay.classList.add('hidden');
+        });
+        
+        mobileFiltersOverlay.addEventListener('click', () => {
+            mobileFilters.classList.remove('active');
+            mobileFiltersOverlay.classList.add('hidden');
+        });
+        
+        // Переключение вида
+        const viewGrid = document.getElementById('view-grid');
+        const viewList = document.getElementById('view-list');
+        const newsContainer = document.getElementById('news-container');
+        
+        viewGrid.addEventListener('click', () => {
+            newsContainer.classList.remove('list-view');
+            viewGrid.classList.add('bg-blue-100', 'text-blue-600');
+            viewGrid.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            viewList.classList.remove('bg-blue-100', 'text-blue-600');
+            viewList.classList.add('text-gray-600', 'hover:bg-gray-100');
+        });
+        
+        viewList.addEventListener('click', () => {
+            newsContainer.classList.add('list-view');
+            viewList.classList.add('bg-blue-100', 'text-blue-600');
+            viewList.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            viewGrid.classList.remove('bg-blue-100', 'text-blue-600');
+            viewGrid.classList.add('text-gray-600', 'hover:bg-gray-100');
+        });
+        
+        // Модальное окно
+        const modal = document.getElementById('news-modal');
+        const closeModal = document.getElementById('close-modal');
+        const backToList = document.getElementById('back-to-list');
+        const readMoreButtons = document.querySelectorAll('.read-more');
+        
+        // Данные для новостей
+        const newsData = {
+            1: {
+                title: "Новый улов: рекордный объем лосося",
+                date: "15 ноября 2024",
+                category: "Продукция",
+                categoryColor: "bg-blue-100 text-blue-600",
+                image: "https://picsum.photos/seed/news1/800/450.jpg",
+                content: `
+                    <p class="mb-4">В этом сезоне мы выловили рекордное количество лосося высшего качества. Наши рыболовные суда вернулись из рейда с уловом, превышающим все предыдущие показатели на 25%.</p>
+                    <p class="mb-4">Благодаря благоприятным погодным условиям и современному оборудованию, нам удалось сохранить свежесть и качество всей продукции. Лосось был выловлен в экологически чистых водах Атлантического океана.</p>
+                    <p class="mb-4">Вся продукция прошла строгий контроль качества и готова к поставкам нашим партнерам. Мы гарантируем свежесть и отличные вкусовые качества нашего лосося.</p>
+                    <p>Заказы на новую партию уже принимаются. Свяжитесь с нашими менеджерами для уточнения условий поставки.</p>
+                `
+            },
+            2: {
+                title: "Участие в международной выставке",
+                date: "10 ноября 2024",
+                category: "События",
+                categoryColor: "bg-green-100 text-green-600",
+                image: "https://picsum.photos/seed/news2/800/450.jpg",
+                content: `
+                    <p class="mb-4">С 8 по 10 ноября наша компания принимала участие в крупнейшей международной выставке рыбной продукции "Seafood Expo 2024" в Москве.</p>
+                    <p class="mb-4">На нашем стенде мы представили весь ассортимент нашей продукции: от свежей рыбы до готовых деликатесов. Особое внимание посетителей привлекла наша новая линейка копченых изделий.</p>
+                    <p class="mb-4">В ходе выставки мы заключили несколько важных соглашений с новыми партнерами из регионов России и зарубежья. Также наша продукция получила высокую оценку от профессиональных дегустаторов.</p>
+                    <p>Участие в таких мероприятиях позволяет нам оставаться в курсе последних тенденций рынка и постоянно улучшать качество нашей продукции.</p>
+                `
+            },
+            3: {
+                title: "Новые сертификаты качества",
+                date: "5 ноября 2024",
+                category: "Компания",
+                categoryColor: "bg-purple-100 text-purple-600",
+                image: "https://picsum.photos/seed/news3/800/450.jpg",
+                content: `
+                    <p class="mb-4">Мы рады сообщить, что наша компания успешно прошла аудит и получила международные сертификаты ISO 22000 и HACCP.</p>
+                    <p class="mb-4">Эти сертификаты подтверждают соответствие нашей системы менеджмента качества безопасности пищевой продукции международным стандартам. Процесс сертификации включал проверку всех этапов производства: от вылова рыбы до упаковки готовой продукции.</p>
+                    <p class="mb-4">Получение сертификатов - это результат нашей постоянной работы по улучшению качества и безопасности продукции. Мы внедрили современные системы контроля на всех этапах производства.</p>
+                    <p>Теперь наша продукция может поставляться в страны ЕС и другие регионы с высокими требованиями к качеству пищевой продукции.</p>
+                `
+            },
+            4: {
+                title: "Скидка 20% на всю продукцию",
+                date: "1 ноября 2024",
+                category: "Акции",
+                categoryColor: "bg-red-100 text-red-600",
+                image: "https://picsum.photos/seed/news4/800/450.jpg",
+                content: `
+                    <p class="mb-4">Только до 30 ноября действует специальная акция - скидка 20% на всю продукцию нашего ассортимента!</p>
+                    <p class="mb-4">Это отличная возможность закупить свежую рыбу и морепродукты по выгодным ценам. Акция распространяется как на оптовые, так и на розничные заказы.</p>
+                    <p class="mb-4">Условия акции просты: минимальная сумма заказа - 3000 рублей. Скидка применяется автоматически при оформлении заказа.</p>
+                    <p>Не упустите шанс пополнить свои запасы качественной рыбной продукцией по специальным ценам! Количество товара по акции ограничено.</p>
+                `
+            },
+            5: {
+                title: "Новый продукт: икра осетровых",
+                date: "25 октября 2024",
+                category: "Продукция",
+                categoryColor: "bg-blue-100 text-blue-600",
+                image: "https://picsum.photos/seed/news5/800/450.jpg",
+                content: `
+                    <p class="mb-4">Мы рады представить наш новый продукт - черную икру осетровых рыб высшего качества.</p>
+                    <p class="mb-4">Икра произведена по традиционной технологии с соблюдением всех стандартов качества. Мы используем только зрелых осетров, выращенных в экологически чистых условиях.</p>
+                    <p class="mb-4">Наша икра имеет крупное зерно, нежный вкус и приятный аромат. Она упакована в стеклянные банки по 100 грамм, что позволяет сохранить все полезные свойства.</p>
+                    <p>Новый продукт уже доступен для заказа. Рекомендуем попробовать нашу икру - вы останетесь довольны ее вкусом и качеством!</p>
+                `
+            },
+            6: {
+                title: "Получили награду 'Лучший поставщик'",
+                date: "20 октября 2024",
+                category: "Компания",
+                categoryColor: "bg-purple-100 text-purple-600",
+                image: "https://picsum.photos/seed/news6/800/450.jpg",
+                content: `
+                    <p class="mb-4">На ежегодной церемонии награждения "Рыбная индустрия России" наша компания была признана лучшим поставщиком рыбной продукции.</p>
+                    <p class="mb-4">Эта награда - признание нашего многолетнего труда и стремления к совершенству. Мы постоянно работаем над улучшением качества продукции и сервиса для наших клиентов.</p>
+                    <p class="mb-4">Жюри отметило стабильность поставок, высокое качество продукции и индивидуальный подход к каждому клиенту. Особо была отмечена наша программа развития собственного рыболовного флота.</p>
+                    <p>Мы благодарим наших клиентов и партнеров за доверие и обещаем и дальше радовать вас отличной продукцией!</p>
+                `
+            },
+            7: {
+                title: "Участие в конференции по экологии",
+                date: "15 октября 2024",
+                category: "События",
+                categoryColor: "bg-green-100 text-green-600",
+                image: "https://picsum.photos/seed/news7/800/450.jpg",
+                content: `
+                    <p class="mb-4">12-14 октября наша компания приняла участие в международной конференции "Устойчивое рыболовство и экология морей".</p>
+                    <p class="mb-4">На конференции обсуждались вопросы сохранения морских экосистем и ответственного рыболовства. Наш генеральный директор выступил с докладом о нашем опыте внедрения экологически чистых методов лова.</p>
+                    <p class="mb-4">Мы поделились своими наработками в области сокращения побочного улова и сохранения биоразнообразия. Наш опыт вызвал большой интерес у участников конференции.</p>
+                    <p>Участие в таких мероприятиях помогает нам быть в курсе последних экологических тенденций и постоянно улучшать наши производственные процессы.</p>
+                `
+            },
+            8: {
+                title: "Подарок при покупке от 5000 ₽",
+                date: "10 октября 2024",
+                category: "Акции",
+                categoryColor: "bg-red-100 text-red-600",
+                image: "https://picsum.photos/seed/news8/800/450.jpg",
+                content: `
+                    <p class="mb-4">При покупке нашей продукции на сумму от 5000 рублей мы дарим вам набор специй для приготовления рыбы!</p>
+                    <p class="mb-4">В набор входят: сушеный укроп, черный перец горошком, лавровый лист, смесь прованских трав и специальная соль для рыбы.</p>
+                    <p class="mb-4">Все специи упакованы в удобные герметичные пакеты, которые сохраняют аромат и полезные свойства. С помощью нашего набора вы сможете приготовить рыбу как в ресторане!</p>
+                    <p>Акция действует до конца месяца. Подарок вы получите вместе с заказом. Не упустите шанс получить качественные специи бесплатно!</p>
+                `
+            },
+            9: {
+                title: "Начался сезон свежей кеты",
+                date: "5 октября 2024",
+                category: "Продукция",
+                categoryColor: "bg-blue-100 text-blue-600",
+                image: "https://picsum.photos/seed/news9/800/450.jpg",
+                content: `
+                    <p class="mb-4">Мы рады сообщить о начале сезона свежей кеты дальневосточной! Наши суда вернулись с первым уловом этой ценной рыбы.</p>
+                    <p class="mb-4">Кета этого года отличается особой жирностью и нежным вкусом. Рыба выловлена в период нерестового хода, когда она наиболее вкусная и полезная.</p>
+                    <p class="mb-4">Вся кета проходит шоковую заморозку непосредственно на борту судна, что позволяет сохранить все полезные свойства и свежесть продукта.</p>
+                    <p>Мы предлагаем кету как в целом виде, так и в виде филе и стейков. Закажите свежую кету и насладитесь ее неповторимым вкусом!</p>
+                `
+            }
+        };
+        
+        readMoreButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const newsId = button.dataset.id;
+                const news = newsData[newsId];
+                
+                document.getElementById('modal-image').src = news.image;
+                document.getElementById('modal-date').textContent = news.date;
+                document.getElementById('modal-category').textContent = news.category;
+                document.getElementById('modal-category').className = `px-3 py-1 rounded text-sm font-semibold ${news.categoryColor}`;
+                document.getElementById('modal-title').textContent = news.title;
+                document.getElementById('modal-content').innerHTML = news.content;
+                
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+        
+        backToList.addEventListener('click', () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Фильтрация и сортировка (демо)
+        const searchInput = document.getElementById('search-input');
+        const sortSelect = document.getElementById('sort-select');
+        const newsCount = document.getElementById('news-count');
+        const newsCards = document.querySelectorAll('.news-card');
+        
+        function filterNews() {
+            const searchTerm = searchInput.value.toLowerCase();
+            let visibleCount = 0;
+            
+            newsCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const category = card.dataset.category;
+                
+                // Простая фильтрация по названию
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            newsCount.textContent = visibleCount;
+        }
+        
+        searchInput.addEventListener('input', filterNews);
+        
+        // Сортировка
+        sortSelect.addEventListener('change', () => {
+            const sortValue = sortSelect.value;
+            const newsArray = Array.from(newsCards);
+            
+            newsArray.sort((a, b) => {
+                const dateA = new Date(a.dataset.date);
+                const dateB = new Date(b.dataset.date);
+                
+                switch(sortValue) {
+                    case 'Новые сначала':
+                        return dateB - dateA;
+                    case 'Старые сначала':
+                        return dateA - dateB;
+                    case 'Популярные':
+                        // Демо: случайная сортировка
+                        return Math.random() - 0.5;
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Перестраиваем DOM
+            const container = document.getElementById('news-container');
+            newsArray.forEach(card => container.appendChild(card));
+        });
+        
+        // Очистка фильтров
+        document.getElementById('clear-filters').addEventListener('click', () => {
+            searchInput.value = '';
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+            document.querySelector('input[value="all"]').checked = true;
+            document.getElementById('period-select').value = 'all';
+            sortSelect.value = 'Новые сначала';
+            filterNews();
+        });
+        
+        // Обработка формы подписки
+        const subscribeForm = document.querySelector('form');
+        subscribeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Спасибо за подписку! Мы отправили вам письмо для подтверждения.');
+                e.target.reset();
+            }
+        });
+    </script>
+</body>
+</html>

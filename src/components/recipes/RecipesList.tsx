@@ -2,13 +2,13 @@
 
 import { Box } from '@mui/material';
 import RecipeCard from './RecipeCard';
-import type { Recipe } from '@/data/mock';
+import type { AdminRecipe } from '@/types/admin';
 
 interface RecipesListProps {
-  recipes: Recipe[];
+  recipes: AdminRecipe[];
 }
 
-export default function RecipesList({ recipes }: RecipesListProps) {
+export default function RecipesList({ recipes }: RecipesListProps): React.JSX.Element {
   return (
     <Box
       sx={{
@@ -21,7 +21,7 @@ export default function RecipesList({ recipes }: RecipesListProps) {
         gap: 2,
       }}
     >
-      {recipes.map((r) => (
+      {recipes.map((r: AdminRecipe) => (
         <RecipeCard key={r.id} recipe={r} />
       ))}
     </Box>

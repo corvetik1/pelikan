@@ -18,6 +18,7 @@ const navItems = [
   { label: "Магазины", href: "/admin/stores" },
   { label: "Отзывы", href: "/admin/reviews" },
   { label: "Заявки", href: "/admin/quotes" },
+  { label: "Подписчики", href: "/admin/subscribers" },
   { label: "Темы", href: "/admin/themes" },
   { label: "Настройки", href: "/admin/settings" },
 ] as const;
@@ -56,11 +57,15 @@ export default function AdminRootShell({ children }: { children: ReactNode }) {
   // content that was causing Playwright tests to fail before context hydration sets isAdmin=true.
   // Render immediately to avoid Playwright missing elements; early return removed
   const themeWrapper = (content: ReactNode) => (
-    <ThemeRegistry tokens={(tokens ?? (adminTheme as unknown)) as Record<string, unknown>}>{content}</ThemeRegistry>
+    <ThemeRegistry tokens={tokens ?? adminTheme}>{content}</ThemeRegistry>
   );
 
+  // Hide sidebar items for non-admin users to avoid brief flash before redirect
+  // Use array type compatible with AdminLayout (Readonly<NavItem[]>)
+  const navItemsFiltered: Readonly<Array<{ label: string; href: string }>> = isAdmin ? [...navItems] : [];
+
   return themeWrapper(
-    <AdminLayout title={getTitle(pathname)} navItems={navItems}>
+    <AdminLayout title={getTitle(pathname)} navItems={navItemsFiltered}>
       {children}
     </AdminLayout>
   );

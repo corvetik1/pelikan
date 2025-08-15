@@ -12,12 +12,42 @@ export const adminApi = emptySplitApi.injectEndpoints({
       }),
       
     }),
-    updateHeroField: builder.mutation<void, { id: string; patch: Record<string, unknown> }>({
+    updateHeroField: builder.mutation<void, { id: string; patch: import('@/types/hero').HeroPatch }>({
       query: ({ id, patch }) => ({
         url: `/api/admin/hero/${id}`,
         method: 'PATCH',
         body: patch,
       }),
+      invalidatesTags: (res, err, { id }) => [
+        { type: 'Hero', id },
+        { type: 'Hero', id: 'LIST' },
+      ],
+    }),
+    createHeroSlide: builder.mutation<import('@/types/hero').HeroSlide, import('@/lib/validation/heroSchema').HeroCreateInput>({
+      query: (body) => ({
+        url: '/api/admin/hero',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'Hero', id: 'LIST' }],
+    }),
+    deleteHeroSlide: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/api/admin/hero/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Hero', id: 'LIST' }],
+    }),
+    updateAdvantageField: builder.mutation<import('@/types/advantages').Advantage, { id: string; patch: import('@/types/advantages').AdvantagePatch }>({
+      query: ({ id, patch }) => ({
+        url: `/api/admin/advantages/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+      invalidatesTags: (res, err, { id }) => [
+        { type: 'Advantages', id },
+        { type: 'Advantages', id: 'LIST' },
+      ],
     }),
     updateCategoryField: builder.mutation<void, { id: string; patch: Record<string, unknown> }>({
       query: ({ id, patch }) => ({
@@ -207,6 +237,9 @@ export const adminApi = emptySplitApi.injectEndpoints({
 export const {
   useUpdateNewsFieldMutation,
   useUpdateHeroFieldMutation,
+  useCreateHeroSlideMutation,
+  useDeleteHeroSlideMutation,
+  useUpdateAdvantageFieldMutation,
   useUpdateCategoryFieldMutation,
   useUpdateProductFieldMutation,
   useUpdateRecipeFieldMutation,

@@ -11,13 +11,15 @@ import { adminApi } from '@/redux/adminApi';
 import { showSnackbar } from '@/redux/snackbarSlice';
 import GlobalSnackbar from '@/components/GlobalSnackbar';
 import dynamic from 'next/dynamic';
+import type { InvalidatePayload } from '@/types/realtime';
+import type { ThemeOptions, Theme } from '@mui/material/styles';
 
 const AxeAccessibility = dynamic(() => import('@/components/dev/AxeAccessibility'), { ssr: false });
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { setUser } from '@/redux/authSlice';
 import React from 'react';
 
-function ProvidersInner({ children, initialTokens }: { children: React.ReactNode; initialTokens?: Record<string, unknown> }) {
+function ProvidersInner({ children, initialTokens }: { children: React.ReactNode; initialTokens?: ThemeOptions | Theme }) {
   const { user } = useAuth();
   React.useEffect(() => {
     // Sync AuthContext user -> Redux store
@@ -25,25 +27,16 @@ function ProvidersInner({ children, initialTokens }: { children: React.ReactNode
   }, [user]);
 
   const tokens = useActiveThemeTokens();
-  const themeTokens = tokens ?? initialTokens ?? baseTheme;
+  const themeTokens: ThemeOptions | Theme = tokens ?? initialTokens ?? baseTheme;
   const socket = useSocket();
   const lastSnackbarRef = React.useRef<number>(0);
 
   React.useEffect(() => {
     if (!socket) return;
-    const handleInvalidate = (
-      payload: {
-        tags: Parameters<typeof store.dispatch>[0] extends infer D
-          ? D extends ReturnType<typeof emptySplitApi.util.invalidateTags>
-            ? Parameters<typeof emptySplitApi.util.invalidateTags>[0]
-            : never
-          : never;
-        message?: string;
-      },
-    ) => {
+    const handleInvalidate = (payload: InvalidatePayload) => {
       // Invalidate both default slice and admin slice to keep data fresh across tabs/tests
       store.dispatch(emptySplitApi.util.invalidateTags(payload.tags));
-      store.dispatch(adminApi.util.invalidateTags(payload.tags as Parameters<typeof adminApi.util.invalidateTags>[0]));
+      store.dispatch(adminApi.util.invalidateTags(payload.tags));
       if (payload.message) {
         const now = Date.now();
         if (now - lastSnackbarRef.current > 1000) {
@@ -59,20 +52,20 @@ function ProvidersInner({ children, initialTokens }: { children: React.ReactNode
   }, [socket]);
 
   return (
-    <AuthProvider>
-      <ThemeRegistry tokens={themeTokens as Record<string, unknown>}>
-        {children}
-        {process.env.NODE_ENV === 'development' && <AxeAccessibility />}
-        <GlobalSnackbar />
-      </ThemeRegistry>
-    </AuthProvider>
+    <ThemeRegistry tokens={themeTokens}>
+      {children}
+      {process.env.NODE_ENV === 'development' && <AxeAccessibility />}
+      <GlobalSnackbar />
+    </ThemeRegistry>
   );
 }
 
-export default function Providers({ children, initialTokens }: { children: React.ReactNode; initialTokens?: Record<string, unknown> }) {
+export default function Providers({ children, initialTokens }: { children: React.ReactNode; initialTokens?: ThemeOptions | Theme }) {
   return (
     <ReduxProvider store={store}>
-      <ProvidersInner initialTokens={initialTokens}>{children}</ProvidersInner>
+      <AuthProvider>
+        <ProvidersInner initialTokens={initialTokens}>{children}</ProvidersInner>
+      </AuthProvider>
     </ReduxProvider>
   );
 }

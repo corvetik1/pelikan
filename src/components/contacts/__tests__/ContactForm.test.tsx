@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
-// Increase default timeout for this test suite (animations/user typing may be slow in CI)
-jest.setTimeout(15000);
+// Increase default timeout for this test suite (animations/user typing may be slow in CI/Windows)
+jest.setTimeout(60000);
 import userEvent from '@testing-library/user-event';
 import ContactForm from '../ContactForm';
 

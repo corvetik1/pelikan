@@ -2,10 +2,10 @@
 
 import { Box } from '@mui/material';
 import NewsCard from './NewsCard';
-import type { NewsArticle } from '@/data/mock';
+import type { AdminNews } from '@/types/admin';
 
 interface NewsListProps {
-  articles: NewsArticle[];
+  articles: AdminNews[];
 }
 
 export default function NewsList({ articles }: NewsListProps) {
@@ -21,8 +21,8 @@ export default function NewsList({ articles }: NewsListProps) {
         gap: 2,
       }}
     >
-      {articles.map((a) => (
-        <NewsCard key={a.id} article={a} />
+      {articles.map((a: AdminNews, idx: number) => (
+        <NewsCard key={a.id} article={a} priority={idx === 0} />
       ))}
     </Box>
   );

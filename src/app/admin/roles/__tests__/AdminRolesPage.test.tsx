@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
+import React from 'react';
 
 import type { AdminRole } from "@/types/admin";
 
@@ -30,6 +31,12 @@ jest.mock("@mui/x-data-grid", () => ({
       ))}
     </div>
   ),
+}));
+
+// Bypass RBAC in tests
+jest.mock('@/components/RBAC/RequirePermission', () => ({
+  __esModule: true,
+  default: (props: { children: React.ReactNode }) => <>{props.children}</>,
 }));
 
 
@@ -72,7 +79,7 @@ describe("AdminRolesPage", () => {
       </Provider>,
     );
 
-    await user.click(screen.getByTestId("add-role"));
+    await user.click(screen.getByTestId("create-action"));
     // fill name field
     await user.type(screen.getByLabelText(/название/i), "NewRole");
     await user.click(screen.getByRole("button", { name: /создать/i }));

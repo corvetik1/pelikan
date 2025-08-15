@@ -21,6 +21,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import dynamic from "next/dynamic";
 import { AdminNews, NewsCategory } from "@/types/admin";
+import type { NewsCreateInput, NewsUpdateInput } from "@/lib/validation/newsSchema";
 import { Autocomplete } from "@mui/material";
 import { useGetAdminNewsCategoriesQuery } from "@/redux/api";
 import MediaLibraryDialog from "@/components/admin/MediaLibraryDialog";
@@ -31,10 +32,10 @@ export interface NewsDialogProps {
   /** if provided – edit mode */
   initial?: AdminNews | null;
   /** when user confirms, returns data (without id for create) */
-  onSave: (data: Omit<AdminNews, "id"> & { id?: string }) => void;
+  onSave: (data: NewsCreateInput | ({ id: string } & NewsUpdateInput)) => void;
 }
 
-export default function NewsDialog({ open, onClose, initial, onSave }: NewsDialogProps) {
+export default function NewsDialog({ open, onClose, initial, onSave }: NewsDialogProps): React.JSX.Element {
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("# Заголовок\n\nОписание...");
@@ -65,7 +66,11 @@ export default function NewsDialog({ open, onClose, initial, onSave }: NewsDialo
 
   const handleSave = () => {
     if (!title.trim()) return; // basic validation
-    onSave({ title, excerpt, content, date, categoryId: categoryId ?? undefined, id: initial?.id });
+    if (initial) {
+      onSave({ id: initial.id, title, excerpt, content, date, categoryId: categoryId ?? undefined });
+    } else {
+      onSave({ title, excerpt, content, date, categoryId: categoryId ?? undefined });
+    }
     onClose();
   };
 

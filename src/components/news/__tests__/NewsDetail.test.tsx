@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import Providers from '@/providers/Providers';
 import NewsDetail from '../NewsDetail';
-import { news } from '@/data/mock';
+import { news as mockNews } from '@/data/mock';
+import type { AdminNews } from '@/types/admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 
@@ -25,7 +26,15 @@ jest.mock('next/image', () => {
   };
 });
 
-const sample = news[0];
+const sample: AdminNews = {
+  id: mockNews[0].id,
+  slug: mockNews[0].slug,
+  title: mockNews[0].title,
+  excerpt: mockNews[0].excerpt,
+  content: mockNews[0].content.join('\n\n'),
+  date: mockNews[0].date,
+  img: mockNews[0].img,
+};
 
 describe('NewsDetail', () => {
   it('renders date and paragraphs', () => {
@@ -41,10 +50,8 @@ describe('NewsDetail', () => {
       screen.getByText((content, node) => node?.textContent?.startsWith(formattedDate) ?? false)
     ).toBeInTheDocument();
 
-    // контентные абзацы
-    sample.content.forEach((p) => {
-      const firstWord = p.split(' ')[0];
-      expect(screen.getByText((c) => c.includes(firstWord))).toBeInTheDocument();
-    });
+    // контент
+    const firstWord = sample.content.split(/\s+/)[0];
+    expect(screen.getByText((c) => c.includes(firstWord))).toBeInTheDocument();
   });
 });

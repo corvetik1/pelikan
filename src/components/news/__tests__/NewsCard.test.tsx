@@ -1,12 +1,21 @@
 import { render, screen } from '@testing-library/react';
 import NewsCard from '../NewsCard';
-import { news } from '@/data/mock';
+import { news as mockNews } from '@/data/mock';
+import type { AdminNews } from '@/types/admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 
 dayjs.locale('ru');
 
-const sample = news[0];
+const sample: AdminNews = {
+  id: mockNews[0].id,
+  slug: mockNews[0].slug,
+  title: mockNews[0].title,
+  excerpt: mockNews[0].excerpt,
+  content: mockNews[0].content.join('\n\n'),
+  date: mockNews[0].date,
+  img: mockNews[0].img,
+};
 
 describe('NewsCard', () => {
   it('renders title, image, date and link', () => {

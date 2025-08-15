@@ -25,7 +25,17 @@ export default function AddProductDialog({ open, onClose, onCreate }: AddProduct
 
   const submit = () => {
     if (!isValid) return;
-    onCreate({ name: form.name.trim(), price: Number(form.price), weight: form.weight.trim(), category: form.category, img: form.img, images: form.images });
+    const payload: Partial<AdminProduct> = {
+      name: form.name.trim(),
+      price: Number(form.price),
+      weight: form.weight.trim(),
+      category: form.category,
+      img: form.img,
+    };
+    if (form.images.length > 0) {
+      payload.images = form.images;
+    }
+    onCreate(payload);
     // Reset form fields
     setForm({ name: "", price: "", weight: "", category: categories[0].slug, img: "", images: [] });
 

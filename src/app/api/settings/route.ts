@@ -5,6 +5,7 @@ import { withLogger } from '@/lib/logger';
 import { broadcastInvalidate } from '@/server/socket';
 import { settingsPatchSchema } from '@/lib/validation/settingsSchema';
 import { handleError } from '@/lib/errorHandler';
+import type { Prisma } from '@prisma/client';
 
 export const runtime = 'nodejs';
 
@@ -32,17 +33,41 @@ export const PATCH = withLogger(async (req: Request) => {
   if (auth) return auth;
   try {
     const payload = await req.json();
-    const data = settingsPatchSchema.parse(payload);
+    const patch = settingsPatchSchema.parse(payload);
 
-    await prisma.settings.updateMany({
-      data: { activeThemeSlug: data.activeThemeSlug },
-    });
+    const data: {
+      activeThemeSlug?: string;
+      logoUrl?: string | null;
+      heroSpeedMs?: number;
+      socials?: Prisma.InputJsonValue;
+      contacts?: Prisma.InputJsonValue;
+      priceListUrl?: string | null;
+      ctaTitle?: string | null;
+      ctaSubtitle?: string | null;
+      homeNewsTitle?: string | null;
+      homeRecipesTitle?: string | null;
+    } = {};
+
+    if (patch.activeThemeSlug !== undefined) data.activeThemeSlug = patch.activeThemeSlug;
+    if (patch.logoUrl !== undefined) data.logoUrl = patch.logoUrl;
+    if (patch.heroSpeedMs !== undefined) data.heroSpeedMs = patch.heroSpeedMs;
+    if (patch.socials !== undefined) data.socials = patch.socials;
+    if (patch.contacts !== undefined) data.contacts = patch.contacts;
+    if (patch.priceListUrl !== undefined) data.priceListUrl = patch.priceListUrl;
+    if (patch.ctaTitle !== undefined) data.ctaTitle = patch.ctaTitle;
+    if (patch.ctaSubtitle !== undefined) data.ctaSubtitle = patch.ctaSubtitle;
+    if (patch.homeNewsTitle !== undefined) data.homeNewsTitle = patch.homeNewsTitle;
+    if (patch.homeRecipesTitle !== undefined) data.homeRecipesTitle = patch.homeRecipesTitle;
+
+    if (Object.keys(data).length > 0) {
+      await prisma.settings.updateMany({ data });
+    }
     // Prisma updateMany returns count; fetch row again
     const settings = await prisma.settings.findFirst();
     broadcastInvalidate([
       { type: 'Settings', id: 'LIST' },
       { type: 'Theme', id: 'LIST' },
-    ], 'Активная тема изменена');
+    ], 'Настройки обновлены');
     return NextResponse.json(settings);
   } catch (err) {
     return handleError(err);

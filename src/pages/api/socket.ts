@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Server as NetServer } from 'http';
 import type { Socket as NetSocket } from 'net';
 import { initSocket } from '@/server/socket';
+import type { Server as IOServer } from 'socket.io';
 
 // Disable body parsing for WebSocket upgrade
 export const config = {
@@ -13,8 +14,8 @@ export const config = {
 export default function socketHandler(req: NextApiRequest, res: NextApiResponse): void {
   // res.socket is added by Next.js (Node.js HTTP server)
   interface SocketWithServer extends NetSocket {
-  server: NetServer & { io?: unknown };
-}
+    server: NetServer & { io?: IOServer };
+  }
 
 const netSocket = res.socket as SocketWithServer | undefined;
 const server = netSocket?.server;

@@ -1,13 +1,15 @@
 import { setupServer } from 'msw/node';
 import { handlers as roleHandlers, resetRoles } from './handlers_roles';
 import { handlers as b2bHandlers, resetPrices } from './handlers_b2b';
+import { handlers as heroHandlers, resetHero, setHeroSlides } from './handlers_hero';
 
-export const server = setupServer(...roleHandlers, ...b2bHandlers);
+export const server = setupServer(...roleHandlers, ...b2bHandlers, ...heroHandlers);
 
 // Convenience helper for resetting all in-memory data between tests
 export const resetMocks = (): void => {
   resetPrices();
   resetRoles();
+  resetHero();
 };
 
 export const waitForRequest = (
@@ -41,3 +43,5 @@ export const waitForRequest = (
     server.events.on('request:match', listener);
   });
 };
+
+export { setHeroSlides };

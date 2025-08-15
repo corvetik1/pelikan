@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteOrigin } from "@/lib/site";
 import Providers from "@/providers/Providers";
 import { getActiveThemeTokens } from '@/lib/themeServer';
 import Header from "@/components/Header";
@@ -10,6 +11,21 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Бухта пеликанов — Рыбная компания",
   description: "Корпоративный сайт рыбной компании Бухта пеликанов",
+  metadataBase: new URL(siteOrigin()),
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    title: "Бухта пеликанов — Рыбная компания",
+    url: "/",
+    siteName: "Бухта пеликанов",
+    locale: "ru_RU",
+    images: ["/logo.svg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Бухта пеликанов — Рыбная компания",
+    images: ["/logo.svg"],
+  },
 };
 
 
@@ -21,7 +37,7 @@ export default async function RootLayout({
 }>) {
   const initialTokens = await getActiveThemeTokens();
   return (
-    <html lang="en">
+    <html lang="ru">
       <body>
         <Providers initialTokens={initialTokens}>
           <Header />

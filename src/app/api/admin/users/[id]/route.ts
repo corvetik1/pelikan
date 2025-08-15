@@ -13,8 +13,8 @@ import { userUpdateSchema } from '@/lib/validation/userSchema';
 // PATCH /api/admin/users/[id] – обновить пользователя
 export const PATCH = withLogger(
   withInvalidate([{ type: 'AdminUser', id: 'LIST' }], 'Пользователь обновлён')(
-    async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
-      const { id } = await params;
+    async (req: Request, { params }: { params: { id: string } }) => {
+      const { id } = params;
       try {
         const payload = await req.json();
         const parsed = userUpdateSchema.parse(payload);
@@ -55,8 +55,8 @@ export const PATCH = withLogger(
 // DELETE /api/admin/users/[id] – удалить пользователя
 export const DELETE = withLogger(
   withInvalidate([{ type: 'AdminUser', id: 'LIST' }], 'Пользователь удалён')(
-    async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
-      const { id } = await params;
+    async (_req: Request, { params }: { params: { id: string } }) => {
+      const { id } = params;
       try {
         await prisma.user.delete({ where: { id } });
         return Response.json({ ok: true });

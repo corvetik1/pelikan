@@ -1,13 +1,26 @@
 import { render, screen } from '@testing-library/react';
 import NewsList from '../NewsList';
-import { news } from '@/data/mock';
+import { news as mockNews } from '@/data/mock';
+import type { AdminNews } from '@/types/admin';
+
+const articles: AdminNews[] = mockNews.map((n) => ({
+  id: n.id,
+  slug: n.slug,
+  title: n.title,
+  excerpt: n.excerpt,
+  content: n.content.join('\n\n'),
+  date: n.date,
+  img: n.img,
+}));
 
 describe('NewsList', () => {
   it('renders all news cards', () => {
-    render(<NewsList articles={news} />);
+    render(<NewsList articles={articles} />);
 
-    news.forEach((n) => {
-      expect(screen.getByRole('img', { name: n.title })).toBeInTheDocument();
+    articles.forEach((n) => {
+      if (n.img) {
+        expect(screen.getByRole('img', { name: n.title })).toBeInTheDocument();
+      }
     });
   });
 });

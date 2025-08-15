@@ -1,7 +1,6 @@
 "use client";
 
-import { Box, Typography, Stack, Button, Chip } from "@mui/material";
-import RequirePermission from '@/components/RBAC/RequirePermission';
+import { Box, Chip, Stack, Typography, Button } from "@mui/material";
 import AdminPageHeading from "@/components/admin/AdminPageHeading";
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '@/redux/snackbarSlice';
@@ -39,7 +38,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-export default function AdminRolesPage() {
+export default function AdminRolesPage(): React.JSX.Element {
   const { data = [], isLoading, isError, refetch } = useGetAdminRolesQuery();
   const dispatch = useDispatch();
   const [createRole] = useCreateRoleMutation();
@@ -86,6 +85,19 @@ export default function AdminRolesPage() {
     });
   };
 
+  const handleBulkDelete = (): void => {
+    setConfirmAction(() => async () => {
+      try {
+        await Promise.all(selection.map((id) => deleteRole(String(id)).unwrap()));
+        setSelection([]);
+        await refetch();
+        dispatch(showSnackbar({ message: 'Удалено', severity: 'success' }));
+      } catch {
+        dispatch(showSnackbar({ message: 'Ошибка удаления', severity: 'error' }));
+      }
+    });
+  };
+
 
   if (isLoading) {
     return (
@@ -109,38 +121,13 @@ export default function AdminRolesPage() {
     <Box>
       <AdminPageHeading
         title="Роли"
-        actions={
-          <Stack direction="row" spacing={1}>
-        
-          <RequirePermission permission="roles:delete">
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={selection.length === 0}
-              onClick={async () => {
-              setConfirmAction(() => async () => {
-                 try {
-                   await Promise.all(selection.map((id) => deleteRole(String(id)).unwrap()));
-                   setSelection([]);
-                   await refetch();
-                   dispatch(showSnackbar({ message: 'Удалено', severity: 'success' }));
-                 } catch {
-                   dispatch(showSnackbar({ message: 'Ошибка удаления', severity: 'error' }));
-                 }
-               });
-            }}
-            data-testid="bulk-delete"
-            >
-              Удалить выбранные
-            </Button>
-          </RequirePermission>
-          <RequirePermission permission="roles:create">
-            <Button variant="contained" size="small" onClick={() => setOpenAdd(true)} data-testid="add-role">
-            + Добавить
-          </Button>
-          </RequirePermission>
-        </Stack>
-        }
+        onCreate={() => setOpenAdd(true)}
+        createPerm="roles:create"
+        createLabel="+ Добавить"
+        onBulkDelete={handleBulkDelete}
+        bulkDeletePerm="roles:delete"
+        bulkDeleteDisabled={selection.length === 0}
+        bulkDeleteLabel="Удалить выбранные"
       />
       <AdminDataGrid<AdminRole>
         rows={data as AdminRole[]}
@@ -167,11 +154,6 @@ export default function AdminRolesPage() {
          }}
          onClose={() => setConfirmAction(null)}
        />
-       
-         
-           
-         
-       
     </Box>
   );
 }

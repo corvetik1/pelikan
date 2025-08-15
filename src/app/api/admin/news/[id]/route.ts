@@ -31,7 +31,17 @@ export const PATCH = withLogger(
         const payload = await request.json();
         const data = NewsUpdateSchema.parse(payload);
         const { id } = await params;
-        const updated: News = await prisma.news.update({ where: { id }, data });
+
+        const updateData = {
+          title: data.title,
+          excerpt: data.excerpt,
+          content: data.content,
+          img: data.img && data.img.length > 0 ? data.img : data.img === '' ? undefined : undefined,
+          categoryId: data.categoryId ?? undefined,
+          date: data.date ? new Date(data.date) : undefined,
+        } satisfies Parameters<typeof prisma.news.update>[0]['data'];
+
+        const updated: News = await prisma.news.update({ where: { id }, data: updateData });
         return NextResponse.json(updated);
       } catch (err) {
         return handleError(err);

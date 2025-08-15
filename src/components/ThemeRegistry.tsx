@@ -5,14 +5,14 @@ import { CacheProvider } from '@emotion/react';
 import createEmotionServer from '@emotion/server/create-instance';
 import { useServerInsertedHTML } from 'next/navigation';
 import { useState } from 'react';
-import type { ThemeOptions } from "@mui/material/styles";
+import type { Theme, ThemeOptions } from "@mui/material/styles";
 import { useMemo, ReactNode } from "react";
 
 export interface ThemeRegistryProps {
   /**
-   * MUI-compatible theme tokens (palette, typography, etc.)
+   * Either raw MUI theme tokens (ThemeOptions) or an already constructed MUI Theme.
    */
-  tokens: import("@mui/material").ThemeOptions | Record<string, unknown>;
+  tokens: ThemeOptions | Theme;
   children: ReactNode;
 }
 
@@ -36,7 +36,21 @@ export function ThemeRegistry({ tokens, children }: ThemeRegistryProps) {
       <>{constructStyleTagsFromChunks(chunks)}</>
     );
   });
-  const theme = useMemo(() => createTheme(tokens as ThemeOptions), [tokens]);
+  // Narrow tokens: if it's already a Theme, reuse it; otherwise build with createTheme
+  const theme = useMemo(() => {
+    const maybeTheme = tokens as Theme;
+    // Heuristic: real Theme always has 'mixins' (with 'toolbar') and 'palette' fully resolved
+    if (
+      typeof maybeTheme === 'object' &&
+      maybeTheme !== null &&
+      'mixins' in maybeTheme &&
+      'palette' in maybeTheme &&
+      'typography' in maybeTheme
+    ) {
+      return maybeTheme;
+    }
+    return createTheme(tokens as ThemeOptions);
+  }, [tokens]);
   return (
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>

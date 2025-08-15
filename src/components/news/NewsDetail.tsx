@@ -2,25 +2,26 @@
 
 import { Box } from '@mui/material';
 import NewsContent from './NewsContent';
-import type { NewsArticle } from '@/data/mock';
+import type { AdminNews } from '@/types/admin';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 
 dayjs.locale('ru');
 
-type Content = string | string[];
 interface NewsDetailProps {
-  article: Omit<NewsArticle, 'content'> & { content: Content };
+  article: AdminNews;
 }
 
-export default function NewsDetail({ article }: NewsDetailProps) {
-  const { title, date, category, content } = article as { title: string; date: string; category?: string; content: Content };
+export default function NewsDetail({ article }: NewsDetailProps): React.JSX.Element {
+  const { title, date, category, content } = article;
   return (
     <Box sx={{ py: 4 }}>
       <h1>{title}</h1>
-      <p style={{ color: '#666', marginTop: 4 }}>{dayjs(date).format('D MMMM YYYY')} {category && `· ${category}`}</p>
+      <p style={{ color: '#666', marginTop: 4 }}>
+        {dayjs(date).format('D MMMM YYYY')} {category?.title ? `· ${category.title}` : ''}
+      </p>
 
-      <NewsContent markdown={Array.isArray(content) ? content.join('\n\n') : content} />
+      <NewsContent markdown={content} />
     </Box>
   );
 }

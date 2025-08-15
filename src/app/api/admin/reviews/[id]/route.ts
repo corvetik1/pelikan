@@ -11,12 +11,12 @@ export const runtime = 'nodejs';
  * PATCH /api/admin/reviews/:id
  * Body: { status: 'approved' | 'rejected' }
  */
-export const PATCH = withLogger(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+export const PATCH = withLogger(async (request: Request, { params }: { params: { id: string } }) => {
   const auth = requireAdmin(request);
   if (auth) return auth;
 
   try {
-    const { id } = await params;
+    const { id } = params;
     const json = await request.json();
     const { status } = ReviewUpdateStatusSchema.parse(json);
 

@@ -1,4 +1,5 @@
 import { broadcastInvalidate } from '@/server/socket';
+import type { InvalidateTags } from '@/types/realtime';
 
 /**
  * Wraps a route handler and broadcasts an `invalidate` event via Socket.IO
@@ -20,21 +21,32 @@ import { broadcastInvalidate } from '@/server/socket';
  * and triggers `broadcastInvalidate` if the resulting Response has an OK (2xx)
  * status code.
  */
-export const withInvalidate =
-  (tags: Parameters<typeof broadcastInvalidate>[0], message?: string) =>
-  <Rest extends unknown[], R extends Promise<Response> | Response>(
-    handler: (req: Request, ...args: Rest) => R,
-  ) => {
-    return async (req: Request, ...args: Rest): Promise<Awaited<R>> => {
-      const res = (await handler(req, ...args)) as Response;
+// Перегрузки: без ctx и с ctx
+export function withInvalidate(tags: InvalidateTags, message?: string): {
+  (handler: (req: Request) => Response | Promise<Response>): (req: Request) => Promise<Response>;
+  <C>(handler: (req: Request, ctx: C) => Response | Promise<Response>): (req: Request, ctx: C) => Promise<Response>;
+};
 
-      // Trigger only on successful (2xx) responses
+export function withInvalidate(tags: InvalidateTags, message?: string) {
+  function wrap(handler: (req: Request) => Response | Promise<Response>): (req: Request) => Promise<Response>;
+  function wrap<C>(
+    handler: (req: Request, ctx: C) => Response | Promise<Response>,
+  ): (req: Request, ctx: C) => Promise<Response>;
+  function wrap(
+    handler: (req: Request, ctx?: object) => Response | Promise<Response>,
+  ) {
+    return async (
+      req: Request,
+      ctx?: object,
+    ): Promise<Response> => {
+      const res = await handler(req, ctx);
       if (res.ok) {
         broadcastInvalidate(tags, message);
       }
-
-      return res as Awaited<R>;
+      return res;
     };
-  };
+  }
+  return wrap;
+}
 
 export type WithInvalidate = typeof withInvalidate;

@@ -10,11 +10,21 @@ export async function createSession(context: BrowserContext, role: 'guest' | 'ed
   const user = { id: role, name: role.charAt(0).toUpperCase() + role.slice(1), roles: [role] } as const;
 
   // Cookie – used by API routes (Next.js middleware)
+  const cookieValue = (role === 'admin') ? 'admin' : encodeURIComponent(JSON.stringify(user));
   await context.addCookies([
     {
       name: 'session',
-      value: encodeURIComponent(JSON.stringify(user)),
+      value: cookieValue,
       domain: 'localhost',
+      path: '/',
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    },
+    {
+      name: 'session',
+      value: cookieValue,
+      domain: '127.0.0.1',
       path: '/',
       httpOnly: false,
       secure: false,

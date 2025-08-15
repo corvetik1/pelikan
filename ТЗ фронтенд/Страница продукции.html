@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Продукция - Рыбный Завод</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .wave-animation {
+            animation: wave 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Стили для фильтров */
+        .filter-checkbox:checked + label {
+            background-color: #0284c7;
+            color: white;
+        }
+        
+        .price-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .price-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+        }
+        
+        .price-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+        }
+        
+        /* Стили для мобильных фильтров */
+        .mobile-filters {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-filters.active {
+            transform: translateX(0);
+        }
+        
+        /* Стили для режима списка */
+        .list-view .product-card {
+            display: flex;
+            flex-direction: row;
+            max-width: 100%;
+        }
+        
+        .list-view .product-image {
+            width: 200px;
+            height: 200px;
+            flex-shrink: 0;
+        }
+        
+        .list-view .product-content {
+            flex: 1;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Шапка -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-fish text-blue-600 text-3xl wave-animation"></i>
+                    <span class="text-2xl font-bold text-gray-800">Рыбный Завод</span>
+                </div>
+                
+                <!-- Меню для десктопа -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                    <a href="#" class="text-blue-600 font-medium">Продукция</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+                </div>
+                
+                <!-- Мобильное меню -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Мобильное меню (скрыто) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                <a href="#" class="block text-blue-600 font-medium">Продукция</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="#" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>
+                        Главная
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <span class="text-gray-500">Продукция</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Заголовок страницы -->
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Наша продукция</h1>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Боковая панель фильтров (десктоп) -->
+            <aside class="lg:w-1/4 hidden lg:block">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold">Фильтры</h2>
+                        <button id="clear-filters" class="text-sm text-blue-600 hover:text-blue-700">
+                            Сбросить
+                        </button>
+                    </div>
+                    
+                    <!-- Поиск -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Поиск по названию" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Категории -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3">Категории</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" class="filter-checkbox hidden" id="cat-losos">
+                                    <span class="px-3 py-1 rounded-full border border-gray-300 text-sm">Лососевые</span>
+                                </label>
+                                <span class="text-sm text-gray-500">(4)</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" class="filter-checkbox hidden" id="cat-treska">
+                                    <span class="px-3 py-1 rounded-full border border-gray-300 text-sm">Тресковые</span>
+                                </label>
+                                <span class="text-sm text-gray-500">(2)</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" class="filter-checkbox hidden" id="cat-more">
+                                    <span class="px-3 py-1 rounded-full border border-gray-300 text-sm">Морепродукты</span>
+                                </label>
+                                <span class="text-sm text-gray-500">(2)</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" class="filter-checkbox hidden" id="cat-ikra">
+                                    <span class="px-3 py-1 rounded-full border border-gray-300 text-sm">Икра</span>
+                                </label>
+                                <span class="text-sm text-gray-500">(1)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Цена -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3">Цена</h3>
+                        <div class="space-y-3">
+                            <input type="range" class="price-slider" id="price-range" min="0" max="3000" value="3000">
+                            <div class="flex justify-between text-sm">
+                                <input type="number" id="min-price" placeholder="От" value="0" 
+                                    class="w-20 px-2 py-1 border border-gray-300 rounded">
+                                <input type="number" id="max-price" placeholder="До" value="3000" 
+                                    class="w-20 px-2 py-1 border border-gray-300 rounded">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Свойства -->
+                    <div>
+                        <h3 class="text-lg font-medium mb-3">Свойства</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="mr-2" id="prop-fresh">
+                                <span class="text-sm">Свежая</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="mr-2" id="prop-frozen">
+                                <span class="text-sm">Замороженная</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="mr-2" id="prop-smoked">
+                                <span class="text-sm">Копченая</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="mr-2" id="prop-fillet">
+                                <span class="text-sm">Филе</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="mr-2" id="prop-whole">
+                                <span class="text-sm">Целая тушка</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="mr-2" id="prop-steak">
+                                <span class="text-sm">Стейки</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Основной контент -->
+            <div class="lg:w-3/4">
+                <!-- Панель управления -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6 flex flex-col sm:flex-row justify-between items-center">
+                    <div class="flex items-center mb-4 sm:mb-0">
+                        <span class="text-gray-600 mr-4">Найдено: <span id="products-count">8</span> товаров</span>
+                        
+                        <select id="sort-select" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>По умолчанию</option>
+                            <option>По цене ↑</option>
+                            <option>По цене ↓</option>
+                            <option>По названию</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button id="view-grid" class="p-2 rounded-lg bg-blue-100 text-blue-600">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="view-list" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        
+                        <button id="mobile-filters-btn" class="lg:hidden ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-filter mr-2"></i>Фильтры
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Товары -->
+                <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Карточка товара 1 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Лососевые" data-price="890" data-fresh="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/salmon1/400/400.jpg" alt="Лосось атлантический" class="w-full h-48 object-cover">
+                            <span class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-sm font-semibold">Хит</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Лосось атлантический</h3>
+                            <p class="text-gray-600 text-sm mb-3">1 кг • Вакуумная упаковка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">890 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 2 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Лососевые" data-price="750" data-fresh="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/trout1/400/400.jpg" alt="Форель радужная" class="w-full h-48 object-cover">
+                            <span class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-semibold">Новинка</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Форель радужная</h3>
+                            <p class="text-gray-600 text-sm mb-3">1 кг • Вакуумная упаковка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">750 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 3 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Тресковые" data-price="450" data-frozen="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/cod1/400/400.jpg" alt="Треска филе" class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Треска филе</h3>
+                            <p class="text-gray-600 text-sm mb-3">500 г • Вакуумная упаковка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">450 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 4 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Тресковые" data-price="320" data-frozen="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/pollock1/400/400.jpg" alt="Минтай филе" class="w-full h-48 object-cover">
+                            <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">Акция</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Минтай филе</h3>
+                            <p class="text-gray-600 text-sm mb-3">1 кг • Вакуумная упаковка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">320 ₽</span>
+                                    <span class="text-sm text-gray-500 line-through ml-2">380 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 5 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Морепродукты" data-price="1200" data-frozen="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/shrimp1/400/400.jpg" alt="Креветки тигровые" class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Креветки тигровые</h3>
+                            <p class="text-gray-600 text-sm mb-3">500 г • Коробка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">1200 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 6 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Морепродукты" data-price="650" data-fresh="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/squid1/400/400.jpg" alt="Кальмар свежий" class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Кальмар свежий</h3>
+                            <p class="text-gray-600 text-sm mb-3">1 кг • Пакет</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">650 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 7 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Лососевые" data-price="1500" data-smoked="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/salmon2/400/400.jpg" alt="Семга слабосоленая" class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Семга слабосоленая</h3>
+                            <p class="text-gray-600 text-sm mb-3">300 г • Вакуумная упаковка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">1500 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка товара 8 -->
+                    <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden card-hover" data-category="Икра" data-price="2500" data-frozen="true">
+                        <div class="relative">
+                            <img src="https://picsum.photos/seed/caviar1/400/400.jpg" alt="Икра красная" class="w-full h-48 object-cover">
+                            <span class="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded text-sm font-semibold">Премиум</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">Икра красная</h3>
+                            <p class="text-gray-600 text-sm mb-3">100 г • Банка</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <span class="text-2xl font-bold text-blue-600">2500 ₽</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <i class="far fa-heart text-xl"></i>
+                                </button>
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Пагинация -->
+                <div class="flex justify-center mb-8">
+                    <nav class="flex space-x-1">
+                        <button class="px-3 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-4 py-2 rounded-lg bg-blue-600 text-white">1</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">2</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">3</button>
+                        <button class="px-3 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Преимущества -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Наши преимущества</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-ship text-blue-600 text-3xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">Собственный флот</h3>
+                        <p class="text-gray-600">Прямой вылов без посредников</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-snowflake text-blue-600 text-3xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">Шоковая заморозка</h3>
+                        <p class="text-gray-600">Сохраняем свежесть и пользу</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-certificate text-blue-600 text-3xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">Качество гарантировано</h3>
+                        <p class="text-gray-600">Все сертификаты соответствия</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-truck text-blue-600 text-3xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2">Быстрая доставка</h3>
+                        <p class="text-gray-600">По всей России и СНГ</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA секция -->
+        <section class="py-16 bg-blue-600 text-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Станьте нашим партнером</h2>
+                <p class="text-xl mb-8 max-w-2xl mx-auto">
+                    Предлагаем выгодные условия сотрудничества для ресторанов, магазинов и оптовых покупателей
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                        <i class="fas fa-handshake mr-2"></i>Для B2B клиентов
+                    </button>
+                    <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
+                        <i class="fas fa-file-contract mr-2"></i>Скачать прайс-лист
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Футер -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- О компании -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-fish text-blue-400 text-2xl"></i>
+                        <span class="text-xl font-bold">Рыбный Завод</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Лидер по производству и поставкам свежей рыбы и морепродуктов в России
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Контакты -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <div class="space-y-3 text-gray-400">
+                        <p class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            г. Москва, ул. Рыбная, 1
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            +7 (495) 123-45-67
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@rybnyzavod.ru
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            Пн-Пт: 9:00 - 18:00
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Навигация</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">О компании</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Продукция</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Новости</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Рецепты</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">B2B</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Вакансии</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Подписка -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Подписка на новости</h3>
+                    <p class="text-gray-400 mb-4">Получайте информацию о новинках и акциях</p>
+                    <form class="space-y-3">
+                        <input type="email" placeholder="Ваш email" class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Подписаться
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Рыбный Завод. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Мобильные фильтры -->
+    <div id="mobile-filters-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden lg:hidden"></div>
+    <div id="mobile-filters" class="mobile-filters fixed left-0 top-0 h-full w-80 bg-white z-50 overflow-y-auto lg:hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold">Фильтры</h2>
+                <button id="close-mobile-filters" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Поиск -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
+                <div class="relative">
+                    <input type="text" placeholder="Поиск по названию" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <!-- Категории -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-3">Категории</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Лососевые (4)</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Тресковые (2)</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Морепродукты (2)</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Икра (1)</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Цена -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-3">Цена</h3>
+                <div class="space-y-3">
+                    <input type="range" class="price-slider" min="0" max="3000" value="3000">
+                    <div class="flex justify-between text-sm">
+                        <input type="number" placeholder="От" value="0" 
+                            class="w-20 px-2 py-1 border border-gray-300 rounded">
+                        <input type="number" placeholder="До" value="3000" 
+                            class="w-20 px-2 py-1 border border-gray-300 rounded">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Свойства -->
+            <div>
+                <h3 class="text-lg font-medium mb-3">Свойства</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Свежая</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Замороженная</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Копченая</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Филе</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Целая тушка</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="mr-2">
+                        <span class="text-sm">Стейки</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mt-6 space-y-3">
+                <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    Применить
+                </button>
+                <button class="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Мобильные фильтры
+        const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
+        const mobileFilters = document.getElementById('mobile-filters');
+        const mobileFiltersOverlay = document.getElementById('mobile-filters-overlay');
+        const closeMobileFilters = document.getElementById('close-mobile-filters');
+        
+        mobileFiltersBtn.addEventListener('click', () => {
+            mobileFilters.classList.add('active');
+            mobileFiltersOverlay.classList.remove('hidden');
+        });
+        
+        closeMobileFilters.addEventListener('click', () => {
+            mobileFilters.classList.remove('active');
+            mobileFiltersOverlay.classList.add('hidden');
+        });
+        
+        mobileFiltersOverlay.addEventListener('click', () => {
+            mobileFilters.classList.remove('active');
+            mobileFiltersOverlay.classList.add('hidden');
+        });
+        
+        // Переключение вида
+        const viewGrid = document.getElementById('view-grid');
+        const viewList = document.getElementById('view-list');
+        const productsContainer = document.getElementById('products-container');
+        
+        viewGrid.addEventListener('click', () => {
+            productsContainer.classList.remove('list-view');
+            viewGrid.classList.add('bg-blue-100', 'text-blue-600');
+            viewGrid.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            viewList.classList.remove('bg-blue-100', 'text-blue-600');
+            viewList.classList.add('text-gray-600', 'hover:bg-gray-100');
+        });
+        
+        viewList.addEventListener('click', () => {
+            productsContainer.classList.add('list-view');
+            viewList.classList.add('bg-blue-100', 'text-blue-600');
+            viewList.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            viewGrid.classList.remove('bg-blue-100', 'text-blue-600');
+            viewGrid.classList.add('text-gray-600', 'hover:bg-gray-100');
+        });
+        
+        // Фильтрация и сортировка (демо)
+        const searchInput = document.getElementById('search-input');
+        const sortSelect = document.getElementById('sort-select');
+        const productsCount = document.getElementById('products-count');
+        const productCards = document.querySelectorAll('.product-card');
+        
+        function filterProducts() {
+            const searchTerm = searchInput.value.toLowerCase();
+            let visibleCount = 0;
+            
+            productCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const category = card.dataset.category;
+                const price = parseInt(card.dataset.price);
+                
+                // Простая фильтрация по названию
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            productsCount.textContent = visibleCount;
+        }
+        
+        searchInput.addEventListener('input', filterProducts);
+        
+        // Сортировка
+        sortSelect.addEventListener('change', () => {
+            const sortValue = sortSelect.value;
+            const productsArray = Array.from(productCards);
+            
+            productsArray.sort((a, b) => {
+                switch(sortValue) {
+                    case 'По цене ↑':
+                        return parseInt(a.dataset.price) - parseInt(b.dataset.price);
+                    case 'По цене ↓':
+                        return parseInt(b.dataset.price) - parseInt(a.dataset.price);
+                    case 'По названию':
+                        return a.querySelector('h3').textContent.localeCompare(b.querySelector('h3').textContent);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Перестраиваем DOM
+            const container = document.getElementById('products-container');
+            productsArray.forEach(card => container.appendChild(card));
+        });
+        
+        // Очистка фильтров
+        document.getElementById('clear-filters').addEventListener('click', () => {
+            searchInput.value = '';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('price-range').value = 3000;
+            document.getElementById('min-price').value = 0;
+            document.getElementById('max-price').value = 3000;
+            sortSelect.value = 'По умолчанию';
+            filterProducts();
+        });
+        
+        // Обработка формы подписки
+        const subscribeForm = document.querySelector('form');
+        subscribeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Спасибо за подписку! Мы отправили вам письмо для подтверждения.');
+                e.target.reset();
+            }
+        });
+    </script>
+</body>
+</html>

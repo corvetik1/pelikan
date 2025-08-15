@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рыбный Завод - Свежая рыба и морепродукты</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .wave-animation {
+            animation: wave 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Шапка -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-fish text-blue-600 text-3xl wave-animation"></i>
+                    <span class="text-2xl font-bold text-gray-800">Рыбный Завод</span>
+                </div>
+                
+                <!-- Меню для десктопа -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                    <a href="#products" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                    <a href="#news" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                    <a href="#recipes" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                    <a href="#b2b" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                    <a href="#vacancies" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Вакансии</a>
+                    <a href="#contacts" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+                </div>
+                
+                <!-- Мобильное меню -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Мобильное меню (скрыто) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#about" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                <a href="#products" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                <a href="#news" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                <a href="#recipes" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                <a href="#b2b" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                <a href="#vacancies" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Вакансии</a>
+                <a href="#contacts" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Герой секция -->
+    <section class="hero-gradient text-white py-20 md:py-32">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center fade-in">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    Свежая рыба и морепродукты премиум-класса
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                    Более 20 лет поставляем качественную продукцию по всей России
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                        <i class="fas fa-shopping-cart mr-2"></i>Каталог продукции
+                    </button>
+                    <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
+                        <i class="fas fa-phone mr-2"></i>Связаться с нами
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Преимущества -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-ship text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Собственный флот</h3>
+                    <p class="text-gray-600">Прямой вылов без посредников</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-snowflake text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Шоковая заморозка</h3>
+                    <p class="text-gray-600">Сохраняем свежесть и пользу</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-certificate text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Качество гарантировано</h3>
+                    <p class="text-gray-600">Все сертификаты соответствия</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-truck text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Быстрая доставка</h3>
+                    <p class="text-gray-600">По всей России и СНГ</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Категории продукции -->
+    <section id="products" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Наша продукция</h2>
+                <p class="text-xl text-gray-600">Широкий ассортимент свежей рыбы и морепродуктов</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Категория 1 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover cursor-pointer">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/salmon/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Лососевые</h3>
+                        <p class="text-gray-600 mb-4">Лосось, форель, горбуша</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Подробнее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Категория 2 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover cursor-pointer">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/cod/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Тресковые</h3>
+                        <p class="text-gray-600 mb-4">Треска, минтай, хек</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Подробнее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Категория 3 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover cursor-pointer">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/shrimp/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Морепродукты</h3>
+                        <p class="text-gray-600 mb-4">Креветки, кальмары, мидии</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Подробнее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Категория 4 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover cursor-pointer">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/caviar/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Икра</h3>
+                        <p class="text-gray-600 mb-4">Красная, черная, розовая</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Подробнее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Весь каталог <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Топ новостей -->
+    <section id="news" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Последние новости</h2>
+                <p class="text-xl text-gray-600">Будьте в курсе событий компании</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Новость 1 -->
+                <article class="bg-gray-50 rounded-lg overflow-hidden card-hover">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/news1/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <i class="far fa-calendar mr-2"></i>
+                            <span>15 ноября 2024</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-3">Новый улов: рекордный объем лосося</h3>
+                        <p class="text-gray-600 mb-4">В этом сезоне мы выловили рекордное количество лосося высшего качества...</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </article>
+                
+                <!-- Новость 2 -->
+                <article class="bg-gray-50 rounded-lg overflow-hidden card-hover">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/news2/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <i class="far fa-calendar mr-2"></i>
+                            <span>10 ноября 2024</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-3">Участие в международной выставке</h3>
+                        <p class="text-gray-600 mb-4">Представили нашу продукцию на крупнейшей рыбной выставке в Москве...</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </article>
+                
+                <!-- Новость 3 -->
+                <article class="bg-gray-50 rounded-lg overflow-hidden card-hover">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/news3/400/300.jpg')"></div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <i class="far fa-calendar mr-2"></i>
+                            <span>5 ноября 2024</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-3">Новые сертификаты качества</h3>
+                        <p class="text-gray-600 mb-4">Получили международные сертификаты ISO и HACCP...</p>
+                        <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Читать далее <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Все новости <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Лучшие рецепты -->
+    <section id="recipes" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Лучшие рецепты</h2>
+                <p class="text-xl text-gray-600">Готовьте вкусно и полезно с нашей продукцией</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Рецепт 1 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover">
+                    <div class="relative">
+                        <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/recipe1/400/300.jpg')"></div>
+                        <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            <i class="far fa-clock mr-1"></i>30 мин
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-3">Лосось на гриле</h3>
+                        <p class="text-gray-600 mb-4">Нежный лосось с травами и лимоном - идеальный ужин</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-yellow-500">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="text-gray-600 ml-2">(5.0)</span>
+                            </div>
+                            <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                                Рецепт <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Рецепт 2 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover">
+                    <div class="relative">
+                        <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/recipe2/400/300.jpg')"></div>
+                        <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            <i class="far fa-clock mr-1"></i>45 мин
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-3">Уха по-царски</h3>
+                        <p class="text-gray-600 mb-4">Ароматная уха из нескольких видов рыбы</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-yellow-500">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span class="text-gray-600 ml-2">(4.8)</span>
+                            </div>
+                            <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                                Рецепт <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Рецепт 3 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg card-hover">
+                    <div class="relative">
+                        <div class="h-48 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/recipe3/400/300.jpg')"></div>
+                        <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            <i class="far fa-clock mr-1"></i>20 мин
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-3">Креветки в чесночном соусе</h3>
+                        <p class="text-gray-600 mb-4">Быстрый и изысканный гарнир или закуска</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-yellow-500">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="text-gray-600 ml-2">(4.9)</span>
+                            </div>
+                            <a href="#" class="text-blue-600 font-semibold hover:text-blue-700">
+                                Рецепт <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Все рецепты <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA секция -->
+    <section class="py-16 bg-blue-600 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Станьте нашим партнером</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                Предлагаем выгодные условия сотрудничества для ресторанов, магазинов и оптовых покупателей
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                    <i class="fas fa-handshake mr-2"></i>Для B2B клиентов
+                </button>
+                <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
+                    <i class="fas fa-file-contract mr-2"></i>Скачать прайс-лист
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer id="contacts" class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- О компании -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-fish text-blue-400 text-2xl"></i>
+                        <span class="text-xl font-bold">Рыбный Завод</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Лидер по производству и поставкам свежей рыбы и морепродуктов в России
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Контакты -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <div class="space-y-3 text-gray-400">
+                        <p class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            г. Москва, ул. Рыбная, 1
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            +7 (495) 123-45-67
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@rybnyzavod.ru
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            Пн-Пт: 9:00 - 18:00
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Навигация</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">О компании</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Продукция</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Новости</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Рецепты</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">B2B</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Вакансии</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Подписка -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Подписка на новости</h3>
+                    <p class="text-gray-400 mb-4">Получайте информацию о новинках и акциях</p>
+                    <form class="space-y-3">
+                        <input type="email" placeholder="Ваш email" class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Подписаться
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Рыбный Завод. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Плавная прокрутка к секциям
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Закрываем мобильное меню после клика
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Анимация при прокрутке
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        // Наблюдаем за всеми секциями
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+        
+        // Обработка формы подписки
+        const subscribeForm = document.querySelector('form');
+        subscribeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            if (email) {
+                // Здесь можно добавить логику отправки на сервер
+                alert('Спасибо за подписку! Мы отправили вам письмо для подтверждения.');
+                e.target.reset();
+            }
+        });
+    </script>
+</body>
+</html>

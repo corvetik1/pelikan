@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 export const revalidate = 300; // ISR 5 минут
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export async function generateStaticParams() {
@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { id } = params;
   const product = await prisma.product.findUnique({ where: { id }, select: { name: true } });
   return {
     title: product ? `${product.name} | Продукция` : 'Товар',
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { id } = await params;
+  const { id } = params;
   const dbProduct = await prisma.product.findUnique({ where: { id } });
   if (!dbProduct) notFound();
   const product: Product = {

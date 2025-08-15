@@ -27,9 +27,11 @@ model Role {
 model News {
   // --- NEWS ---
   id          String        @id @default(uuid())
+  slug        String        @unique
   title       String
   excerpt     String
   content     String        @default("") @db.Text
+  img         String?
   categoryId  String?
   category    NewsCategory? @relation(fields: [categoryId], references: [id])
   date        DateTime      @default(now())
@@ -207,4 +209,29 @@ model Theme {
 model Settings {
   id              Int     @id @default(1)
   activeThemeSlug String  @default("default")
+  logoUrl         String?
+  heroSpeedMs     Int     @default(5000)
+  socials         Json    @default("[]")
+  contacts        Json    @default("[]")
+  // Homepage CMS fields
+  priceListUrl    String?
+  ctaTitle        String?
+  ctaSubtitle     String?
+  homeNewsTitle   String?
+  homeRecipesTitle String?
+}
+
+// -------------------- NEWSLETTER SUBSCRIBERS --------------------
+enum SubscriptionStatus {
+  subscribed
+  unsubscribed
+  bounced
+}
+
+model Subscriber {
+  id        String              @id @default(uuid())
+  email     String              @unique
+  status    SubscriptionStatus  @default(subscribed)
+  createdAt DateTime            @default(now())
+  confirmedAt DateTime?
 }

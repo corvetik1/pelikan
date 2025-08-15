@@ -8,6 +8,13 @@ import userEvent from '@testing-library/user-event';
 import AdminNewsPage from '../page';
 import type { GridColDef } from '@mui/x-data-grid';
 import type { ReactNode } from 'react';
+import React from 'react';
+
+// Bypass client RBAC in tests
+jest.mock('@/components/RBAC/RequirePermission', () => ({
+  __esModule: true,
+  default: (props: { children: React.ReactNode }) => <>{props.children}</>,
+}));
 
 type ActionColDef = GridColDef & {
   getActions?: ({ id }: { id: string }) => ReactNode[];
@@ -19,7 +26,7 @@ afterEach(() => {
 });
 
 const sample: AdminNews[] = [
-  { id: '1', title: 'News', excerpt: 'Some', content: '', date: '2025-01-01' },
+  { id: '1', slug: 'news', title: 'News', excerpt: 'Some', content: '', date: '2025-01-01' },
 ];
 
 // Mock MUI DataGrid to simplify DOM
@@ -88,7 +95,7 @@ describe('AdminNewsPage', () => {
     const user = userEvent.setup();
     render(<AdminNewsPage />);
 
-    await user.click(screen.getByTestId('add-news-btn'));
+    await user.click(screen.getByTestId('create-action'));
     await user.type(screen.getByLabelText(/Заголовок/i), 'New Title');
     await user.click(screen.getByRole('button', { name: /сохранить/i }));
 

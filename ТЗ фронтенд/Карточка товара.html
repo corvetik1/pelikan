@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лосось атлантический - Рыбный Завод</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .wave-animation {
+            animation: wave 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Галерея изображений */
+        .thumbnail {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .thumbnail:hover {
+            opacity: 0.8;
+        }
+        
+        .thumbnail.active {
+            border: 2px solid #0284c7;
+        }
+        
+        /* Рейтинг звезд */
+        .star-rating {
+            color: #eab308;
+        }
+        
+        .star-rating .far {
+            color: #d1d5db;
+        }
+        
+        /* Табы */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            border-bottom: 2px solid #0284c7;
+            color: #0284c7;
+        }
+        
+        /* Счетчик количества */
+        .quantity-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-btn:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .quantity-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Шапка -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-fish text-blue-600 text-3xl wave-animation"></i>
+                    <span class="text-2xl font-bold text-gray-800">Рыбный Завод</span>
+                </div>
+                
+                <!-- Меню для десктопа -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+                </div>
+                
+                <!-- Мобильное меню -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Мобильное меню (скрыто) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Контакты</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="#" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>
+                        Главная
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <a href="#" class="text-gray-700 hover:text-blue-600">Продукция</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <a href="#" class="text-gray-700 hover:text-blue-600">Лососевые</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <span class="text-gray-500">Лосось атлантический</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Основная информация о товаре -->
+            <div class="lg:col-span-2">
+                <!-- Галерея изображений -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="mb-4">
+                        <img id="main-image" src="https://picsum.photos/seed/salmon-main/600/400.jpg" alt="Лосось атлантический" class="w-full h-96 object-cover rounded-lg">
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        <img src="https://picsum.photos/seed/salmon-1/150/150.jpg" alt="Лосось 1" class="thumbnail active rounded-lg h-20 object-cover" onclick="changeImage(this.src)">
+                        <img src="https://picsum.photos/seed/salmon-2/150/150.jpg" alt="Лосось 2" class="thumbnail rounded-lg h-20 object-cover" onclick="changeImage(this.src)">
+                        <img src="https://picsum.photos/seed/salmon-3/150/150.jpg" alt="Лосось 3" class="thumbnail rounded-lg h-20 object-cover" onclick="changeImage(this.src)">
+                        <img src="https://picsum.photos/seed/salmon-4/150/150.jpg" alt="Лосось 4" class="thumbnail rounded-lg h-20 object-cover" onclick="changeImage(this.src)">
+                    </div>
+                </div>
+
+                <!-- Табы (Описание, Характеристики, Отзывы, Рецепты) -->
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="border-b">
+                        <div class="flex space-x-8 px-6">
+                            <button class="tab-button active py-4 font-medium" onclick="openTab(event, 'description')">Описание</button>
+                            <button class="tab-button py-4 font-medium text-gray-600" onclick="openTab(event, 'specs')">Характеристики</button>
+                            <button class="tab-button py-4 font-medium text-gray-600" onclick="openTab(event, 'reviews')">Отзывы (24)</button>
+                            <button class="tab-button py-4 font-medium text-gray-600" onclick="openTab(event, 'recipes')">Рецепты (3)</button>
+                        </div>
+                    </div>
+
+                    <!-- Вкладка Описание -->
+                    <div id="description" class="tab-content active p-6">
+                        <h3 class="text-xl font-bold mb-4">Лосось атлантический</h3>
+                        <p class="text-gray-600 mb-4">
+                            Атлантический лосось (лосось) — вид лучепёрых рыб из семейства лососёвых. 
+                            Ценная промысловая рыба, объект аквакультуры.
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            Наш лосось выловлен в чистых водах Атлантического океана и доставляется 
+                            потребителю в свежем виде благодаря технологии шоковой заморозки. 
+                            Мясо лосося имеет нежно-розовый цвет, богатый вкус и аромат.
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            Лосось является источником высококачественного белка, омега-3 жирных кислот, 
+                            витаминов D и B12, селена и других полезных микроэлементов. 
+                            Регулярное употребление лосося способствует укреплению сердечно-сосудистой системы, 
+                            улучшению работы мозга и повышению иммунитета.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-900 mb-2">Способы приготовления:</h4>
+                            <ul class="list-disc list-inside text-blue-800 space-y-1">
+                                <li>Запекание в духовке</li>
+                                <li>Приготовление на гриле</li>
+                                <li>Жарка на сковороде</li>
+                                <li>Приготовление на пару</li>
+                                <li>Слабое копчение</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Вкладка Характеристики -->
+                    <div id="specs" class="tab-content p-6">
+                        <h3 class="text-xl font-bold mb-4">Характеристики</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Вид рыбы</span>
+                                <p class="font-medium">Лосось атлантический</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Способ обработки</span>
+                                <p class="font-medium">Свежий</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Место вылова</span>
+                                <p class="font-medium">Атлантический океан</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Упаковка</span>
+                                <p class="font-medium">Вакуумная</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Срок годности</span>
+                                <p class="font-medium">14 дней при t от 0°С до +2°С</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Условия хранения</span>
+                                <p class="font-medium">При температуре от 0°С до +2°С</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Пищевая ценность (на 100г)</span>
+                                <p class="font-medium">Белки: 20г, Жиры: 13г, Углеводы: 0г</p>
+                            </div>
+                            <div class="border-b pb-3">
+                                <span class="text-gray-500">Калорийность</span>
+                                <p class="font-medium">208 ккал</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Вкладка Отзывы -->
+                    <div id="reviews" class="tab-content p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold">Отзывы покупателей</h3>
+                            <button onclick="showReviewForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Оставить отзыв
+                            </button>
+                        </div>
+
+                        <!-- Форма отзыва (скрыта по умолчанию) -->
+                        <div id="review-form" class="hidden bg-gray-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold mb-3">Ваш отзыв</h4>
+                            <form onsubmit="submitReview(event)">
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ваша оценка</label>
+                                    <div class="flex space-x-1">
+                                        <i class="fas fa-star star-rating cursor-pointer" onclick="setRating(1)"></i>
+                                        <i class="fas fa-star star-rating cursor-pointer" onclick="setRating(2)"></i>
+                                        <i class="fas fa-star star-rating cursor-pointer" onclick="setRating(3)"></i>
+                                        <i class="fas fa-star star-rating cursor-pointer" onclick="setRating(4)"></i>
+                                        <i class="fas fa-star star-rating cursor-pointer" onclick="setRating(5)"></i>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ваше имя</label>
+                                    <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Иван Иванов">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Отзыв</label>
+                                    <textarea required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ваш отзыв о товаре..."></textarea>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Отправить</button>
+                                    <button type="button" onclick="hideReviewForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Отмена</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Список отзывов -->
+                        <div class="space-y-4">
+                            <!-- Отзыв 1 -->
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold">Мария Петрова</h4>
+                                        <div class="flex items-center mt-1">
+                                            <div class="star-rating">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-500 ml-2">15 ноября 2024</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600">
+                                    Отличный лосось! Очень свежий, нежный вкус. Приготовила на гриле - получилось восхитительно. 
+                                    Доставка быстрая, упаковка надежная. Буду заказывать еще!
+                                </p>
+                            </div>
+
+                            <!-- Отзыв 2 -->
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold">Алексей Смирнов</h4>
+                                        <div class="flex items-center mt-1">
+                                            <div class="star-rating">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-500 ml-2">10 ноября 2024</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600">
+                                    Качество на высоте. Лосось действительно свежий, без посторонних запахов. 
+                                    Цена немного завышена, но за такое качество готов платить. 
+                                    Рекомендую для праздничного стола.
+                                </p>
+                            </div>
+
+                            <!-- Отзыв 3 -->
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold">Елена Козлова</h4>
+                                        <div class="flex items-center mt-1">
+                                            <div class="star-rating">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-500 ml-2">5 ноября 2024</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600">
+                                    Покупаю лосось здесь постоянно. Всегда свежий, вкусный. 
+                                    Дети обожают лосось на пару. Спасибо за качество и надежность!
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Пагинация отзывов -->
+                        <div class="flex justify-center mt-6">
+                            <nav class="flex space-x-1">
+                                <button class="px-3 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="px-4 py-2 rounded-lg bg-blue-600 text-white">1</button>
+                                <button class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">2</button>
+                                <button class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">3</button>
+                                <button class="px-3 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Вкладка Рецепты -->
+                    <div id="recipes" class="tab-content p-6">
+                        <h3 class="text-xl font-bold mb-6">Рецепты с лососем</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Рецепт 1 -->
+                            <div class="bg-gray-50 rounded-lg overflow-hidden card-hover">
+                                <img src="https://picsum.photos/seed/recipe-salmon1/400/250.jpg" alt="Лосось на гриле" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-semibold">30 мин</span>
+                                        <div class="star-rating text-sm">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <span class="text-gray-600 ml-1">(5.0)</span>
+                                        </div>
+                                    </div>
+                                    <h4 class="font-bold text-lg mb-2">Лосось на гриле с травами</h4>
+                                    <p class="text-gray-600 text-sm mb-3">
+                                        Нежный лосось, приготовленный на гриле с ароматными травами и лимоном...
+                                    </p>
+                                    <button class="text-blue-600 font-semibold hover:text-blue-700">
+                                        Посмотреть рецепт <i class="fas fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Рецепт 2 -->
+                            <div class="bg-gray-50 rounded-lg overflow-hidden card-hover">
+                                <img src="https://picsum.photos/seed/recipe-salmon2/400/250.jpg" alt="Запеченный лосось" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-semibold">45 мин</span>
+                                        <div class="star-rating text-sm">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star-half-alt"></i>
+                                            <span class="text-gray-600 ml-1">(4.8)</span>
+                                        </div>
+                                    </div>
+                                    <h4 class="font-bold text-lg mb-2">Запеченный лосось с овощами</h4>
+                                    <p class="text-gray-600 text-sm mb-3">
+                                        Сочное филе лосося, запеченное с сезонными овощами в духовке...
+                                    </p>
+                                    <button class="text-blue-600 font-semibold hover:text-blue-700">
+                                        Посмотреть рецепт <i class="fas fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Рецепт 3 -->
+                            <div class="bg-gray-50 rounded-lg overflow-hidden card-hover">
+                                <img src="https://picsum.photos/seed/recipe-salmon3/400/250.jpg" alt="Стейк из лосося" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-semibold">20 мин</span>
+                                        <div class="star-rating text-sm">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <span class="text-gray-600 ml-1">(4.9)</span>
+                                        </div>
+                                    </div>
+                                    <h4 class="font-bold text-lg mb-2">Стейк из лосося на сковороде</h4>
+                                    <p class="text-gray-600 text-sm mb-3">
+                                        Идеальный стейк с золотистой корочкой и нежным центром...
+                                    </p>
+                                    <button class="text-blue-600 font-semibold hover:text-blue-700">
+                                        Посмотреть рецепт <i class="fas fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Боковая панель (только карточка покупки) -->
+            <div class="lg:col-span-1">
+                <!-- Карточка покупки -->
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <span class="text-3xl font-bold text-blue-600">890 ₽</span>
+                            <span class="text-sm text-gray-500">/ кг</span>
+                        </div>
+                        <span class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-xs font-semibold">Хит</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Количество</label>
+                        <div class="flex items-center">
+                            <button class="quantity-btn w-10 h-10 rounded-l-lg border border-gray-300" onclick="changeQuantity(-1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" id="quantity" value="1" min="1" class="w-16 h-10 text-center border-t border-b border-gray-300">
+                            <button class="quantity-btn w-10 h-10 rounded-r-lg border border-gray-300" onclick="changeQuantity(1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <span class="ml-3 text-gray-600">кг</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Итого:</span>
+                            <span class="font-semibold" id="total-price">890 ₽</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-3">
+                        <i class="fas fa-shopping-cart mr-2"></i>В корзину
+                    </button>
+                    
+                    <button class="w-full border border-blue-600 text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                        <i class="far fa-heart mr-2"></i>В избранное
+                    </button>
+                    
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="flex items-center text-sm text-gray-600 mb-2">
+                            <i class="fas fa-truck mr-2"></i>
+                            Доставка от 1000 ₽
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Гарантия качества
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Похожие товары -->
+        <div class="mt-12 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-6">Похожие товары</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://picsum.photos/seed/trout-thumb/120/120.jpg" alt="Форель" class="w-24 h-24 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h3 class="font-semibold">Форель радужная</h3>
+                            <p class="text-gray-600 text-sm mb-2">Свежая, 1 кг</p>
+                            <p class="text-blue-600 font-bold">750 ₽/кг</p>
+                            <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                В корзину
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://picsum.photos/seed/seatrout-thumb/120/120.jpg" alt="Кумжа" class="w-24 h-24 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h3 class="font-semibold">Кумжа</h3>
+                            <p class="text-gray-600 text-sm mb-2">Свежая, 1 кг</p>
+                            <p class="text-blue-600 font-bold">680 ₽/кг</p>
+                            <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                В корзину
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://picsum.photos/seed/goldeye-thumb/120/120.jpg" alt="Голец" class="w-24 h-24 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h3 class="font-semibold">Голец</h3>
+                            <p class="text-gray-600 text-sm mb-2">Свежая, 1 кг</p>
+                            <p class="text-blue-600 font-bold">920 ₽/кг</p>
+                            <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                В корзину
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- С этим товаром также покупают -->
+        <div class="mt-12">
+            <h2 class="text-2xl font-bold mb-6">С этим товаром также покупают</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden card-hover">
+                    <img src="https://picsum.photos/seed/related1/300/200.jpg" alt="Соль морская" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Соль морская крупная</h3>
+                        <p class="text-gray-600 text-sm mb-3">1 кг</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-blue-600">120 ₽</span>
+                            <button class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden card-hover">
+                    <img src="https://picsum.photos/seed/related2/300/200.jpg" alt="Лимон" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Лимон</h3>
+                        <p class="text-gray-600 text-sm mb-3">1 кг</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-blue-600">150 ₽</span>
+                            <button class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden card-hover">
+                    <img src="https://picsum.photos/seed/related3/300/200.jpg" alt="Укроп" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Укроп свежий</h3>
+                        <p class="text-gray-600 text-sm mb-3">100 г</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-blue-600">50 ₽</span>
+                            <button class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden card-hover">
+                    <img src="https://picsum.photos/seed/related4/300/200.jpg" alt="Оливковое масло" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Масло оливковое</h3>
+                        <p class="text-gray-600 text-sm mb-3">500 мл</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-blue-600">450 ₽</span>
+                            <button class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- О компании -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-fish text-blue-400 text-2xl"></i>
+                        <span class="text-xl font-bold">Рыбный Завод</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Лидер по производству и поставкам свежей рыбы и морепродуктов в России
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Контакты -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <div class="space-y-3 text-gray-400">
+                        <p class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            г. Москва, ул. Рыбная, 1
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            +7 (495) 123-45-67
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@rybnyzavod.ru
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            Пн-Пт: 9:00 - 18:00
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Навигация</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">О компании</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Продукция</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Новости</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Рецепты</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">B2B</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Вакансии</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Подписка -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Подписка на новости</h3>
+                    <p class="text-gray-400 mb-4">Получайте информацию о новинках и акциях</p>
+                    <form class="space-y-3" onsubmit="subscribeNewsletter(event)">
+                        <input type="email" placeholder="Ваш email" class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Подписаться
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Рыбный Завод. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Галерея изображений
+        function changeImage(src) {
+            document.getElementById('main-image').src = src;
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        // Табы
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+                tabButtons[i].classList.add('text-gray-600');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            evt.currentTarget.classList.remove('text-gray-600');
+        }
+        
+        // Счетчик количества
+        function changeQuantity(delta) {
+            const quantityInput = document.getElementById('quantity');
+            const currentValue = parseInt(quantityInput.value);
+            const newValue = Math.max(1, currentValue + delta);
+            quantityInput.value = newValue;
+            updateTotalPrice();
+        }
+        
+        // Обновление общей цены
+        function updateTotalPrice() {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const pricePerKg = 890;
+            const totalPrice = quantity * pricePerKg;
+            document.getElementById('total-price').textContent = totalPrice + ' ₽';
+        }
+        
+        document.getElementById('quantity').addEventListener('input', updateTotalPrice);
+        
+        // Форма отзыва
+        function showReviewForm() {
+            document.getElementById('review-form').classList.remove('hidden');
+        }
+        
+        function hideReviewForm() {
+            document.getElementById('review-form').classList.add('hidden');
+        }
+        
+        let currentRating = 0;
+        
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('.star-rating i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
+        
+        function submitReview(event) {
+            event.preventDefault();
+            if (currentRating === 0) {
+                alert('Пожалуйста, поставьте оценку');
+                return;
+            }
+            
+            // Здесь можно добавить логику отправки отзыва на сервер
+            alert('Спасибо за ваш отзыв! Он будет опубликован после модерации.');
+            hideReviewForm();
+            event.target.reset();
+            setRating(0);
+        }
+        
+        // Подписка на рассылку
+        function subscribeNewsletter(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Спасибо за подписку! Мы отправили вам письмо для подтверждения.');
+                event.target.reset();
+            }
+        }
+        
+        // Добавление в корзину
+        document.querySelector('button:has(.fa-shopping-cart)').addEventListener('click', function() {
+            const quantity = document.getElementById('quantity').value;
+            alert(`Товар добавлен в корзину: Лосось атлантический - ${quantity} кг`);
+        });
+        
+        // Добавление в избранное
+        document.querySelector('button:has(.fa-heart)').addEventListener('click', function() {
+            this.classList.toggle('bg-red-50');
+            this.classList.toggle('text-red-600');
+            this.classList.toggle('border-red-600');
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            }
+        });
+    </script>
+</body>
+</html>

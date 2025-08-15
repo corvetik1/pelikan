@@ -9,10 +9,10 @@ import type { AdminNews } from '@/types/admin';
 const news: AdminNews[] = [
   {
     id: 'n1',
+    slug: 'pervaya-novost',
     title: 'Первая новость',
     excerpt: 'Анонс',
     content: '',
-
     date: new Date('2025-01-01').toISOString(),
   },
 ];

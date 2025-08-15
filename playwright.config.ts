@@ -3,7 +3,9 @@ import { PlaywrightTestConfig } from '@playwright/test';
 const isCI = !!process.env.CI;
 
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
+  // Run only E2E specs; unit tests are executed by Jest
+  testDir: './tests/e2e',
+  testMatch: ['**/*.spec.ts', '**/*.spec.tsx'],
   timeout: 180_000,
   retries: process.env.CI ? 2 : 0,
   use: {

@@ -17,6 +17,7 @@ import {
   useDeleteNewsMutation,
 } from "@/redux/api";
 import { AdminNews } from "@/types/admin";
+import type { NewsCreateInput, NewsUpdateInput } from "@/lib/validation/newsSchema";
 
 export default function AdminNewsPage() {
   const [viewMode] = useViewMode('news');
@@ -52,7 +53,17 @@ export default function AdminNewsPage() {
           onDelete={(id) => setDeleteId(id)}
           onUpdate={async (id, patch) => {
             try {
-              await update({ id, patch }).unwrap();
+              const input: NewsUpdateInput = {};
+              if (typeof patch.title === 'string') input.title = patch.title;
+              if (typeof patch.excerpt === 'string') input.excerpt = patch.excerpt;
+              if (typeof patch.content === 'string') input.content = patch.content;
+              if (typeof patch.img === 'string') input.img = patch.img;
+              if (typeof (patch as { categoryId?: unknown }).categoryId === 'string') input.categoryId = (patch as { categoryId?: string }).categoryId;
+              if (typeof patch.date === 'string') {
+                const m = patch.date.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+                input.date = m ? `${m[3]}-${m[2]}-${m[1]}` : patch.date;
+              }
+              await update({ id, patch: input }).unwrap();
               setSnack({ open:true, message:'Изменено', severity:'success' });
             } catch {
               setSnack({ open:true, message:'Ошибка изменения', severity:'error' });
@@ -78,11 +89,12 @@ export default function AdminNewsPage() {
         initial={editItem}
         onSave={async (payload) => {
           try {
-            if (payload.id) {
-              await update({ id: payload.id, patch: payload }).unwrap();
+            if ('id' in payload && payload.id) {
+              const { id, ...rest } = payload as { id: string } & NewsUpdateInput;
+              await update({ id, patch: rest }).unwrap();
               setSnack({ open:true, message:'Изменено', severity:'success' });
             } else {
-              await create(payload as Omit<AdminNews,'id'>).unwrap();
+              await create(payload as NewsCreateInput).unwrap();
               setSnack({ open:true, message:'Создано', severity:'success' });
             }
           } catch {

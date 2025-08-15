@@ -1,14 +1,16 @@
 import { Server as IOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
+import type { InvalidateTags, InvalidatePayload } from '@/types/realtime';
 
 // We keep Socket.IO server instance in the global scope to avoid
 // creating multiple servers when Next.js hot-reloads API routes.
-
-const g = globalThis as unknown as { io?: IOServer };
+declare global {
+  var io: IOServer | undefined;
+}
 
 export function initSocket(server: HTTPServer): IOServer {
-  if (g.io) {
-    return g.io;
+  if (globalThis.io) {
+    return globalThis.io;
   }
 
   const io = new IOServer(server, {
@@ -31,16 +33,17 @@ export function initSocket(server: HTTPServer): IOServer {
     });
   });
 
-  g.io = io;
+  globalThis.io = io;
   return io;
 }
 
-export function broadcastInvalidate(tags: unknown, message?: string): void {
-  const io = getIO();
-  if (!io) return;
-  io.emit('invalidate', { tags, message });
+export function broadcastInvalidate(tags: InvalidateTags, message?: string): void {
+  const ioInstance = getIO();
+  if (!ioInstance) return;
+  const payload: InvalidatePayload = { tags, message };
+  ioInstance.emit('invalidate', payload);
 }
 
 export function getIO(): IOServer | undefined {
-  return g.io;
+  return globalThis.io;
 }

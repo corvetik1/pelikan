@@ -78,8 +78,11 @@ async function main(): Promise<void> {
     update: {},
     create: {
       id: 'news-sample-1',
+      slug: 'new-distribution-center',
       title: 'Открыт новый распределительный центр',
       excerpt: '«Бухта пеликанов» расширяет логистику.',
+      content: '',
+      img: '/news/sample.jpg',
       category: {
         connect: { id: corporateCategory.id },
       },
@@ -135,7 +138,7 @@ async function main(): Promise<void> {
     update: { tokens: defaultTokens },
     create: {
       slug: 'default',
-      name: 'Default',
+      name: 'Морской улов',
       tokens: defaultTokens,
       preview: null,
     },
@@ -143,8 +146,56 @@ async function main(): Promise<void> {
 
   await prisma.settings.upsert({
     where: { id: 1 },
-    update: { activeThemeSlug: 'default' },
-    create: { activeThemeSlug: 'default' },
+    update: {
+      activeThemeSlug: 'default',
+      // Homepage CMS fields defaults
+      priceListUrl: null,
+      ctaTitle: null,
+      ctaSubtitle: null,
+      homeNewsTitle: null,
+      homeRecipesTitle: null,
+    },
+    create: {
+      activeThemeSlug: 'default',
+      // Homepage CMS fields defaults
+      priceListUrl: null,
+      ctaTitle: null,
+      ctaSubtitle: null,
+      homeNewsTitle: null,
+      homeRecipesTitle: null,
+    },
+  });
+
+  // Hero slides
+  await prisma.hero.upsert({
+    where: { id: 'hero-slide-1' },
+    update: {},
+    create: {
+      id: 'hero-slide-1',
+      title: 'От океана к вашему столу',
+      subtitle: 'Премиальные морепродукты напрямую от «Бухты пеликанов»',
+      img: '/hero/slide1.jpg',
+    },
+  });
+  await prisma.hero.upsert({
+    where: { id: 'hero-slide-2' },
+    update: {},
+    create: {
+      id: 'hero-slide-2',
+      title: '15 лет экспертизы',
+      subtitle: 'Современное производство полного цикла',
+      img: '/hero/slide2.jpg',
+    },
+  });
+  await prisma.hero.upsert({
+    where: { id: 'hero-slide-3' },
+    update: {},
+    create: {
+      id: 'hero-slide-3',
+      title: 'Экологически чистые продукты',
+      subtitle: 'Сертификация MSC и международные стандарты качества',
+      img: '/hero/slide3.jpg',
+    },
   });
 
   // Demo quote

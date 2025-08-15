@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { withLogger } from '@/lib/logger';
+import { requireAdmin } from '@/lib/auth';
+import { handleError } from '@/lib/errorHandler';
+import { heroPatchSchema } from '@/lib/validation/heroSchema';
 
 /**
  * PATCH /api/admin/hero/:id
@@ -8,30 +11,58 @@ import prisma from '@/lib/prisma';
  * Доступ: только админ (проверяется в middleware).
  */
 
-const patchSchema = z
-  .object({
-    title: z.string().min(1).max(200).optional(),
-    subtitle: z.string().min(1).max(500).optional(),
-    img: z.string().url().optional(),
-  })
-  .refine((data) => Object.keys(data).length > 0, {
-    message: 'Patch object must not be empty',
-  });
+export const PATCH = withLogger(async (req: Request, { params }: { params: { id: string } }) => {
+  const auth = requireAdmin(req);
+  if (auth) return auth;
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const { id } = await params;
-  const json = (await req.json()) as unknown;
-  const patch = patchSchema.parse(json);
+  try {
+    const { id } = params;
+    const json = await req.json();
+    const patch = heroPatchSchema.parse(json);
 
-  await prisma.hero.update({
-    where: { id },
-    data: patch,
-  });
+    await prisma.hero.update({ where: { id }, data: patch });
 
-  return NextResponse.json({ ok: true });
-}
+    // Realtime invalidation for Hero
+    const { broadcastInvalidate } = await import('@/server/socket');
+    broadcastInvalidate(
+      [
+        { type: 'Hero', id },
+        { type: 'Hero', id: 'LIST' },
+      ],
+      'Hero обновлён',
+    );
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return handleError(err);
+  }
+});
+
+/**
+ * DELETE /api/admin/hero/:id
+ * Удаляет hero-слайд по id. Доступ: только админ.
+ */
+export const DELETE = withLogger(async (req: Request, { params }: { params: { id: string } }) => {
+  const auth = requireAdmin(req);
+  if (auth) return auth;
+
+  try {
+    const { id } = params;
+    await prisma.hero.delete({ where: { id } });
+
+    const { broadcastInvalidate } = await import('@/server/socket');
+    broadcastInvalidate(
+      [
+        { type: 'Hero', id },
+        { type: 'Hero', id: 'LIST' },
+      ],
+      'Hero удалён',
+    );
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return handleError(err);
+  }
+});
 
 export const runtime = 'nodejs';

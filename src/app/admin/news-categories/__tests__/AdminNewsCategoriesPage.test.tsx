@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import type { GridColDef } from "@mui/x-data-grid";
+import React from 'react';
 
 import type { NewsCategory } from "@/types/admin";
 import AdminNewsCategoriesPage from "../page";
@@ -46,6 +47,12 @@ jest.mock("@/redux/api", () => ({
   useDeleteNewsCategoryMutation: () => [deleteCategory],
 }));
 
+// Bypass permission checks in tests
+jest.mock('@/components/RBAC/RequirePermission', () => ({
+  __esModule: true,
+  default: (props: { children: React.ReactNode }) => <>{props.children}</>,
+}));
+
 // disable react-redux actual store usage (any dispatch used is internal, ok)
 jest.mock("react-redux", () => ({
   ...jest.requireActual("react-redux"),
@@ -73,7 +80,7 @@ describe("AdminNewsCategoriesPage", () => {
     const user = userEvent.setup();
     render(<AdminNewsCategoriesPage />);
 
-    await user.click(screen.getByTestId("add-category-btn"));
+    await user.click(screen.getByTestId("create-action"));
     await user.type(screen.getByLabelText(/название/i), "Акции");
     await user.click(screen.getByRole("button", { name: /создать/i }));
 

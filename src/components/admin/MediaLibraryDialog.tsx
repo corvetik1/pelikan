@@ -32,11 +32,14 @@ interface MediaLibraryDialogProps {
  */
 export default function MediaLibraryDialog({ open, onClose, onSelect }: MediaLibraryDialogProps) {
   const [page, setPage] = useState(1);
-  const { data: media = [], refetch, isFetching } = useListMediaQuery(page);
+  const { data: mediaList, refetch, isFetching } = useListMediaQuery(page);
   const [deleteMedia] = useDeleteMediaMutation();
   const [tab, setTab] = useState<'library' | 'upload'>("library");
 
-  const totalPages = Math.max(1, Math.ceil(media.length / 20));
+  const items = mediaList?.items ?? [];
+  const total = mediaList?.total ?? 0;
+  const pageSize = mediaList?.pageSize ?? 20;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const handleDelete = async (id: string) => {
     await deleteMedia(id);
@@ -60,7 +63,7 @@ export default function MediaLibraryDialog({ open, onClose, onSelect }: MediaLib
         {tab === "library" && (
           <Stack spacing={2}>
             <ImageList cols={4} gap={16}>
-              {media.map((item) => (
+              {items.map((item) => (
                 <ImageListItem key={item.id} sx={{ cursor: "pointer" }} onClick={() => onSelect(item)}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.url} alt={item.filename} loading="lazy" style={{ width: "100%", height: "auto" }} />
@@ -80,7 +83,7 @@ export default function MediaLibraryDialog({ open, onClose, onSelect }: MediaLib
                 <Pagination count={totalPages} page={page} onChange={(_, p) => setPage(p)} />
               </Box>
             )}
-            {media.length === 0 && !isFetching && (
+            {items.length === 0 && !isFetching && (
               <Typography variant="body2" color="text.secondary" align="center">
                 Файлы не найдены
               </Typography>

@@ -9,11 +9,11 @@ import type { Role } from '@prisma/client';
 // PATCH /api/admin/roles/[id] – обновить роль
 export const PATCH = withLogger(
   withInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль обновлена')(
-    async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    async (req: Request, { params }: { params: { id: string } }) => {
       const auth = requireAdmin(req);
       if (auth) return auth;
       try {
-        const { id } = await params;
+        const { id } = params;
         const payload = await req.json();
         const data = roleUpdateSchema.parse(payload);
         const role: Role = await prisma.role.update({ where: { id }, data });
@@ -28,11 +28,11 @@ export const PATCH = withLogger(
 // DELETE /api/admin/roles/[id] – удалить роль
 export const DELETE = withLogger(
   withInvalidate([{ type: 'AdminRole', id: 'LIST' }], 'Роль удалена')(
-    async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    async (req: Request, { params }: { params: { id: string } }) => {
       const auth = requireAdmin(req);
       if (auth) return auth;
       try {
-        const { id } = await params;
+        const { id } = params;
         await prisma.role.delete({ where: { id } });
         return Response.json({ ok: true });
       } catch (err) {

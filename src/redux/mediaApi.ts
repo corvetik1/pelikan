@@ -1,12 +1,34 @@
 import { emptySplitApi } from './api';
 import type { AdminMedia } from '@/types/admin';
 
+export type MediaList = {
+  items: AdminMedia[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
 export const mediaApi = emptySplitApi.injectEndpoints({
   endpoints: (builder) => ({
-    listMedia: builder.query<AdminMedia[], number | void>({
+    listMedia: builder.query<MediaList, number | void>({
       query: (page = 1) => `/api/admin/upload?page=${page}`,
+      transformResponse: (resp, _meta, arg) => {
+        const currentPage = typeof arg === 'number' ? arg : 1;
+        if (Array.isArray(resp)) {
+          // Обратная совместимость со старым ответом: массив записей без мета
+          const pageSize = 20;
+          return {
+            items: resp as AdminMedia[],
+            total: (resp as AdminMedia[]).length,
+            page: currentPage,
+            pageSize,
+          } satisfies MediaList;
+        }
+        const r = resp as { items: AdminMedia[]; total: number; page: number; pageSize: number };
+        return { items: r.items, total: r.total, page: r.page, pageSize: r.pageSize } satisfies MediaList;
+      },
       providesTags: (result) =>
-        result ? [...result.map(({ id }) => ({ type: 'Media' as const, id })), { type: 'Media', id: 'LIST' }] : [{ type: 'Media', id: 'LIST' }],
+        result ? [...result.items.map(({ id }) => ({ type: 'Media' as const, id })), { type: 'Media', id: 'LIST' }] : [{ type: 'Media', id: 'LIST' }],
     }),
     uploadMedia: builder.mutation<AdminMedia[], FormData>({
       query: (formData) => ({

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты - Рыбный Завод</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .wave-animation {
+            animation: wave 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Стили для карты */
+        .map-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            border: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Шапка -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between h-16">
+                <!-- Логотип -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-fish text-blue-600 text-3xl wave-animation"></i>
+                    <span class="text-2xl font-bold text-gray-800">Рыбный Завод</span>
+                </div>
+                
+                <!-- Меню для десктопа -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                    <a href="#" class="text-blue-600 font-medium">Контакты</a>
+                </div>
+                
+                <!-- Мобильное меню -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Мобильное меню (скрыто) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-4 space-y-3">
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Главная</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">О компании</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Продукция</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Новости</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">Рецепты</a>
+                <a href="#" class="block text-gray-700 hover:text-blue-600 transition-colors font-medium">B2B</a>
+                <a href="#" class="block text-blue-600 font-medium">Контакты</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="#" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>
+                        Главная
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <span class="text-gray-500">Контакты</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Заголовок страницы -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Контакты</h1>
+            <p class="text-xl text-gray-600">Свяжитесь с нами любым удобным способом</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Контактная информация -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-6">Контактная информация</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-map-marker-alt text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">Адрес</h3>
+                                <p class="text-gray-600">г. Москва, ул. Рыбная, 1</p>
+                                <p class="text-gray-600 text-sm">Бизнес-центр "Речной порт", 3 этаж</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-phone text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">Телефон</h3>
+                                <p class="text-gray-600">+7 (495) 123-45-67</p>
+                                <p class="text-gray-600 text-sm">Пн-Пт: 9:00 - 18:00</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-envelope text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">Email</h3>
+                                <p class="text-gray-600">info@rybnyzavod.ru</p>
+                                <p class="text-gray-600 text-sm">Для вопросов и предложений</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-clock text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-1">Время работы</h3>
+                                <p class="text-gray-600">Пн-Пт: 9:00 - 18:00</p>
+                                <p class="text-gray-600 text-sm">Сб-Вс: выходной</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Социальные сети -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4">Мы в социальных сетях</h2>
+                    <div class="flex space-x-4">
+                        <a href="#" class="bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="bg-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="bg-blue-500 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карта и форма -->
+            <div class="lg:col-span-2">
+                <!-- Карта -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">Как нас найти</h2>
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.5!2d37.6173!3d55.7558!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46b54a5d5b5b5b5%3A0x40b5b5b5b5b5b5b5!2s0x0%3A0x0!5e0!3m2!1sen!2sru!4v1630000000000!5m2!1sen!2sru!4v1" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Форма обратной связи -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-6">Напишите нам</h2>
+                    <form onsubmit="submitContactForm(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ваше имя</label>
+                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Иван Иванов">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Телефон</label>
+                                <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="+7 (999) 123-45-67">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ivan@example.com">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Тема</label>
+                            <select required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Выберите тему</option>
+                                <option value="order">Вопрос по заказу</option>
+                                <option value="cooperation">Сотрудничество</option>
+                                <option value="complaint">Жалоба</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Сообщение</label>
+                            <textarea required rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ваше сообщение..."></textarea>
+                        </div>
+                        
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="privacy" required class="mr-2">
+                            <label for="privacy" class="text-sm text-gray-600">
+                                Я согласен с <a href="#" class="text-blue-600 hover:underline">политикой конфиденциальности</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-paper-plane mr-2"></i>Отправить сообщение
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ секция -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Часто задаваемые вопросы</h2>
+                    <p class="text-xl text-gray-600">Ответы на самые популярные вопросы</p>
+                </div>
+                
+                <div class="max-w-3xl mx-auto">
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <button class="w-full text-left flex justify-between items-center" onclick="toggleFAQ(this)">
+                                <h3 class="font-semibold text-lg">Как сделать заказ?</h3>
+                                <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                            </button>
+                            <div class="hidden mt-4 text-gray-600">
+                                <p>Вы можете сделать заказ через наш сайт, по телефону или приехав к нам в офис. Для оптовых заказов свяжитесь с нашим менеджером по телефону +7 (495) 123-45-67.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <button class="w-full text-left flex justify-between items-center" onclick="toggleFAQ(this)">
+                                <h3 class="font-semibold text-lg">Какие способы оплаты доступны?</h3>
+                                <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                            </button>
+                            <div class="hidden mt-4 text-gray-600">
+                                <p>Мы принимаем наличные, банковские карты, безналичный расчет для юридических лиц. Также возможна оплата при получении заказа.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <button class="w-full text-left flex justify-between items-center" onclick="toggleFAQ(this)">
+                                <h3 class="font-semibold text-lg">Какие условия доставки?</h3>
+                                <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                            </button>
+                            <div class="hidden mt-4 text-gray-600">
+                                <p>Доставка по Москве осуществляется в течение 24 часов. В другие регионы - от 2 до 5 дней. Бесплатная доставка при заказе от 5000 рублей.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <button class="w-full text-left flex justify-between items-center" onclick="toggleFAQ(this)">
+                                <h3 class="font-semibold text-lg">Как гарантируется свежесть продукции?</h3>
+                                <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                            </button>
+                            <div class="hidden mt-4 text-gray-600">
+                                <p>Вся продукция проходит шоковую заморозку непосредственно после вылова и хранится при строгом температурном режиме. Мы гарантируем свежесть и качество всей нашей продукции.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Футер -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- О компании -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-fish text-blue-400 text-2xl"></i>
+                        <span class="text-xl font-bold">Рыбный Завод</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Лидер по производству и поставкам свежей рыбы и морепродуктов в России
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Контакты -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <div class="space-y-3 text-gray-400">
+                        <p class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            г. Москва, ул. Рыбная, 1
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            +7 (495) 123-45-67
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@rybnyzavod.ru
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            Пн-Пт: 9:00 - 18:00
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Навигация</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">О компании</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Продукция</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Новости</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Рецепты</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">B2B</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Вакансии</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Подписка -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Подписка на новости</h3>
+                    <p class="text-gray-400 mb-4">Получайте информацию о новинках и акциях</p>
+                    <form class="space-y-3">
+                        <input type="email" placeholder="Ваш email" class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Подписаться
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Рыбный Завод. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Функция для FAQ
+        function toggleFAQ(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+        
+        // Обработка формы контактов
+        function submitContactForm(event) {
+            event.preventDefault();
+            
+            // Здесь можно добавить логику отправки формы на сервер
+            alert('Спасибо за ваше сообщение! Мы свяжемся с вами в ближайшее время.');
+            event.target.reset();
+        }
+        
+        // Обработка формы подписки
+        document.querySelector('form[action="#"]').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Спасибо за подписку! Мы отправили вам письмо для подтверждения.');
+                e.target.reset();
+            }
+        });
+    </script>
+</body>
+</html>

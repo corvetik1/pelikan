@@ -41,6 +41,17 @@ export const DELETE = withLogger(
       try {
         const { slug } = await params;
 
+        // Запрет удаления базовой (предустановленной) темы
+        if (slug === 'default') {
+          return new Response(
+            JSON.stringify({ error: 'Нельзя удалить базовую тему' }),
+            {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          );
+        }
+
         // Запрет удаления активной темы
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
         if (settings?.activeThemeSlug === slug) {

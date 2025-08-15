@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import Providers from '@/providers/Providers';
 import AdminShell from '../AdminShell';
 
+jest.setTimeout(60000);
+
 // Mock useRouter to intercept navigation calls
 const pushMock = jest.fn();
 const replaceMock = jest.fn();

@@ -46,12 +46,9 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   }, [isAdmin, router]);
 
   if (!mounted || !isAdmin) return null;
-  const themeWrapper = (content: ReactNode) => {
-    if (tokens) {
-      return <ThemeRegistry tokens={tokens}>{content}</ThemeRegistry>;
-    }
-    return <ThemeRegistry tokens={adminTheme as unknown as Record<string, unknown>}>{content}</ThemeRegistry>; // fallback to static adminTheme tokens cast
-  };
+  const themeWrapper = (content: ReactNode) => (
+    <ThemeRegistry tokens={tokens ?? adminTheme}>{content}</ThemeRegistry>
+  );
 
   const toggle = () => setOpen((prev) => !prev);
 

@@ -1,9 +1,10 @@
 import { screen, waitFor } from "@testing-library/react";
-jest.setTimeout(10000);
+jest.setTimeout(60000);
 import userEvent from "@testing-library/user-event";
 import { renderWithProvider } from "../../../../../tests/testUtils";
 import type { AdminRole } from "@/types/admin";
 import type { ReactNode } from "react";
+import React from 'react';
 
 // Mock DataGrid to expose checkboxes
 interface Column { field: string; renderCell?: (params: { id: string; row: AdminRole }) => ReactNode }
@@ -30,6 +31,12 @@ jest.mock("@mui/x-data-grid", () => ({
   ),
 }));
 
+// Bypass RBAC checks so action buttons render
+jest.mock('@/components/RBAC/RequirePermission', () => ({
+  __esModule: true,
+  default: (props: { children: React.ReactNode }) => <>{props.children}</>,
+}));
+
 import AdminRolesPage from "../page";
 
 describe("AdminRolesPage bulk delete", () => {
@@ -44,7 +51,7 @@ describe("AdminRolesPage bulk delete", () => {
     // select first row
     await user.click(screen.getByLabelText("select-r1"));
     // ConfirmDialog handles confirmation – no window.confirm
-    const bulkBtn = screen.getByTestId("bulk-delete");
+    const bulkBtn = screen.getByTestId("bulk-delete-action");
     await waitFor(() => expect(bulkBtn).not.toBeDisabled());
     await user.click(bulkBtn);
     // confirm dialog

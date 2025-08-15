@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const revalidate = 300; // 5 minutes ISR
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }
 
 export async function generateStaticParams() {
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { slug } = await params;
+    const { slug } = params;
     const title = slug.charAt(0).toUpperCase() + slug.slice(1);
     return { title: `${title} | Продукция` } as Metadata;
   } catch {
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { slug } = await params;
+  const { slug } = params;
   const exists = await prisma.product.findFirst({ where: { category: slug }, select: { id: true } });
   if (!exists) notFound();
   return <CategoryProducts slug={slug} />;

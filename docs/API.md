@@ -1,3 +1,54 @@
+## Настройки сайта (Settings
+
+`GET /api/settings` — возвращает единственную строку настроек. При отсутствии — создаёт запись со значениями по умолчанию.
+
+`PATCH /api/settings` — частичное обновление. Доступно только админу.
+
+Тело запроса (все поля — опциональны):
+
+```jsonc
+{
+  "activeThemeSlug": "default",              // string, required только при смене темы
+  "logoUrl": "https://.../logo.svg",        // string | null, URL
+  "heroSpeedMs": 5000,                       // int [1000..60000]
+  "socials": [{ "id": "fb", "name": "Facebook", "url": "https://fb.com/..." }],
+  "contacts": [{ "id": "c1", "type": "phone", "value": "+7 999 000 00 00" }],
+
+  // Новые поля для главной страницы (CMS/CTA)
+  "priceListUrl": "https://.../price.pdf",  // string | null, URL
+  "ctaTitle": "Заголовок CTA",              // string | null, max 120
+  "ctaSubtitle": "Подзаголовок CTA",        // string | null, max 240
+  "homeNewsTitle": "Новости",               // string | null, max 120
+  "homeRecipesTitle": "Рецепты"             // string | null, max 120
+}
+```
+
+Правила валидации (Zod):
+
+* `priceListUrl` — `url()`; допускается `null`.
+* `ctaTitle` — `max(120)`; допускается `null`.
+* `ctaSubtitle` — `max(240)`; допускается `null`.
+* `homeNewsTitle`, `homeRecipesTitle` — `max(120)`; допускается `null`.
+
+Ответ `200` — возвращает полную строку настроек.
+
+Пример ответа:
+
+```jsonc
+{
+  "activeThemeSlug": "default",
+  "logoUrl": null,
+  "heroSpeedMs": 5000,
+  "socials": [],
+  "contacts": [],
+  "priceListUrl": "https://example.com/prices.pdf",
+  "ctaTitle": "Купить оптом",
+  "ctaSubtitle": "Лучшие морепродукты",
+  "homeNewsTitle": "Новости",
+  "homeRecipesTitle": "Рецепты"
+}
+```
+
 # REST API – Pelican Bay Backend
 
 > Версия: `v1` (Next.js API Routes + Prisma)
@@ -39,6 +90,7 @@
 | Media (single) | `/admin/upload/[id]` | `DELETE` | admin | |
 | NewsCategory | `/admin/news-categories` | `GET, POST` | admin | `['NewsCategory']` |
 | NewsCategory (single) | `/admin/news-categories/[id]` | `PATCH, DELETE` | admin | |
+| Settings | `/settings` | `GET, PATCH` | `GET` public, `PATCH` admin | `['Settings']` |
 | Quote | `/quotes` | `POST` | public | `['Quote']` |
 | Quote | `/quotes/[id]` | `GET` | public (owner) | |
 | Quote prices | `/admin/quotes/[id]/prices` | `PATCH` | admin | `['Quote']` |

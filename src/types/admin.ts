@@ -7,12 +7,14 @@ export interface NewsCategory {
 
 export interface AdminNews {
   id: string;
+  slug: string;
   title: string;
   excerpt: string;
   content: string;
   date: string; // ISO
   categoryId?: string;
   category?: NewsCategory;
+  img?: string;
 }
 
 export interface AdminStore {
@@ -48,6 +50,7 @@ export interface AdminProduct {
 
 export interface AdminRecipe {
   id: string;
+  slug: string;
   title: string;
   category: string;
   cookingTime: number;

@@ -1,5 +1,4 @@
 import pino from 'pino';
-import pinoHttp from 'pino-http';
 
 /**
  * Shared application logger.
@@ -42,29 +41,26 @@ export const logger = pino(
  * });
  * ```
  */
-import type { IncomingMessage, ServerResponse } from 'http';
 
-export function withLogger<Rest extends unknown[], R extends Promise<Response> | Response>(
-  handler: (req: Request, ...args: Rest) => R,
-): (req: Request, ...args: Rest) => Promise<Awaited<R>> {
-  const httpLogger = pinoHttp({ logger });
+export function withLogger(
+  handler: (req: Request) => Response | Promise<Response>,
+): (req: Request) => Promise<Response>;
+export function withLogger<C>(
+  handler: (req: Request, ctx: C) => Response | Promise<Response>,
+): (req: Request, ctx: C) => Promise<Response>;
+export function withLogger(
+  handler: (req: Request, ctx?: object) => Response | Promise<Response>,
+) {
+  async function wrapper(req: Request): Promise<Response>;
+  async function wrapper<C>(req: Request, ctx: C): Promise<Response>;
+  async function wrapper(req: Request, ctx?: object): Promise<Response> {
+    const startedAt = Date.now();
+    logger.info({ url: req.url, method: req.method }, 'request');
+    const response = (await handler(req, ctx as never)) as Response;
+    const ms = Date.now() - startedAt;
+    logger.info({ status: response.status, url: req.url, method: req.method, ms }, 'response');
+    return response;
+  }
 
-  return (async (req: Request, ...rest: Rest): Promise<Awaited<R>> => {
-    // pino-http ожидает Node.js req/res, поэтому используем адаптер
-    const resHeaders: Record<string, string> = {};
-    const res = {
-      headers: resHeaders,
-      writeHead: () => res,
-      end: () => undefined,
-      on: () => undefined,
-      once: () => undefined,
-    } as unknown as ServerResponse & { headers: Record<string, string> };
-
-    httpLogger(req as unknown as IncomingMessage, res as IncomingMessage & ServerResponse, () => undefined);
-
-    const response = await handler(req, ...rest) as Response;
-
-    logger.info({ status: response.status, url: req.url, method: req.method }, 'response');
-    return response as Awaited<R>;
-  });
+  return wrapper;
 }

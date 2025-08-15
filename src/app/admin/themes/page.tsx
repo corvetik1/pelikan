@@ -90,8 +90,18 @@ export default function AdminThemesPage() {
         createPerm="themes:create"
         onBulkDelete={() => handleDelete(selection.map(String))}
         bulkDeletePerm="themes:delete"
-        bulkDeleteDisabled={selection.length === 0 || selection.includes(activeSlug ?? '')}
-        bulkDeleteLabel={selection.includes(activeSlug ?? '') ? 'Нельзя удалить активную тему' : 'Удалить выбранные'}
+        bulkDeleteDisabled={
+          selection.length === 0 ||
+          selection.includes(activeSlug ?? '') ||
+          selection.includes('default')
+        }
+        bulkDeleteLabel={
+          selection.includes('default')
+            ? 'Нельзя удалить базовую тему'
+            : selection.includes(activeSlug ?? '')
+              ? 'Нельзя удалить активную тему'
+              : 'Удалить выбранные'
+        }
       />
 
       <AdminDataGrid<AdminTheme>
@@ -99,6 +109,10 @@ export default function AdminThemesPage() {
         columns={columns}
         loading={isLoading}
         onDelete={(slug) => {
+          if (slug === 'default') {
+            dispatch(showSnackbar({ message: 'Нельзя удалить базовую тему', severity: 'warning' }));
+            return;
+          }
           if (slug === activeSlug) {
             dispatch(showSnackbar({ message: 'Нельзя удалить активную тему', severity: 'warning' }));
             return;
